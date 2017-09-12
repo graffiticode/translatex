@@ -383,189 +383,216 @@ export let Model = (function () {
     return out;
   }
 
+  // Character defines.
+  const CC_SPACE = 0x20;
+  const CC_BANG = 0x21;
+  const CC_DOLLAR = 0x24;
+  const CC_PERCENT = 0x25;
+  const CC_LEFTPAREN = 0x28;
+  const CC_MUL = 0x2A;
+  const CC_ADD = 0x2B;
+  const CC_COMMA = 0x2C;
+  const CC_SUB = 0x2D;
+  const CC_RIGHTPAREN = 0x29;
+  const CC_SLASH = 0x2F;
+  const CC_NUM = 0x30;
+  const CC_COLON = 0x3A;
+  const CC_SEMICOLON = 0x3B;
+  const CC_EQL = 0x3D;
+  const CC_QMARK = 0x3F;
+  const CC_CONST = 0x41;
+  const CC_LEFTBRACKET = 0x5B;
+  const CC_RIGHTBRACKET = 0x5D;
+  const CC_CARET = 0x5E;
+  const CC_UNDERSCORE = 0x5F;
+  const CC_VAR = 0x61;
+  const CC_LEFTBRACE = 0x7B;
+  const CC_VERTICALBAR = 0x7C;
+  const CC_RIGHTBRACE = 0x7D;
+
+  // Token defines.
+  const TK_NONE = 0;
+  const TK_ADD = CC_ADD;
+  const TK_CARET = CC_CARET;
+  const TK_UNDERSCORE = CC_UNDERSCORE;
+  const TK_COS = 0x105;
+  const TK_COT = 0x108;
+  const TK_CSC = 0x109;
+  const TK_FRAC = 0x100;
+  const TK_SLASH = CC_SLASH;
+  const TK_EQL = CC_EQL;
+  const TK_LN = 0x107;
+  const TK_LEFTBRACE = CC_LEFTBRACE;
+  const TK_VERTICALBAR = CC_VERTICALBAR;
+  const TK_LEFTBRACKET = CC_LEFTBRACKET;
+  const TK_LEFTPAREN = CC_LEFTPAREN;
+  const TK_MUL = CC_MUL;
+  const TK_NUM = CC_NUM;
+  const TK_PM = 0x102;
+  const TK_RIGHTBRACE = CC_RIGHTBRACE;
+  const TK_RIGHTBRACKET = CC_RIGHTBRACKET;
+  const TK_RIGHTPAREN = CC_RIGHTPAREN;
+  const TK_SEC = 0x106;
+  const TK_SIN = 0x103;
+  const TK_SQRT = 0x101;
+  const TK_SUB = CC_SUB;
+  const TK_TAN = 0x104;
+  const TK_VAR = CC_VAR;
+  const TK_CONST = CC_CONST;
+  const TK_NEXT = 0x10A;
+  const TK_COMMA = CC_COMMA;
+  const TK_LG = 0x10B;
+  const TK_LOG = 0x10C;
+  const TK_TEXT = 0x10D;
+  const TK_LT = 0x10E;
+  const TK_LE = 0x10F;
+  const TK_GT = 0x110;
+  const TK_GE = 0x111;
+  const TK_EXISTS = 0x112;
+  const TK_IN = 0x113;
+  const TK_FORALL = 0x114;
+  const TK_LIM = 0x115;
+  const TK_EXP = 0x116;
+  const TK_TO = 0x117;
+  const TK_SUM = 0x118;
+  const TK_INT = 0x119;
+  const TK_PROD = 0x11A;
+  const TK_PERCENT = CC_PERCENT;
+  const TK_QMARK = CC_QMARK;
+  const TK_M = 0x11B;
+  const TK_RIGHTARROW = 0x11C;
+  const TK_BANG = CC_BANG;
+  const TK_BINOM = 0x11D;
+  const TK_NEWROW = 0x11E;
+  const TK_NEWCOL = 0x11F;
+  const TK_BEGIN = 0x120;
+  const TK_END = 0x121;
+  const TK_COLON = CC_COLON;
+  const TK_VEC = 0x122;
+  const TK_ARCSIN = 0x123;
+  const TK_ARCCOS = 0x124;
+  const TK_ARCTAN = 0x125;
+  const TK_DIV = 0x126;
+  const TK_TYPE = 0x127;
+  const TK_OVERLINE = 0x128;
+  const TK_OVERSET = 0x129;
+  const TK_UNDERSET = 0x12A;
+  const TK_BACKSLASH = 0x12B;
+  const TK_MATHBF = 0x12C;
+  const TK_NE = 0x12D;
+  const TK_APPROX = 0x12E;
+  const TK_ABS = 0x12F;
+  const TK_DOT = 0x130;
+  const TK_ARCSEC = 0x131;
+  const TK_ARCCSC = 0x132;
+  const TK_ARCCOT = 0x133;
+  const TK_MATHFIELD = 0x134;
+  const TK_CUP = 0x135;
+  const TK_BIGCUP = 0x136;
+  const TK_CAP = 0x137;
+  const TK_BIGCAP = 0x138;
+  const TK_PERP = 0x139;
+  const TK_PROPTO = 0x13A;
+  const TK_NGTR = 0x13B;
+  const TK_NLESS = 0x13C;
+  const TK_NI = 0x13D;
+  const TK_SUBSETEQ = 0x13E;
+  const TK_SUPSETEQ = 0x13F;
+  const TK_SUBSET = 0x140;
+  const TK_SUPSET = 0x141;
+  const TK_NOT = 0x142;
+  const TK_PARALLEL = 0x143;
+  const TK_NPARALLEL = 0x144;
+  const TK_SIM = 0x145;
+  const TK_CONG = 0x146;
+  const TK_LEFTARROW = 0x147;
+  const TK_LONGRIGHTARROW = 0x148;
+  const TK_LONGLEFTARROW = 0x149;
+  const TK_OVERRIGHTARROW = 0x14A;
+  const TK_OVERLEFTARROW = 0x14B;
+  const TK_LONGLEFTRIGHTARROW = 0x14C;
+  const TK_OVERLEFTRIGHTARROW = 0x14D;
+  const TK_IMPLIES = 0x14E;
+  let T0 = TK_NONE, T1 = TK_NONE;
+
+  // Define mapping from token to operator
+  const tokenToOperator = {};
+  tokenToOperator[TK_SLASH] = OpStr.FRAC;
+  tokenToOperator[TK_FRAC] = OpStr.FRAC;
+  tokenToOperator[TK_SQRT] = OpStr.SQRT;
+  tokenToOperator[TK_VEC] = OpStr.VEC;
+  tokenToOperator[TK_ADD] = OpStr.ADD;
+  tokenToOperator[TK_SUB] = OpStr.SUB;
+  tokenToOperator[TK_PM] = OpStr.PM;
+  tokenToOperator[TK_NOT] = OpStr.NOT;
+  tokenToOperator[TK_CARET] = OpStr.POW;
+  tokenToOperator[TK_UNDERSCORE] = OpStr.SUBSCRIPT;
+  tokenToOperator[TK_MUL] = OpStr.MUL;
+  tokenToOperator[TK_DOT] = OpStr.DOT;
+  tokenToOperator[TK_DIV] = OpStr.DIV;
+  tokenToOperator[TK_EQL] = OpStr.EQL;
+  tokenToOperator[TK_COMMA] = OpStr.COMMA;
+  tokenToOperator[TK_TEXT] = OpStr.TEXT;
+  tokenToOperator[TK_LT] = OpStr.LT;
+  tokenToOperator[TK_LE] = OpStr.LE;
+  tokenToOperator[TK_GT] = OpStr.GT;
+  tokenToOperator[TK_GE] = OpStr.GE;
+  tokenToOperator[TK_NE] = OpStr.NE;
+  tokenToOperator[TK_NGTR] = OpStr.NGTR;
+  tokenToOperator[TK_NLESS] = OpStr.NLESS;
+  tokenToOperator[TK_NI] = OpStr.NI;
+  tokenToOperator[TK_SUBSETEQ] = OpStr.SUBSETEQ;
+  tokenToOperator[TK_SUPSETEQ] = OpStr.SUPSETEQ;
+  tokenToOperator[TK_SUBSET] = OpStr.SUBSET;
+  tokenToOperator[TK_SUPSET] = OpStr.SUPSET;
+  tokenToOperator[TK_APPROX] = OpStr.APPROX;
+  tokenToOperator[TK_PERP] = OpStr.PERP;
+  tokenToOperator[TK_PROPTO] = OpStr.PROPTO;
+  tokenToOperator[TK_PARALLEL] = OpStr.PARALLEL;
+  tokenToOperator[TK_NPARALLEL] = OpStr.NPARALLEL;
+  tokenToOperator[TK_SIM] = OpStr.SIM;
+  tokenToOperator[TK_CONG] = OpStr.CONG;
+  tokenToOperator[TK_EXISTS] = OpStr.EXISTS;
+  tokenToOperator[TK_IN] = OpStr.IN;
+  tokenToOperator[TK_FORALL] = OpStr.FORALL;
+  tokenToOperator[TK_LIM] = OpStr.LIM;
+  tokenToOperator[TK_EXP] = OpStr.EXP;
+  tokenToOperator[TK_TO] = OpStr.TO;
+  tokenToOperator[TK_VERTICALBAR] = OpStr.PIPE;
+  tokenToOperator[TK_SUM] = OpStr.SUM;
+  tokenToOperator[TK_INT] = OpStr.INT;
+  tokenToOperator[TK_PROD] = OpStr.PROD;
+  tokenToOperator[TK_CUP] = OpStr.CUP;
+  tokenToOperator[TK_BIGCUP] = OpStr.BIGCUP;
+  tokenToOperator[TK_CAP] = OpStr.CAP;
+  tokenToOperator[TK_BIGCAP] = OpStr.BIGCAP;
+  tokenToOperator[TK_M] = OpStr.M;
+  tokenToOperator[TK_IMPLIES] = OpStr.IMPLIES;
+  tokenToOperator[TK_RIGHTARROW] = OpStr.RIGHTARROW;
+  tokenToOperator[TK_LEFTARROW] = OpStr.LEFTARROW;
+  tokenToOperator[TK_LONGRIGHTARROW] = OpStr.LONGRIGHTARROW;
+  tokenToOperator[TK_LONGLEFTARROW] = OpStr.LONGLEFTARROW;
+  tokenToOperator[TK_OVERRIGHTARROW] = OpStr.OVERRIGHTARROW;
+  tokenToOperator[TK_OVERLEFTARROW] = OpStr.OVERLEFTARROW;
+  tokenToOperator[TK_LONGLEFTRIGHTARROW] = OpStr.LONGLEFTRIGHTARROW;
+  tokenToOperator[TK_OVERLEFTRIGHTARROW] = OpStr.OVERLEFTRIGHTARROW;
+
+  tokenToOperator[TK_BANG] = OpStr.FACT;
+  tokenToOperator[TK_BINOM] = OpStr.BINOM;
+  tokenToOperator[TK_NEWROW] = OpStr.ROW;
+  tokenToOperator[TK_NEWCOL] = OpStr.COL;
+  tokenToOperator[TK_COLON] = OpStr.COLON;
+  tokenToOperator[TK_TYPE] = OpStr.TYPE;
+  tokenToOperator[TK_OVERLINE] = OpStr.OVERLINE;
+  tokenToOperator[TK_OVERSET] = OpStr.OVERSET;
+  tokenToOperator[TK_UNDERSET] = OpStr.UNDERSET;
+  tokenToOperator[TK_BACKSLASH] = OpStr.BACKSLASH;
+  tokenToOperator[TK_MATHBF] = OpStr.MATHBF;
+  tokenToOperator[TK_DOT] = OpStr.DOT;
+  tokenToOperator[TK_MATHFIELD] = OpStr.MATHFIELD;
 
   let parse = function parse(src, env) {
     src = stripInvisible(src);
-    // Define lexical tokens
-    let TK_NONE = 0;
-    let TK_ADD = '+'.charCodeAt(0);
-    let TK_CARET = '^'.charCodeAt(0);
-    let TK_UNDERSCORE = '_'.charCodeAt(0);
-    let TK_COS = 0x105;
-    let TK_COT = 0x108;
-    let TK_CSC = 0x109;
-    let TK_FRAC = 0x100;
-    let TK_SLASH = '/'.charCodeAt(0);
-    let TK_EQL = '='.charCodeAt(0);
-    let TK_LN = 0x107;
-    let TK_LEFTBRACE = '{'.charCodeAt(0);
-    let TK_VERTICALBAR = '|'.charCodeAt(0);
-    let TK_LEFTBRACKET = '['.charCodeAt(0);
-    let TK_LEFTPAREN = '('.charCodeAt(0);
-    let TK_MUL = '*'.charCodeAt(0);
-    let TK_NUM = '0'.charCodeAt(0);
-    let TK_PM = 0x102;
-    let TK_RIGHTBRACE = '}'.charCodeAt(0);
-    let TK_RIGHTBRACKET = ']'.charCodeAt(0);
-    let TK_RIGHTPAREN = ')'.charCodeAt(0);
-    let TK_SEC = 0x106;
-    let TK_SIN = 0x103;
-    let TK_SQRT = 0x101;
-    let TK_SUB = '-'.charCodeAt(0);
-    let TK_TAN = 0x104;
-    let TK_VAR = 'a'.charCodeAt(0);
-    let TK_CONST = 'A'.charCodeAt(0);
-    let TK_NEXT = 0x10A;
-    let TK_COMMA = ','.charCodeAt(0);
-    let TK_LG = 0x10B;
-    let TK_LOG = 0x10C;
-    let TK_TEXT = 0x10D;
-    let TK_LT = 0x10E;
-    let TK_LE = 0x10F;
-    let TK_GT = 0x110;
-    let TK_GE = 0x111;
-    let TK_EXISTS = 0x112;
-    let TK_IN = 0x113;
-    let TK_FORALL = 0x114;
-    let TK_LIM = 0x115;
-    let TK_EXP = 0x116;
-    let TK_TO = 0x117;
-    let TK_SUM = 0x118;
-    let TK_INT = 0x119;
-    let TK_PROD = 0x11A;
-    let TK_PERCENT = '%'.charCodeAt(0);
-    let TK_QMARK = '?'.charCodeAt(0);
-    let TK_M = 0x11B;
-    let TK_RIGHTARROW = 0x11C;
-    let TK_BANG = '!'.charCodeAt(0);
-    let TK_BINOM = 0x11D;
-    let TK_NEWROW = 0x11E;
-    let TK_NEWCOL = 0x11F;
-    let TK_BEGIN = 0x120;
-    let TK_END = 0x121;
-    let TK_COLON = ':'.charCodeAt(0);
-    let TK_VEC = 0x122;
-    let TK_ARCSIN = 0x123;
-    let TK_ARCCOS = 0x124;
-    let TK_ARCTAN = 0x125;
-    let TK_DIV = 0x126;
-    let TK_TYPE = 0x127;
-    let TK_OVERLINE = 0x128;
-    let TK_OVERSET = 0x129;
-    let TK_UNDERSET = 0x12A;
-    let TK_BACKSLASH = 0x12B;
-    let TK_MATHBF = 0x12C;
-    let TK_NE = 0x12D;
-    let TK_APPROX = 0x12E;
-    let TK_ABS = 0x12F;
-    let TK_DOT = 0x130;
-    let TK_ARCSEC = 0x131;
-    let TK_ARCCSC = 0x132;
-    let TK_ARCCOT = 0x133;
-    let TK_MATHFIELD = 0x134;
-    let TK_CUP = 0x135;
-    let TK_BIGCUP = 0x136;
-    let TK_CAP = 0x137;
-    let TK_BIGCAP = 0x138;
-    let TK_PERP = 0x139;
-    let TK_PROPTO = 0x13A;
-    let TK_NGTR = 0x13B;
-    let TK_NLESS = 0x13C;
-    let TK_NI = 0x13D;
-    let TK_SUBSETEQ = 0x13E;
-    let TK_SUPSETEQ = 0x13F;
-    let TK_SUBSET = 0x140;
-    let TK_SUPSET = 0x141;
-    let TK_NOT = 0x142;
-    let TK_PARALLEL = 0x143;
-    let TK_NPARALLEL = 0x144;
-    let TK_SIM = 0x145;
-    let TK_CONG = 0x146;
-    let TK_LEFTARROW = 0x147;
-    let TK_LONGRIGHTARROW = 0x148;
-    let TK_LONGLEFTARROW = 0x149;
-    let TK_OVERRIGHTARROW = 0x14A;
-    let TK_OVERLEFTARROW = 0x14B;
-    let TK_LONGLEFTRIGHTARROW = 0x14C;
-    let TK_OVERLEFTRIGHTARROW = 0x14D;
-    let TK_IMPLIES = 0x14E;
-    let T0 = TK_NONE, T1 = TK_NONE;
-    // Define mapping from token to operator
-    let tokenToOperator = {};
-    tokenToOperator[TK_SLASH] = OpStr.FRAC;
-    tokenToOperator[TK_FRAC] = OpStr.FRAC;
-    tokenToOperator[TK_SQRT] = OpStr.SQRT;
-    tokenToOperator[TK_VEC] = OpStr.VEC;
-    tokenToOperator[TK_ADD] = OpStr.ADD;
-    tokenToOperator[TK_SUB] = OpStr.SUB;
-    tokenToOperator[TK_PM] = OpStr.PM;
-    tokenToOperator[TK_NOT] = OpStr.NOT;
-    tokenToOperator[TK_CARET] = OpStr.POW;
-    tokenToOperator[TK_UNDERSCORE] = OpStr.SUBSCRIPT;
-    tokenToOperator[TK_MUL] = OpStr.MUL;
-    tokenToOperator[TK_DOT] = OpStr.DOT;
-    tokenToOperator[TK_DIV] = OpStr.DIV;
-    tokenToOperator[TK_EQL] = OpStr.EQL;
-    tokenToOperator[TK_COMMA] = OpStr.COMMA;
-    tokenToOperator[TK_TEXT] = OpStr.TEXT;
-    tokenToOperator[TK_LT] = OpStr.LT;
-    tokenToOperator[TK_LE] = OpStr.LE;
-    tokenToOperator[TK_GT] = OpStr.GT;
-    tokenToOperator[TK_GE] = OpStr.GE;
-    tokenToOperator[TK_NE] = OpStr.NE;
-    tokenToOperator[TK_NGTR] = OpStr.NGTR;
-    tokenToOperator[TK_NLESS] = OpStr.NLESS;
-    tokenToOperator[TK_NI] = OpStr.NI;
-    tokenToOperator[TK_SUBSETEQ] = OpStr.SUBSETEQ;
-    tokenToOperator[TK_SUPSETEQ] = OpStr.SUPSETEQ;
-    tokenToOperator[TK_SUBSET] = OpStr.SUBSET;
-    tokenToOperator[TK_SUPSET] = OpStr.SUPSET;
-    tokenToOperator[TK_APPROX] = OpStr.APPROX;
-    tokenToOperator[TK_PERP] = OpStr.PERP;
-    tokenToOperator[TK_PROPTO] = OpStr.PROPTO;
-    tokenToOperator[TK_PARALLEL] = OpStr.PARALLEL;
-    tokenToOperator[TK_NPARALLEL] = OpStr.NPARALLEL;
-    tokenToOperator[TK_SIM] = OpStr.SIM;
-    tokenToOperator[TK_CONG] = OpStr.CONG;
-    tokenToOperator[TK_EXISTS] = OpStr.EXISTS;
-    tokenToOperator[TK_IN] = OpStr.IN;
-    tokenToOperator[TK_FORALL] = OpStr.FORALL;
-    tokenToOperator[TK_LIM] = OpStr.LIM;
-    tokenToOperator[TK_EXP] = OpStr.EXP;
-    tokenToOperator[TK_TO] = OpStr.TO;
-    tokenToOperator[TK_VERTICALBAR] = OpStr.PIPE;
-    tokenToOperator[TK_SUM] = OpStr.SUM;
-    tokenToOperator[TK_INT] = OpStr.INT;
-    tokenToOperator[TK_PROD] = OpStr.PROD;
-    tokenToOperator[TK_CUP] = OpStr.CUP;
-    tokenToOperator[TK_BIGCUP] = OpStr.BIGCUP;
-    tokenToOperator[TK_CAP] = OpStr.CAP;
-    tokenToOperator[TK_BIGCAP] = OpStr.BIGCAP;
-    tokenToOperator[TK_M] = OpStr.M;
-    tokenToOperator[TK_IMPLIES] = OpStr.IMPLIES;
-    tokenToOperator[TK_RIGHTARROW] = OpStr.RIGHTARROW;
-    tokenToOperator[TK_LEFTARROW] = OpStr.LEFTARROW;
-    tokenToOperator[TK_LONGRIGHTARROW] = OpStr.LONGRIGHTARROW;
-    tokenToOperator[TK_LONGLEFTARROW] = OpStr.LONGLEFTARROW;
-    tokenToOperator[TK_OVERRIGHTARROW] = OpStr.OVERRIGHTARROW;
-    tokenToOperator[TK_OVERLEFTARROW] = OpStr.OVERLEFTARROW;
-    tokenToOperator[TK_LONGLEFTRIGHTARROW] = OpStr.LONGLEFTRIGHTARROW;
-    tokenToOperator[TK_OVERLEFTRIGHTARROW] = OpStr.OVERLEFTRIGHTARROW;
-
-    tokenToOperator[TK_BANG] = OpStr.FACT;
-    tokenToOperator[TK_BINOM] = OpStr.BINOM;
-    tokenToOperator[TK_NEWROW] = OpStr.ROW;
-    tokenToOperator[TK_NEWCOL] = OpStr.COL;
-    tokenToOperator[TK_COLON] = OpStr.COLON;
-    tokenToOperator[TK_TYPE] = OpStr.TYPE;
-    tokenToOperator[TK_OVERLINE] = OpStr.OVERLINE;
-    tokenToOperator[TK_OVERSET] = OpStr.OVERSET;
-    tokenToOperator[TK_UNDERSET] = OpStr.UNDERSET;
-    tokenToOperator[TK_BACKSLASH] = OpStr.BACKSLASH;
-    tokenToOperator[TK_MATHBF] = OpStr.MATHBF;
-    tokenToOperator[TK_DOT] = OpStr.DOT;
-    tokenToOperator[TK_MATHFIELD] = OpStr.MATHFIELD;
-
     function newNode(op, args) {
       return {
         op: op,
@@ -800,9 +827,8 @@ export let Model = (function () {
     function primaryExpr() {
       let t, node, tk, op, base, args, expr1, expr2;
       switch ((tk=hd())) {
-      case 'A'.charCodeAt(0):
-      case 'a'.charCodeAt(0):
-      case TK_VAR:
+      case CC_CONST:
+      case CC_VAR:
         args = [lexeme()];
         next();
         // // Collect the subscript if there is one. Subscripts make multipart variable names.
@@ -2068,16 +2094,16 @@ export let Model = (function () {
       function latex() {
         let c;
         c = src.charCodeAt(curIndex++);
-        if (c === '$'.charCodeAt(0)) {
+        if (c === CC_DOLLAR) {
           // don't include \
           lexeme = String.fromCharCode(c);
-        } else if (c === '%'.charCodeAt(0)) {
+        } else if (c === CC_PERCENT) {
           lexeme += String.fromCharCode(c);
-        } else if (indexOf([' '.charCodeAt(0),
-                            ':'.charCodeAt(0),
-                            ';'.charCodeAt(0),
-                            ','.charCodeAt(0),
-                            '!'.charCodeAt(0)], c) >= 0) {
+        } else if (indexOf([CC_SPACE,
+                            CC_COLON,
+                            CC_SEMICOLON,
+                            CC_COMMA,
+                            CC_BANG], c) >= 0) {
           lexeme = "\\ ";
         } else {
           while (isAlphaCharCode(c)) {
@@ -2092,12 +2118,12 @@ export let Model = (function () {
         } else if (tk === TK_TEXT || tk === TK_TYPE) {
           c = src.charCodeAt(curIndex++);
           // Skip whitespace before '{'
-          while (c && c !== "{".charCodeAt(0)) {
+          while (c && c !== CC_LEFTBRACE) {
             c = src.charCodeAt(curIndex++);
           }
           lexeme = "";
           c = src.charCodeAt(curIndex++);
-          while (c && c !== "}".charCodeAt(0)) {
+          while (c && c !== CC_RIGHTBRACE) {
             let ch = String.fromCharCode(c);
             lexeme += ch;
             c = src.charCodeAt(curIndex++);
