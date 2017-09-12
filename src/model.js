@@ -91,6 +91,7 @@ export let Model = (function () {
 
   // Add messages here
   Assert.reserveCodeRange(1000, 1999, "model");
+  Assert.messages[1000] = "Internal error. %1.";
   Assert.messages[1001] = "Invalid syntax. '%1' expected, '%2' found.";
   Assert.messages[1002] = "Only one decimal separator can be specified.";
   Assert.messages[1003] = "Extra characters in input at position: %1, lexeme: %2.";
@@ -1402,6 +1403,7 @@ export let Model = (function () {
       }
       // While lookahead is not a lower precedent operator
       // FIXME need a better way to organize this condition
+      let loopCount = 0;
       while((t = hd()) && !isAdditive(t) && !isRelational(t) && !isImplies(t) &&
             t !== TK_COMMA && !isEquality(t) && t !== TK_RIGHTBRACE &&
             t !== TK_RIGHTPAREN && t !== TK_RIGHTBRACKET &&
@@ -1491,6 +1493,7 @@ export let Model = (function () {
         } else {
           args.push(expr);
         }
+        assert(loopCount++ < 1000, message(1000, ["Stuck in loop in mutliplicativeExpr()"]));
       }
       if (args.length > 1) {
         return binaryNode(Model.MUL, args);
