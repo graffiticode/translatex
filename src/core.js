@@ -522,11 +522,11 @@ import {rules} from "./rules.js";
           args: [str],
         };
       }
-      assert(false);
-      return {
-        op: Model.VAR,
-        args: [""],
-      };
+      assert(args.length === 1 && isEmpty(args[0]));
+      return args[0];
+    }
+    function isEmpty(node) {
+      return node.op === Model.VAR && node.args.length === 1 && node.args[0] === "";
     }
 
     function getPrec(op) {
@@ -1390,7 +1390,7 @@ export let Core = (function () {
       valueNode = value != undefined ? Model.create(value, "spec") : undefined;
       Model.popEnv();
     } catch (e) {
-//      console.log(e.stack);
+      // console.log(e.stack);
       pendingError = e;
     }
     let evaluate = function evaluate(solution, resume) {
@@ -1416,7 +1416,7 @@ export let Core = (function () {
         Model.popEnv();
         resume(null, result);
       } catch (e) {
-//        console.log(e.stack);
+        // console.log(e.stack);
         let message = e.message;
         resume({
           result: null,

@@ -1254,11 +1254,6 @@ export let Model = (function () {
         next();
         expr = newNode(tokenToOperator[t], [unaryExpr()]);
         break;
-      case TK_PM:
-        next();
-        expr = unaryExpr();
-        expr = newNode(tokenToOperator[t], [expr]);
-        break;
       case TK_UNDERSCORE:
         // _1, _1^2, _+^-
         op = tokenToOperator[t];
