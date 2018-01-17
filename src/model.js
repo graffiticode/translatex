@@ -342,7 +342,7 @@ export let Model = (function () {
   function isAlphaCharCode(c) {
     return c >= 65 && c <= 90 ||
       c >= 97 && c <= 122 ||
-      c === 39;
+      c === 39; // prime
   }
   function isNumberCharCode(c) {
     return (

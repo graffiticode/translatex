@@ -485,6 +485,36 @@
   "tests": [
     {
       "score": 1,
+      "source": "'",
+      "actual": "",
+      "expected": "prime"
+    },
+    {
+      "score": 1,
+      "source": "''",
+      "actual": "",
+      "expected": "double prime"
+    },
+    {
+      "score": 1,
+      "source": "'''",
+      "actual": "",
+      "expected": "triple prime"
+    },
+    {
+      "score": 1,
+      "source": "x''",
+      "actual": "",
+      "expected": "x double prime"
+    },
+    {
+      "score": 1,
+      "source": "x'''",
+      "actual": "",
+      "expected": "x triple prime"
+    },
+    {
+      "score": 1,
       "source": "\\times y",
       "actual": "",
       "expected": "times y"
