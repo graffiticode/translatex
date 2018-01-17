@@ -2429,6 +2429,18 @@
       "expected": "the 2 by 2 matrix row 1, 1 0 row 2, 0 k times the 2 by 1 column matrix 0 0"
     },
     {
+      "source": "'",
+      "expected": "prime"
+    },
+    {
+      "source": "''",
+      "expected": "double prime"
+    },
+    {
+      "source": "'''",
+      "expected": "triple prime"
+    },
+    {
       "source": "\\det\\begin{vmatrix}1&k\\\\0&k\\end{vmatrix}",
       "expected": "det the 2 by 2 matrix row 1, 1 k row 2, 0 k"
     }

@@ -1,29 +1,6 @@
 {
   "options": {
     "words": {
-      "kg": "kilograms",
-      "km": "kilometers",
-      "\\ldots": "ellipsis",
-      "\\infty": "infinity",
-      "\\sum": "sigma summation",
-      "\\measuredangle": "measure of angle",
-      "\\cong": "congruent",
-      "\\sin": "sine",
-      "\\cos": "cosine",
-      "\\tan": "tangent",
-      "\\csc": "cosecant",
-      "\\sec": "secant",
-      "\\cot": "cotangent",
-      "\\sinh": "hyperbolic sine",
-      "\\cosh": "hyperbolic cosine",
-      "\\tanh": "hyperbolic tangent",
-      "\\csch": "hyperbolic cosecant",
-      "\\sech": "hyperbolic secant",
-      "\\coth": "hyperbolic cotangent",
-      "\\ln": "natural log",
-      "\\log": "log",
-      "\\lg": "log",
-      "'": "prime"
     },
     "types": {
       "functionName": [
@@ -500,54 +477,6 @@
       "source": "'''",
       "actual": "",
       "expected": "triple prime"
-    },
-    {
-      "score": 1,
-      "source": "x''",
-      "actual": "",
-      "expected": "x double prime"
-    },
-    {
-      "score": 1,
-      "source": "x'''",
-      "actual": "",
-      "expected": "x triple prime"
-    },
-    {
-      "score": 1,
-      "source": "\\times y",
-      "actual": "",
-      "expected": "times y"
-    },
-    {
-      "score": 1,
-      "source": "-y",
-      "actual": "",
-      "expected": "negative y"
-    },
-    {
-      "score": 1,
-      "source": "\\times",
-      "actual": "",
-      "expected": "times"
-    },
-    {
-      "score": 1,
-      "source": "\\div",
-      "actual": "",
-      "expected": "divided by"
-    },
-    {
-      "score": 1,
-      "source": "\\ne",
-      "actual": "",
-      "expected": "not equal to"
-    },
-    {
-      "score": 1,
-      "source": "\\pm x",
-      "actual": "",
-      "expected": "plus or minus x"
     }
   ]
 }
