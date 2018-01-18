@@ -1057,15 +1057,12 @@ export let Model = (function () {
         next();
         expr1 = braceExpr();
         expr2 = braceExpr();
-        // Add the annotation to the variable.
-        expr2.args.push(newNode(tokenToOperator[tk], [expr1]));
-        return expr2;
-        break;
+        return newNode(tokenToOperator[tk], [expr1, expr2]);
       case TK_MATHBF:
         // Erase this token.
         next();
         expr1 = braceExpr();
-        return expr1;
+        return newNode(Model.MATHBF, [expr1]);
       case TK_QMARK:
         next();
         return newNode(Model.VAR, ["?"]);

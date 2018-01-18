@@ -108,6 +108,7 @@ import {rules} from "./rules.js";
       case Model.OVERLINE:
       case Model.OVERSET:
       case Model.UNDERSET:
+      case Model.MATHBF:
       case Model.NONE:
       case Model.DEGREE:
       case Model.DOT:
