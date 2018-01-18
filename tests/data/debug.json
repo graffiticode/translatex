@@ -1293,15 +1293,15 @@
   "tests": [
     {
       "score": -1,
-      "source": "\\mathbf{x}",
+      "source": "\\mathbf{}",
       "actual": "",
-      "expected": "bold math font x"
+      "expected": "bold math font"
     },
     {
-      "score": 1,
-      "source": "\\foo",
-      "actual": "foo",
-      "expected": "foo"
+      "score": -1,
+      "source": "\\underset{}{}",
+      "actual": "",
+      "expected": "set under"
     }
   ]
 }

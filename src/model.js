@@ -1108,7 +1108,7 @@ export let Model = (function () {
       eat(TK_LEFTBRACE);
       if (hd() === TK_RIGHTBRACE) {
         eat(TK_RIGHTBRACE);
-        node = newNode(Model.COMMA, []);
+        node = nodeEmpty;
       } else {
         node = commaExpr();
         eat(TK_RIGHTBRACE);
