@@ -1,7 +1,7 @@
 import fs from "fs";
 import {execSync} from "child_process";
 
-let id = "1MBhXxgKFN";  // Current best rule set
+let id = "LOBtZ5e9cg";  // Current best rule set
 
 function rmdir(path) {
   try { var files = fs.readdirSync(path); }
@@ -44,7 +44,7 @@ function rules() {
   exec('curl -L "http://www.graffiticode.com/data?id=' + id + '" -o "./build/data.txt"');
   var data = JSON.parse(fs.readFileSync("./build/data.txt", "utf8"));
   fs.writeFileSync("src/rules.js", "export var rules=" + JSON.stringify(data.options), "utf8");
-  exec("rm build/data.txt");
+//  exec("rm build/data.txt");
 }
 
 function compile() {

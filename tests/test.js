@@ -41,6 +41,9 @@ function run(fname) {
       options = test.options;
     }
     expected = trim(expected);
+    if (Object.keys(options).length > 0) {
+      console.log("options=" + JSON.stringify(options));
+    }
     Core.translate(options, src, function (err, val) {
       let result;
       val = trim(val);

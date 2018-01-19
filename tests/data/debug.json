@@ -1018,6 +1018,9 @@
       "\\mathbf{?}": [
         "bold math font %1"
       ],
+      "\\mathbf{}": [
+        "bold math font"
+      ],
       "\\underset{?}{?}": [
         "%1 set under %2"
       ],
@@ -1293,15 +1296,13 @@
   "tests": [
     {
       "score": -1,
-      "source": "\\mathbf{}",
-      "actual": "",
-      "expected": "bold math font"
+      "source": "1.23",
+      "actual": "1 point 23",
+      "expected": "1 point 23"
     },
     {
-      "score": -1,
-      "source": "\\underset{}{}",
-      "actual": "",
-      "expected": "set under"
+      "source": ".\\overline{234}",
+      "expected": ""
     }
   ]
 }
