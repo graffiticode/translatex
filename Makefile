@@ -3,3 +3,6 @@ default:
 
 test:
 	npm run test
+
+debug:
+	npm run debug

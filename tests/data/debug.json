@@ -190,6 +190,7 @@
       "\\type{decimal}\\overline{\\type{integer}}": [
         {
           "the repeating decimal %1 with repeating digit %2": {
+            "\\type{decimal}": "%IP point %FP",
             "?": "%1"
           }
         }
@@ -197,6 +198,7 @@
       "\\type{decimal}(\\type{integer})": [
         {
           "the repeating decimal %1 with repeating digit %2": {
+            "\\type{decimal}": "%IP point %FP",
             "?": "%1"
           }
         }
@@ -852,9 +854,9 @@
             "\\frac{\\type{integer}}{7}": "%1 sevenths",
             "\\frac{1}{8}": "1 eighth",
             "\\frac{\\type{integer}}{8}": "%1 eighths",
-            "\\frac{1}{9}": "1 ninths",
+            "\\frac{1}{9}": "1 ninth",
             "\\frac{\\type{integer}}{9}": "%1 ninths",
-            "\\frac{1}{10}": "1 tenths",
+            "\\frac{1}{10}": "1 tenth",
             "\\frac{\\type{integer}}{10}": "%1 tenths"
           }
         }
@@ -950,7 +952,12 @@
         "%1 to the %2 power"
       ],
       "?^{\\type{decimal}}": [
-        "%1 raised to the %2 power"
+        {
+          "%1 raised to the %2 power": {
+            "\\type{decimal}": "%IP point %FP",
+            "?": "%1"
+          }
+        }
       ],
       "?^{\\type{simpleExponent}}^{2}": [
         "%1 raised to the %2 power"
@@ -1030,6 +1037,9 @@
       "-?": [
         "negative %1"
       ],
+      "+?": [
+        "plus %1"
+      ],
       "? \\cong ?": [
         "%1 is congruent to %2"
       ],
@@ -1049,9 +1059,6 @@
         "limit x to y"
       ],
       "\\type{mixedFraction}": [
-        "%1 and %2"
-      ],
-      "\\type{integer}+\\frac{\\type{integer}}{\\type{integer}}": [
         "%1 and %2"
       ],
       "\\type{scientific}": [
@@ -1295,14 +1302,22 @@
   },
   "tests": [
     {
-      "score": -1,
-      "source": "1.23",
-      "actual": "1 point 23",
-      "expected": "1 point 23"
+      "score": 1,
+      "source": "1+\\frac{1}{2}",
+      "actual": "1 plus 1 half",
+      "expected": "1 plus 1 half"
     },
     {
-      "source": ".\\overline{234}",
-      "expected": ""
+      "score": -1,
+      "source": "-1 \\frac{1}{2}",
+      "actual": "negative 1 and negative 1 times 1 half",
+      "expected": "negative 1 and 1 half"
+    },
+    {
+      "score": 1,
+      "source": "3/4 * (2+1/9)",
+      "actual": "3 fourths times open paren 2 plus 1 ninth close paren",
+      "expected": "3 fourths times open paren 2 plus 1 ninth close paren"
     }
   ]
 }

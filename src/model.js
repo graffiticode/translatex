@@ -1426,9 +1426,6 @@ export let Model = (function () {
               isMixedFraction(args[args.length-1], expr)) {
             // 3 \frac{1}{2} -> 3 + \frac{1}{2}
             t = args.pop();
-            if (isNeg(t)) {
-              expr = binaryNode(Model.MUL, [nodeMinusOne, expr]);
-            }
             expr = binaryNode(Model.ADD, [t, expr]);
             expr.isMixedFraction = true;
           } else if (Model.option("ignoreCoefficientOne") &&
