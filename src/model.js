@@ -229,6 +229,7 @@ export let Model = (function () {
     LONGLEFTARROW: "longleftarrow",
     OVERRIGHTARROW: "overrightarrow",
     OVERLEFTARROW: "overleftarrow",
+    LEFTRIGHTARROW: "leftrightarrow",
     LONGLEFTRIGHTARROW: "longleftrightarrow",
     OVERLEFTRIGHTARROW: "overleftrightarrow",
     PERP: "perp",
@@ -514,6 +515,7 @@ export let Model = (function () {
   const TK_LONGLEFTRIGHTARROW = 0x14C;
   const TK_OVERLEFTRIGHTARROW = 0x14D;
   const TK_IMPLIES = 0x14E;
+  const TK_LEFTRIGHTARROW = 0x14F;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -575,6 +577,7 @@ export let Model = (function () {
   tokenToOperator[TK_LONGLEFTARROW] = OpStr.LONGLEFTARROW;
   tokenToOperator[TK_OVERRIGHTARROW] = OpStr.OVERRIGHTARROW;
   tokenToOperator[TK_OVERLEFTARROW] = OpStr.OVERLEFTARROW;
+  tokenToOperator[TK_LEFTRIGHTARROW] = OpStr.LEFTRIGHTARROW;
   tokenToOperator[TK_LONGLEFTRIGHTARROW] = OpStr.LONGLEFTRIGHTARROW;
   tokenToOperator[TK_OVERLEFTRIGHTARROW] = OpStr.OVERLEFTRIGHTARROW;
 
@@ -1037,6 +1040,7 @@ export let Model = (function () {
       case TK_LONGLEFTARROW:
       case TK_OVERRIGHTARROW:
       case TK_OVERLEFTARROW:
+      case TK_LEFTRIGHTARROW:
       case TK_LONGLEFTRIGHTARROW:
       case TK_OVERLEFTRIGHTARROW:
         next();
@@ -1749,8 +1753,8 @@ export let Model = (function () {
     function isImplies(t) {
       return t === TK_IMPLIES || t === TK_RIGHTARROW || t === TK_LEFTARROW ||
              t === TK_LONGRIGHTARROW || t === TK_LONGLEFTARROW || t === TK_OVERRIGHTARROW ||
-             t === TK_OVERLEFTARROW || t === TK_LONGLEFTRIGHTARROW || t === TK_OVERLEFTRIGHTARROW ||
-             t === TK_VERTICALBAR;
+             t === TK_OVERLEFTARROW || t === TK_LEFTRIGHTARROW || t === TK_LONGLEFTRIGHTARROW ||
+             t === TK_OVERLEFTRIGHTARROW || t === TK_VERTICALBAR;
     }
     function impliesExpr() {
       let expr = equalExpr();
@@ -1878,6 +1882,7 @@ export let Model = (function () {
         "\\longleftarrow": TK_LONGLEFTARROW,
         "\\overrightarrow": TK_OVERRIGHTARROW,
         "\\overleftarrow": TK_OVERLEFTARROW,
+        "\\leftrightarrow": TK_LEFTRIGHTARROW,
         "\\longleftrightarrow": TK_LONGLEFTRIGHTARROW,
         "\\overleftrightarrow": TK_OVERLEFTRIGHTARROW,
         "\\perp": TK_PERP,

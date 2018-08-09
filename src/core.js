@@ -157,6 +157,7 @@ import {rules} from "./rules.js";
       case Model.LONGLEFTARROW:
       case Model.OVERRIGHTARROW:
       case Model.OVERLEFTARROW:
+      case Model.LEFTRIGHTARROW:
       case Model.LONGLEFTRIGHTARROW:
       case Model.OVERLEFTRIGHTARROW:
         node = visit.equals(node, resume);
