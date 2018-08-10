@@ -504,7 +504,7 @@ import {rules} from "./rules.js";
           str = str.replace("%IP", env.ip);
         }
         if (str.indexOf("%FP") >= 0) {
-          str = str.replace("%FP", env.fp);
+          str = str.replace("%FP", env.fp.split("").join(" "));
         }
         if (str.indexOf("%M") >= 0) {
           assert(env.m);

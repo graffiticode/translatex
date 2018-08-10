@@ -79,6 +79,8 @@
 "\\emptyset": "empty set",
 "\\circledot": "circle",
 "\\longleftarrow": "long left arrow",
+"\\leftrightarrow": "left right row",
+"\\Leftrightarrow": "implies",
 "\\longleftrightarrow": "long left right arrow",
 "\\overleftrightarrow": "over left right arrow",
 "\\overrightarrow": "over right arrow",
@@ -1137,6 +1139,9 @@
 "left bracket %1 right parenthesis"
 ],
 "? \\rightarrow ?": [
+"%1 rightarrow %2"
+],
+"? \\Rightarrow ?": [
 "%1 implies %2"
 ],
 "? \\leftarrow ?": [
@@ -1155,6 +1160,9 @@
 "%1 over left arrow %2"
 ],
 "? \\leftrightarrow ?": [
+"%1 left right arrow %2"
+],
+"? \\Leftrightarrow ?": [
 "%1 if and only if %2"
 ],
 "? \\longleftrightarrow ?": [
@@ -1166,11 +1174,17 @@
 "\\rightarrow ?": [
 "right arrow %1"
 ],
+"\\Rightarrow ?": [
+"implies %1"
+],
 "\\leftarrow ?": [
 "left arrow %1"
 ],
 "\\leftrightarrow ?": [
 "left right arrow %1"
+],
+"\\Leftrightarrow ?": [
+"if and only if %1"
 ],
 "\\longrightarrow ?": [
 "long right arrow %1"
@@ -1271,11 +1285,17 @@
 "? \\backslash ?": [
 "%1 left divided by %2"
 ],
-"?^? ?": [
+"(?)^? ?": [
 "%1 times %2"
 ],
-"? ?^?": [
+"? (?)^?": [
 "%1 times %2"
+],
+"?^? ?": [
+"%1 %2"
+],
+"? ?^?": [
+"%1 %2"
 ],
 "(\\type{simpleExpression})": [
 "%1"
@@ -1296,10 +1316,10 @@
 "start absolute value %1 end absolute value"
 ],
 "{?} ?": [
-"%1 times %2"
+"%1 %2"
 ],
 "? ?": [
-"%1 times %2"
+"%1 %2"
 ],
 "?": [
 "%1 "
@@ -1309,15 +1329,9 @@
 "tests": [
 {
 "score": -1,
-"source": "x \\leftrightarrow y",
-"actual": "x if and only if y",
-"expected": "x if and only if y"
-},
-{
-"score": -1,
-"source": "x \\longleftrightarrow y",
-"actual": "x if and only if y",
-"expected": "x long left right arrow y"
+"source": "0.060",
+"actual": "0 point 060",
+"expected": "0 point 0 6 0"
 }
 ]
 }
