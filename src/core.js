@@ -151,12 +151,14 @@ import {rules} from "./rules.js";
       case Model.NPARALLEL:
       case Model.SIM:
       case Model.CONG:
+      case Model.CAPRIGHTARROW:
       case Model.RIGHTARROW:
       case Model.LEFTARROW:
       case Model.LONGRIGHTARROW:
       case Model.LONGLEFTARROW:
       case Model.OVERRIGHTARROW:
       case Model.OVERLEFTARROW:
+      case Model.CAPLEFTRIGHTARROW:
       case Model.LEFTRIGHTARROW:
       case Model.LONGLEFTRIGHTARROW:
       case Model.OVERLEFTRIGHTARROW:
