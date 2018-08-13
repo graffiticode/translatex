@@ -1591,15 +1591,18 @@ export let Model = (function () {
           n0 = args[0];
           n1 = args[1];
         } else if (!args[1].lbrk && args[1].op === Model.OVERLINE) {
-        //   // 3.\overline{12} --> 3.0+(0.12, repeating)
-        //   // 0.3\overline{12} --> 0.3+0.1*(.12, repeating)
+          // 3.\overline{12} --> 3.0+(0.12, repeating)
+          // 0.3\overline{12} --> 0.3+0.1*(.12, repeating)
           n0 = args[0];
-          n1 = args[1]; //.args[0];
+          n1 = args[1];
+          if (n1.args[0].op === Model.NUM) {
+            n1.args[0].args[0] = n1.args[0].args[0].split("").join(" ");
+          }
         } else if (!args[1].lbrk && args[1].op === Model.DOT) {
           // 3.\dot{1}\dot{2} --> 3.0+(0.12, repeating)
           // 0.3\overline{12} --> 0.3+0.1*(.12, repeating)
           n0 = args[0];
-          n1 = args[1]; //.args[0];
+          n1 = args[1];
         } else {
           return null;
         }

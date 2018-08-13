@@ -191,7 +191,7 @@
 "rules": {
 "\\type{decimal}\\overline{\\type{integer}}": [
 {
-"the repeating decimal %1 with repeating digit %2": {
+"%1 repeating %2": {
 "\\type{decimal}": "%IP point %FP",
 "?": "%1"
 }
@@ -199,7 +199,7 @@
 ],
 "\\type{decimal}(\\type{integer})": [
 {
-"the repeating decimal %1 with repeating digit %2": {
+"%1 repeating %2": {
 "\\type{decimal}": "%IP point %FP",
 "?": "%1"
 }
@@ -1332,6 +1332,18 @@
 "source": "0.060",
 "actual": "0 point 060",
 "expected": "0 point 0 6 0"
+},
+{
+"score": -1,
+"source": "0.01\\overline{333}",
+"actual": "0 point 0 repeating 333",
+"expected": "0 point 0 1 repeating 3 3 3"
+},
+{
+"score": -1,
+"source": "0.01(333)",
+"actual": "0 point 0 repeating 333",
+"expected": "0 point 0 1 repeating 3 3 3"
 }
 ]
 }
