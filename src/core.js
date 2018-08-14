@@ -482,6 +482,7 @@ import {rules} from "./rules.js";
       return str;
     }
     function expand(template, args, env) {
+      env = env || {};
       // Use first matched template for now.
       let str = template.str;
       if (str && args) {

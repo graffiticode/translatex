@@ -57,6 +57,7 @@
 "\\ddots": "diagonal dot dot dot",
 "\\infty": "infinity",
 "\\measuredangle": "measure of angle",
+"m\\angle": "measure of angle",
 "\\cong": "congruent",
 "\\sin": "sine",
 "\\cos": "cosine",
@@ -830,6 +831,9 @@
 "\\mathbb{?}^\\infty": [
 "%1 infinty"
 ],
+"m\\angle": [
+"measure of angle"
+],
 "\\Delta": [
 "triangle"
 ],
@@ -1328,22 +1332,10 @@
 },
 "tests": [
 {
-"score": -1,
-"source": "0.060",
-"actual": "0 point 060",
-"expected": "0 point 0 6 0"
-},
-{
-"score": -1,
-"source": "0.01\\overline{333}",
-"actual": "0 point 0 repeating 333",
-"expected": "0 point 0 1 repeating 3 3 3"
-},
-{
-"score": -1,
-"source": "0.01(333)",
-"actual": "0 point 0 repeating 333",
-"expected": "0 point 0 1 repeating 3 3 3"
+"score": 1,
+"source": "0.\\overline{33}",
+"actual": "",
+"expected": "0 point repeating 3 3"
 }
 ]
 }
