@@ -502,11 +502,6 @@
     },
     {
       "options": {},
-      "source": "a \\parallelogram b",
-      "expected": "a parallelogram b"
-    },
-    {
-      "options": {},
       "source": "\\infty",
       "expected": "infinity"
     },
@@ -707,11 +702,6 @@
     },
     {
       "options": {},
-      "source": "\\Delta ABC",
-      "expected": "triangle cap a cap b cap c"
-    },
-    {
-      "options": {},
       "source": "1,2,3\\ldots",
       "expected": "1 comma 2 comma 3 dot dot dot"
     },
@@ -719,11 +709,6 @@
       "options": {},
       "source": "\\sum\\frac{1}{i^2}",
       "expected": "the sum of the fraction with numerator 1 and denominator i squared"
-    },
-    {
-      "options": {},
-      "source": "\\prod a_n",
-      "expected": "the product of a sub n"
     },
     {
       "options": {},
@@ -1352,11 +1337,6 @@
     },
     {
       "options": {},
-      "source": "\\angle A",
-      "expected": "angle cap a"
-    },
-    {
-      "options": {},
       "source": "1qt",
       "expected": "1 quart"
     },
@@ -1747,21 +1727,6 @@
     },
     {
       "options": {},
-      "source": "\\frac{b_2-a_2}{b_1-a_1}",
-      "expected": "the fraction with numerator b sub 2 minus a sub 2 and denominator b sub 1 minus a sub 1"
-    },
-    {
-      "options": {},
-      "source": "\\frac{(b_2+c_2-a_2-c_2)\\div2}{(b_1+c_1-a_1-c_1)\\div2}",
-      "expected": "the fraction with numerator open paren b sub 2 plus c sub 2 minus a sub 2 minus c sub 2 close paren divided by 2 and denominator open paren b sub 1 plus c sub 1 minus a sub 1 minus c sub 1 close paren divided by 2"
-    },
-    {
-      "options": {},
-      "source": "(\\frac{a^2b}{a^2+b^2},\\frac{ab^2}{a^2+b^2})",
-      "expected": "open paren the fraction with numerator a squared b and denominator a squared plus b squared comma the fraction with numerator a b squared and denominator a squared plus b squared close paren"
-    },
-    {
-      "options": {},
       "source": "(4,3)",
       "expected": "open paren 4 comma 3 close paren"
     },
@@ -1809,16 +1774,6 @@
       "options": {},
       "source": "(\\frac{1}{\\sqrt{2}}, \\frac{1}{\\sqrt{2}})",
       "expected": "open paren the fraction with numerator 1 and denominator square root of 2 comma the fraction with numerator 1 and denominator square root of 2 close paren"
-    },
-    {
-      "options": {},
-      "source": "\\angle BAC \\cong \\angle BCP",
-      "expected": "angle cap b cap a cap c is congruent to angle cap b cap c cap p"
-    },
-    {
-      "options": {},
-      "source": "\\measuredangle BAC \\cong \\measuredangle BCP",
-      "expected": "measure of angle cap b cap a cap c is congruent to measure of angle cap b cap c cap p"
     },
     {
       "options": {},
@@ -1879,21 +1834,6 @@
       "options": {},
       "source": "\\bigtriangleup \\text {EAB} \\cong \\bigtriangleup \\text{EA'B'}",
       "expected": "bigtriangleup EAB is congruent to bigtriangleup EA'B'"
-    },
-    {
-      "options": {},
-      "source": "\\overline{A'B'} \\parallel \\overline{CD}",
-      "expected": "line segment cap a prime cap b prime is parallel to line segment cap c cap d"
-    },
-    {
-      "options": {},
-      "source": "\\overline{A'B'} \\parallel \\overline{CD}",
-      "expected": "line segment cap a prime cap b prime is parallel to line segment cap c cap d"
-    },
-    {
-      "options": {},
-      "source": "\\overline{AB} \\parallel \\overline{CD}",
-      "expected": "line segment cap a cap b is parallel to line segment cap c cap d"
     },
     {
       "options": {},
@@ -2207,11 +2147,6 @@
     },
     {
       "options": {},
-      "source": "\\text{A}=\\frac{25\\pi}{2}+24 \\text { square units}",
-      "expected": "cap a is equal to 25 pi over 2 plus 24 square units"
-    },
-    {
-      "options": {},
       "source": "h(t) = 5*\\frac{3}{2}^{t}",
       "expected": "h of t is equal to 5 times 3 halves to the t th power"
     },
@@ -2257,11 +2192,6 @@
     },
     {
       "options": {},
-      "source": "(a/c)^2+(b/c)^2 = 1\\implies a^2+b^2=c^2",
-      "expected": "open paren a over c close paren squared plus open paren b over c close paren squared is equal to 1 implies a squared plus b squared is equal to c squared"
-    },
-    {
-      "options": {},
       "source": "\\begin{pmatrix}\\cos{0}&-\\sin{0}\\\\\\sin{0}&\\cos{0}\\end{pmatrix}*\\begin{pmatrix}-1\\\\-1\\end{pmatrix}= \\begin{pmatrix}1&0\\\\0&1\\end{pmatrix}*\\begin{pmatrix}-1\\\\-1\\end{pmatrix}",
       "expected": "the 2 by 2 matrix, row 1, column 1, cosine 0 column 2, negative sine 0 row 2, column 1, sine 0 column 2, cosine 0 times the 2 by 1 column matrix row 1 negative 1 row 2 negative 1 is equal to the 2 by 2 matrix row 1, 1 0 row 2, 0 1 times the 2 by 1 column matrix row 1 negative 1 row 2 negative 1"
     },
@@ -2284,11 +2214,6 @@
       "options": {},
       "source": "P*B=\\begin{pmatrix}0&0\\\\1&0\\end{pmatrix}\\times\\begin{pmatrix}1&1\\\\0&0\\end{pmatrix}",
       "expected": "cap p times cap b is equal to the 2 by 2 matrix row 1, 0 0 row 2, 1 0 times the 2 by 2 matrix row 1, 1 1 row 2, 0 0"
-    },
-    {
-      "options": {},
-      "source": "A=\\begin{pmatrix}0&0\\\\1&1\\end{pmatrix}",
-      "expected": "cap a is equal to the 2 by 2 matrix row 1, 0 0 row 2, 1 1"
     },
     {
       "options": {},
@@ -2452,11 +2377,6 @@
     },
     {
       "options": {},
-      "source": "x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}",
-      "expected": "x is equal to the fraction with numerator negative b plus or minus square root of b squared minus 4 a c end root and denominator 2 a"
-    },
-    {
-      "options": {},
       "source": "f(x) = \\sqrt{64 \\cdot 330}",
       "expected": "f of x is equal to square root of 64 times 330 end root"
     },
@@ -2484,11 +2404,6 @@
       "options": {},
       "source": "\\overline{PB} = \\frac{7}{\\sqrt{2}}",
       "expected": "line segment cap p cap b is equal to the fraction with numerator 7 and denominator square root of 2"
-    },
-    {
-      "options": {},
-      "source": "A=1/2*8*6+1/2*\\pi*5^2",
-      "expected": "cap a is equal to 1 half times 8 times 6 plus 1 half times pi times 5 squared"
     },
     {
       "options": {},
@@ -2602,16 +2517,6 @@
     },
     {
       "options": {},
-      "source": "\\measuredangle A = 32^{\\circ}",
-      "expected": "measure of angle cap a is equal to 32 degrees"
-    },
-    {
-      "options": {},
-      "source": "\\angle A = 32^{\\circ}",
-      "expected": "angle cap a is equal to 32 degrees"
-    },
-    {
-      "options": {},
       "source": "f(x) = 1/2 x^2",
       "expected": "f of x is equal to 1 half x squared"
     },
@@ -2619,16 +2524,6 @@
       "options": {},
       "source": "f(x) = .5 \\cdot \\abs{x}",
       "expected": "f of x is equal to point 5 times absolute value of x"
-    },
-    {
-      "options": {},
-      "source": "f(n) = a\\times2^n",
-      "expected": "f of n is equal to a times 2 to the n th power"
-    },
-    {
-      "options": {},
-      "source": "f(n) = 2^n\\times a",
-      "expected": "f of n is equal to 2 to the n th power times a"
     },
     {
       "options": {},
@@ -2682,21 +2577,6 @@
     },
     {
       "options": {},
-      "source": "\\sum_{k=0}^{n-1} a\\cdot r ^{k}",
-      "expected": "the sum from k is equal to 0 to n minus 1 of a times r to the k th power"
-    },
-    {
-      "options": {},
-      "source": "\\measuredangle{B'EA'} = \\measuredangle{CED}",
-      "expected": "measure of angle cap b prime cap e cap a prime is equal to measure of angle cap c cap e cap d"
-    },
-    {
-      "options": {},
-      "source": "\\measuredangle{EAB} = \\measuredangle{ECD}",
-      "expected": "measure of angle cap e cap a cap b is equal to measure of angle cap e cap c cap d"
-    },
-    {
-      "options": {},
       "source": "\\begin{pmatrix} \\cos{1} & -\\sin{1} \\\\ \\sin{1} & \\cos{1} \\end{pmatrix} \\times \\begin{pmatrix} x\\cos{1}-y\\sin{1} \\\\ x\\sin{1}+y\\cos{1} \\end{pmatrix} = \\begin{pmatrix} \\cos{1}(x\\cos{1}-y\\sin{1})-\\sin{1}(x\\sin{1}+y\\cos{1}) \\\\ \\sin{1}(x\\cos{1}-y\\sin{1}) + \\cos{1}(x\\sin{1}+y\\cos{1})\\end{pmatrix}",
       "expected": "the 2 by 2 matrix, row 1, column 1, cosine 1 column 2, negative sine 1 row 2, column 1, sine 1 column 2, cosine 1 times the 2 by 1 column matrix row 1 x cosine 1 minus y sine 1 row 2 x sine 1 plus y cosine 1 is equal to the 2 by 1 column matrix row 1 cosine 1 minus sine 1 row 2 sine 1 plus cosine 1"
     },
@@ -2747,33 +2627,8 @@
     },
     {
       "options": {},
-      "source": "\\text{A2}=\\frac{a^2*b^2+b^4}{a^2+b^2}",
-      "expected": "A2 is equal to the fraction with numerator a squared times b squared plus b to the 4th power and denominator a squared plus b squared"
-    },
-    {
-      "options": {},
-      "source": "\\overline{AP}/\\overline{PB} = a^2/b^2",
-      "expected": "the fraction with numerator line segment cap a cap p and denominator line segment cap p cap b is equal to the fraction with numerator a squared and denominator b squared"
-    },
-    {
-      "options": {},
-      "source": "AP/BP = a^2/b^2",
-      "expected": "cap a cap p over cap b cap p is equal to the fraction with numerator a squared and denominator b squared"
-    },
-    {
-      "options": {},
-      "source": "m=\\frac{3/8b_2-3/8a_2}{3/8b_1-3/8a_1}",
-      "expected": "m is equal to the fraction with numerator 3 eighths b sub 2 minus 3 eighths a sub 2 and denominator 3 eighths b sub 1 minus 3 eighths a sub 1"
-    },
-    {
-      "options": {},
       "source": "\\det\\begin{vmatrix}1&k\\\\0&k\\end{vmatrix}",
       "expected": "det the 2 by 2 matrix row 1, 1 k row 2, 0 k"
-    },
-    {
-      "options": {},
-      "source": "\\begin{bmatrix}a&b&c\\\\x&y&z\\end{bmatrix}",
-      "expected": "the 2 by 3 matrix row 1, a b c row 2, x y z"
     },
     {
       "options": {},
@@ -2864,16 +2719,6 @@
       "options": {},
       "source": "\\frac{14}{\\sqrt{3}} - \\frac{7}{\\sqrt{3}}",
       "expected": "the fraction with numerator 14 and denominator square root of 3 minus the fraction with numerator 7 and denominator square root of 3"
-    },
-    {
-      "options": {},
-      "source": "\\norm{\\vec{b}} - \\norm{\\vec{a}} = \\frac{14}{\\sqrt{3}} - \\frac{7}{\\sqrt{3}}",
-      "expected": "norm b minus norm a is equal to the fraction with numerator 14 and denominator square root of 3 minus the fraction with numerator 7 and denominator square root of 3"
-    },
-    {
-      "options": {},
-      "source": "\\norm{\\vec{b}} - \\norm{\\vec{a}} = (\\frac{7}{\\sqrt{3}}, 0\\deg)",
-      "expected": "norm b minus norm a is equal to open paren the fraction with numerator 7 and denominator square root of 3 comma 0 deg close paren"
     },
     {
       "options": {},
@@ -3533,26 +3378,6 @@
     },
     {
       "options": {},
-      "source": "-3/4+4/3+a = 0",
-      "expected": "negative 3 over 4 plus 4 thirds plus a is equal to 0"
-    },
-    {
-      "options": {},
-      "source": "-\\frac{3}{4}+\\frac{4}{3}+a = 0",
-      "expected": "negative 3 fourths plus 4 thirds plus a is equal to 0"
-    },
-    {
-      "options": {},
-      "source": "\\frac{-9+16}{12}+a = 0",
-      "expected": "the fraction with numerator negative 9 plus 16 and denominator 12 plus a is equal to 0"
-    },
-    {
-      "options": {},
-      "source": "\\frac{7}{12}=-a",
-      "expected": "7 over 12 is equal to negative a"
-    },
-    {
-      "options": {},
       "source": "2931\\div12",
       "expected": "2931 divided by 12"
     },
@@ -3725,21 +3550,6 @@
       "options": {},
       "source": "C=2*\\pi*35",
       "expected": "cap c is equal to 2 times pi times 35"
-    },
-    {
-      "options": {},
-      "source": "A = 35^2* \\pi + 25^2* \\pi",
-      "expected": "cap a is equal to 35 squared times pi plus 25 squared times pi"
-    },
-    {
-      "options": {},
-      "source": "A = 35^2 \\pi + 25^2 \\pi",
-      "expected": "cap a is equal to 35 squared pi plus 25 squared pi"
-    },
-    {
-      "options": {},
-      "source": "A = 1850 \\pi",
-      "expected": "cap a is equal to 1850 pi"
     },
     {
       "options": {},
@@ -4095,11 +3905,6 @@
     },
     {
       "options": {},
-      "source": "\\angle AOX = 30\\deg",
-      "expected": "angle cap a cap o cap x is equal to 30 deg"
-    },
-    {
-      "options": {},
       "source": "\\angle YOD = 15\\deg",
       "expected": "angle cap y cap o cap d is equal to 15 deg"
     },
@@ -4107,11 +3912,6 @@
       "options": {},
       "source": "\\angle DOB = 45\\deg",
       "expected": "angle cap d cap o cap b is equal to 45 deg"
-    },
-    {
-      "options": {},
-      "source": "\\triangle ABC \\cong \\triangle RST",
-      "expected": "triangle cap a cap b cap c is congruent to triangle cap r cap s cap t"
     },
     {
       "options": {},
@@ -4497,11 +4297,6 @@
       "options": {},
       "source": "-2\\neq\\sqrt{-5x-6}",
       "expected": "negative 2 is not equal to square root of negative 5 x minus 6 end root"
-    },
-    {
-      "options": {},
-      "source": "\\sum_{k=0}^{n-1} a\\cdot r ^{k}=a\\cdot\\frac{1-r^n}{1-r} ,r \\neq 1",
-      "expected": "the sum from k is equal to 0 to n minus 1 of a times r to the k th power is equal to a times the fraction with numerator 1 minus r to the n th power and denominator 1 minus r comma r is not equal to 1"
     },
     {
       "options": {},
@@ -5039,7 +4834,7 @@
     {
       "options": {},
       "source": "a=1000*(1.0025)^n",
-      "expected": "a is equal to 1000 times 1 point 0 0 2 5 to the n th power"
+      "expected": "A is equal to 1000 times 1 point 0 0 2 5 to the n th power"
     },
     {
       "options": {},
@@ -5378,13 +5173,218 @@
     },
     {
       "options": {},
-      "source": "\\frac{49}{\\sqrt{2}}",
-      "expected": "the fraction with numerator 49 and denominator square root of 2"
+      "source": "(42.369 + .15(38.96 \\times 1.0875)) \\div 4",
+      "expected": "open paren 42 point 3 6 9 plus point 1 5 times open paren 38 point 9 6 times 1 point 0 8 7 5 close paren close paren divided by 4"
     },
     {
       "options": {},
-      "source": "(42.369 + .15(38.96 \\times 1.0875)) \\div 4",
-      "expected": "open paren 42 point 3 6 9 plus point 1 5 times open paren 38 point 9 6 times 1 point 0 8 7 5 close paren close paren divided by 4"
+      "source": "\\text {A1} = \\frac{a^4+a^2*b^2}{a^2+b^2}",
+      "expected": "A1 is equal to the fraction with numerator A to the 4th power plus A squared times b squared and denominator A squared plus b squared"
+    },
+    {
+      "options": {},
+      "source": "\\text{A2}=\\frac{a^2*b^2+b^4}{a^2+b^2}",
+      "expected": "A2 is equal to the fraction with numerator A squared times b squared plus b to the 4th power and denominator A squared plus b squared"
+    },
+    {
+      "options": {},
+      "source": "\\angle AOX = 30\\deg",
+      "expected": "angle cap A cap o cap x is equal to 30 deg"
+    },
+    {
+      "options": {},
+      "source": "\\angle A = 32^{\\circ}",
+      "expected": "angle cap A is equal to 32 degrees"
+    },
+    {
+      "options": {},
+      "source": "\\angle BAC \\cong \\angle BCP",
+      "expected": "angle cap b cap A cap c is congruent to angle cap b cap c cap p"
+    },
+    {
+      "options": {},
+      "source": "AP/BP = a^2/b^2",
+      "expected": "cap A cap p over cap b cap p is equal to the fraction with numerator A squared and denominator b squared"
+    },
+    {
+      "options": {},
+      "source": "A=1/2*8*6+1/2*\\pi*5^2",
+      "expected": "cap A is equal to 1 half times 8 times 6 plus 1 half times pi times 5 squared"
+    },
+    {
+      "options": {},
+      "source": "A = 1850 \\pi",
+      "expected": "cap A is equal to 1850 pi"
+    },
+    {
+      "options": {},
+      "source": "\\text{A}=\\frac{25\\pi}{2}+24 \\text { square units}",
+      "expected": "cap A is equal to 25 pi over 2 plus 24 square units"
+    },
+    {
+      "options": {},
+      "source": "A = 35^2 \\pi + 25^2 \\pi",
+      "expected": "cap A is equal to 35 squared pi plus 25 squared pi"
+    },
+    {
+      "options": {},
+      "source": "A=\\begin{pmatrix}0&0\\\\1&1\\end{pmatrix}",
+      "expected": "cap A is equal to the 2 by 2 matrix row 1, 0 0 row 2, 1 1"
+    },
+    {
+      "options": {},
+      "source": "f(n) = a\\times2^n",
+      "expected": "f of n is equal to A times 2 to the n th power"
+    },
+    {
+      "options": {},
+      "source": "\\overline{A'B'} \\parallel \\overline{CD}",
+      "expected": "line segment cap A prime cap b prime is parallel to line segment cap c cap d"
+    },
+    {
+      "options": {},
+      "source": "A = 35^2* \\pi + 25^2* \\pi",
+      "expected": "cap A is equal to 35 squared times pi plus 25 squared times pi"
+    },
+    {
+      "options": {},
+      "source": "\\overline{AB} \\parallel \\overline{CD}",
+      "expected": "line segment cap A cap b is parallel to line segment cap c cap d"
+    },
+    {
+      "options": {},
+      "source": "\\overline{A'B'} \\parallel \\overline{CD}",
+      "expected": "line segment cap A prime cap b prime is parallel to line segment cap c cap d"
+    },
+    {
+      "options": {},
+      "source": "m=\\frac{3/8b_2-3/8a_2}{3/8b_1-3/8a_1}",
+      "expected": "m is equal to the fraction with numerator 3 eighths b sub 2 minus 3 eighths A sub 2 and denominator 3 eighths b sub 1 minus 3 eighths A sub 1"
+    },
+    {
+      "options": {},
+      "source": "\\measuredangle A = 32^{\\circ}",
+      "expected": "measure of angle cap A is equal to 32 degrees"
+    },
+    {
+      "options": {},
+      "source": "\\measuredangle BAC \\cong \\measuredangle BCP",
+      "expected": "measure of angle cap b cap A cap c is congruent to measure of angle cap b cap c cap p"
+    },
+    {
+      "options": {},
+      "source": "\\measuredangle{B'EA'} = \\measuredangle{CED}",
+      "expected": "measure of angle cap b prime cap e cap A prime is equal to measure of angle cap c cap e cap d"
+    },
+    {
+      "options": {},
+      "source": "\\measuredangle{EAB} = \\measuredangle{ECD}",
+      "expected": "measure of angle cap e cap A cap b is equal to measure of angle cap e cap c cap d"
+    },
+    {
+      "options": {},
+      "source": "-\\frac{3}{4}+\\frac{4}{3}+a = 0",
+      "expected": "negative 3 fourths plus 4 thirds plus A is equal to 0"
+    },
+    {
+      "options": {},
+      "source": "-3/4+4/3+a = 0",
+      "expected": "negative 3 over 4 plus 4 thirds plus A is equal to 0"
+    },
+    {
+      "options": {},
+      "source": "\\norm{\\vec{b}} - \\norm{\\vec{a}} = (\\frac{7}{\\sqrt{3}}, 0\\deg)",
+      "expected": "norm b minus norm A is equal to open paren the fraction with numerator 7 and denominator square root of 3 comma 0 deg close paren"
+    },
+    {
+      "options": {},
+      "source": "\\norm{\\vec{b}} - \\norm{\\vec{a}} = \\frac{14}{\\sqrt{3}} - \\frac{7}{\\sqrt{3}}",
+      "expected": "norm b minus norm A is equal to the fraction with numerator 14 and denominator square root of 3 minus the fraction with numerator 7 and denominator square root of 3"
+    },
+    {
+      "options": {},
+      "source": "(a/c)^2+(b/c)^2 = 1\\implies a^2+b^2=c^2",
+      "expected": "open paren A over c close paren squared plus open paren b over c close paren squared is equal to 1 implies A squared plus b squared is equal to c squared"
+    },
+    {
+      "options": {},
+      "source": "(\\frac{a^2b}{a^2+b^2},\\frac{ab^2}{a^2+b^2})",
+      "expected": "open paren the fraction with numerator A squared b and denominator A squared plus b squared comma the fraction with numerator A b squared and denominator A squared plus b squared close paren"
+    },
+    {
+      "options": {},
+      "source": "\\begin{bmatrix}a&b&c\\\\x&y&z\\end{bmatrix}",
+      "expected": "the 2 by 3 matrix row 1, A b c row 2, x y z"
+    },
+    {
+      "options": {},
+      "source": "\\frac{b_2-a_2}{b_1-a_1}",
+      "expected": "the fraction with numerator b sub 2 minus A sub 2 and denominator b sub 1 minus A sub 1"
+    },
+    {
+      "options": {},
+      "source": "\\overline{AP}/\\overline{PB} = a^2/b^2",
+      "expected": "the fraction with numerator line segment cap A cap p and denominator line segment cap p cap b is equal to the fraction with numerator A squared and denominator b squared"
+    },
+    {
+      "options": {},
+      "source": "\\frac{-9+16}{12}+a = 0",
+      "expected": "the fraction with numerator negative 9 plus 16 and denominator 12 plus A is equal to 0"
+    },
+    {
+      "options": {},
+      "source": "\\frac{(b_2+c_2-a_2-c_2)\\div2}{(b_1+c_1-a_1-c_1)\\div2}",
+      "expected": "the fraction with numerator open paren b sub 2 plus c sub 2 minus A sub 2 minus c sub 2 close paren divided by 2 and denominator open paren b sub 1 plus c sub 1 minus A sub 1 minus c sub 1 close paren divided by 2"
+    },
+    {
+      "options": {},
+      "source": "\\prod a_n",
+      "expected": "the product of A sub n"
+    },
+    {
+      "options": {},
+      "source": "\\sum_{k=0}^{n-1} a\\cdot r ^{k}=a\\cdot\\frac{1-r^n}{1-r} ,r \\neq 1",
+      "expected": "the sum from k is equal to 0 to n minus 1 of A times r to the k th power is equal to A times the fraction with numerator 1 minus r to the n th power and denominator 1 minus r comma r is not equal to 1"
+    },
+    {
+      "options": {},
+      "source": "\\sum_{k=0}^{n-1} a\\cdot r ^{k}",
+      "expected": "the sum from k is equal to 0 to n minus 1 of A times r to the k th power"
+    },
+    {
+      "options": {},
+      "source": "\\triangle ABC \\cong \\triangle RST",
+      "expected": "triangle cap A cap b cap c is congruent to triangle cap r cap s cap t"
+    },
+    {
+      "options": {},
+      "source": "\\Delta ABC",
+      "expected": "triangle cap A cap b cap c"
+    },
+    {
+      "options": {},
+      "source": "x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}",
+      "expected": "x is equal to the fraction with numerator negative b plus or minus square root of b squared minus 4 A c end root and denominator 2 A"
+    },
+    {
+      "options": {},
+      "source": "f(n) = 2^n\\times a",
+      "expected": "f of n is equal to 2 to the n th power times A"
+    },
+    {
+      "options": {},
+      "source": "\\angle A",
+      "expected": "angle cap A"
+    },
+    {
+      "options": {},
+      "source": "\\frac{7}{12}=-a",
+      "expected": "7 over 12 is equal to negative A"
+    },
+    {
+      "options": {},
+      "source": "a=1000*(1.0025)^n",
+      "expected": "A is equal to 1000 times 1 point 0 0 2 5 to the n th power"
     }
   ]
 }
