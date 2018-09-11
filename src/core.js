@@ -95,6 +95,7 @@ import {rules} from "./rules.js";
       case Model.LIM:
       case Model.EXP:
       case Model.TO:
+      case Model.DERIV:
       case Model.INT:
       case Model.PROD:
       case Model.CUP:

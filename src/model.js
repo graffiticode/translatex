@@ -250,6 +250,7 @@ export let Model = (function () {
     EXP: "exp",
     TO: "to",
     SUM: "sum",
+    DERIV: "deriv",
     PIPE: "pipe",
     INT: "int",
     PROD: "prod",
@@ -833,7 +834,6 @@ export let Model = (function () {
         node.args[0].args.length === 1 &&
         node.args[0].args[0] === "1";
     }
-
     function primaryExpr() {
       let t, node, tk, op, base, args, expr1, expr2;
       switch ((tk=hd())) {
@@ -1390,11 +1390,38 @@ export let Model = (function () {
     function isMinusOne(node) {
       return node.op === Model.SUB && node.args.length === 1 && isOne(node.args[0]);
     }
-
+    function isDerivative(n) {
+      if (n.op !== Model.FRAC) {
+        return;
+      }
+      var numer = n.args[0];
+      var numerHead =
+        numer.op === Model.MUL && numer.args[0].op === Model.VAR && numer.args[0].args[0] ||
+        numer.op === Model.VAR && numer.args[0];
+      var denom = n.args[1];
+      var denomHead = denom.op === Model.MUL && denom.args[0].op === Model.VAR && denom.args[0].args[0];
+      return numerHead === "d" && denomHead === "d" && denom.args[1].op === Model.VAR || undefined;
+    }
+    function derivativeExpr(node) {
+      if (node.op !== Model.FRAC) {
+        return;
+      }
+      var numer = node.args[0];
+      var denom = node.args[1];
+      var n =
+        numer.op === Model.MUL &&
+        numer.args.slice(1).length > 0 &&
+        multiplyNode(numer.args.slice(1)) || nodeOne;
+      assert(denom.args.length === 2);
+      return newNode(Model.DERIV, [denom.args[1], n]);
+    }
     function multiplicativeExpr() {
       var t, expr, explicitOperator = false, isFraction, args = [];
       var n0;
       expr = fractionExpr();
+      if (isDerivative(expr)) {
+        expr = derivativeExpr(expr);
+      }
       if (expr.op === Model.MUL &&
           !expr.isBinomial &&
           expr.args[expr.args.length - 1].op !== Model.VAR &&
@@ -1420,6 +1447,9 @@ export let Model = (function () {
           explicitOperator = true;
         }
         expr = fractionExpr();
+        if (isDerivative(expr)) {
+          expr = derivativeExpr(expr);
+        }
         if (t === TK_DIV || t === TK_DOT) {
           expr = newNode(tokenToOperator[t], [args.pop(), expr]);
         }
@@ -1470,6 +1500,11 @@ export let Model = (function () {
             } else {
               args.push(t);
             }
+          } else if (args[args.length - 1].op === Model.DERIV) {
+            // Fold expr into derivative expr.
+            var e = args[args.length - 1].args[1];
+            expr = newNode(Model.DERIV, [args[args.length - 1].args[0], multiplyNode([e, expr])]);
+            args.pop();
           } else {
             // 2(x), (y+1)z
             expr.isImplicit = true;
