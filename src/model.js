@@ -745,8 +745,11 @@ export let Model = (function () {
         hasTrailingZero: hasTrailingZero
       }
     }
-    // Construct a multiply node.
     function multiplyNode(args, flatten) {
+      if (args.length === 0) {
+        // We have simplified away all factors.
+        args = [nodeOne];
+      }
       return binaryNode(Model.MUL, args, flatten);
     }
     // Construct a unary node.
@@ -754,10 +757,12 @@ export let Model = (function () {
       assert(args.length === 1, "Wrong number of arguments for unary node");
       return newNode(op, args);
     }
-    // Construct a binary node.
     function binaryNode(op, args, flatten) {
-      assert(args.length > 1, "Too few argument for binary node");
-      let aa = [];
+      assert(args.length > 0, "1000: Too few argument for binary node");
+      if (args.length < 2) {
+        return args[0];
+      }
+      var aa = [];
       forEach(args, function(n) {
         if (flatten && n.op === op) {
           aa = aa.concat(n.args);
@@ -767,7 +772,6 @@ export let Model = (function () {
       });
       return newNode(op, aa);
     }
-
     let nodeOne = numberNode("1");
     let nodeMinusOne = unaryNode(Model.SUB, [numberNode("1")]);
     let nodeNone = newNode(Model.NONE, [numberNode("0")]);
