@@ -1396,15 +1396,19 @@ export let Model = (function () {
     }
     function isDerivative(n) {
       if (n.op !== Model.FRAC) {
-        return;
+        return false;
       }
       var numer = n.args[0];
       var numerHead =
         numer.op === Model.MUL && numer.args[0].op === Model.VAR && numer.args[0].args[0] ||
-        numer.op === Model.VAR && numer.args[0];
+        numer.op === Model.VAR && numer.args[0] ||
+        numer.op === Model.POW && numer.args[0].op === Model.VAR && numer.args[0].args[0];
       var denom = n.args[1];
-      var denomHead = denom.op === Model.MUL && denom.args[0].op === Model.VAR && denom.args[0].args[0];
-      return numerHead === "d" && denomHead === "d" && denom.args[1].op === Model.VAR || undefined;
+      var denomHead =
+        denom.op === Model.MUL && denom.args[0].op === Model.VAR && denom.args[0].args[0];
+      return numerHead === "d" && denomHead === "d" &&
+        denom.args[1] && denom.args[1].op === Model.VAR ||
+        denom.args[1] && denom.args[1].op === Model.POW && denom.args[1].args[0] && denom.args[1].args[0].op === Model.VAR;
     }
     function derivativeExpr(node) {
       if (node.op !== Model.FRAC) {
@@ -1417,7 +1421,10 @@ export let Model = (function () {
         numer.args.slice(1).length > 0 &&
         multiplyNode(numer.args.slice(1)) || nodeOne;
       assert(denom.args.length === 2);
-      return newNode(Model.DERIV, [denom.args[1], n]);
+      var arg = denom.args[1];
+      var sym = arg.op === Model.POW && arg.args[0] || arg;
+      var order = arg.op === Model.POW && arg.args[1] || nodeOne;
+      return newNode(Model.DERIV, [n, sym, order]);
     }
     function multiplicativeExpr() {
       var t, expr, explicitOperator = false, isFraction, args = [];
@@ -1506,9 +1513,10 @@ export let Model = (function () {
             }
           } else if (args[args.length - 1].op === Model.DERIV) {
             // Fold expr into derivative expr.
-            var e = args[args.length - 1].args[1];
-            expr = newNode(Model.DERIV, [args[args.length - 1].args[0], multiplyNode([e, expr])]);
-            args.pop();
+            var arg = args.pop();
+            var e = arg.args[0];
+            var e = isOne(e) && expr || multiplyNode([e, expr]);
+            expr = newNode(Model.DERIV, [e].concat(arg.args.slice(1)));
           } else {
             // 2(x), (y+1)z
             expr.isImplicit = true;
