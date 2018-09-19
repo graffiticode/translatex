@@ -96,7 +96,7 @@ import {rules} from "./rules.js";
       case Model.EXP:
       case Model.TO:
       case Model.DERIV:
-      case Model.INT:
+      case Model.INTEGRAL:
       case Model.PROD:
       case Model.CUP:
       case Model.BIGCUP:
@@ -466,10 +466,10 @@ import {rules} from "./rules.js";
         }
         return false;
       });
-      if (matches.length > 0) {
-        console.log("node: " + JSON.stringify(node, null, 2));
-        console.log("matches: " + JSON.stringify(matches, null, 2));
-      }
+      // if (matches.length > 0) {
+      //   console.log("node: " + JSON.stringify(node, null, 2));
+      //   console.log("matches: " + JSON.stringify(matches, null, 2));
+      // }
       return matches;
     }
     function expandBinary(str, args) {
@@ -631,7 +631,8 @@ import {rules} from "./rules.js";
           forEach(node.args, function (n) {
             args.push(normalizeLiteral(n));
           });
-          return newNode(node.op, args);
+          node = newNode(node.op, args);
+          return node;
         },
         exponential: function (node) {
           var args = [];

@@ -252,7 +252,7 @@ export let Model = (function () {
     SUM: "sum",
     DERIV: "deriv",
     PIPE: "pipe",
-    INT: "int",
+    INTEGRAL: "integral",
     PROD: "prod",
     CUP: "cup",
     BIGCUP: "bigcup",
@@ -568,7 +568,7 @@ export let Model = (function () {
   tokenToOperator[TK_TO] = OpStr.TO;
   tokenToOperator[TK_VERTICALBAR] = OpStr.PIPE;
   tokenToOperator[TK_SUM] = OpStr.SUM;
-  tokenToOperator[TK_INT] = OpStr.INT;
+  tokenToOperator[TK_INT] = OpStr.INTEGRAL;
   tokenToOperator[TK_PROD] = OpStr.PROD;
   tokenToOperator[TK_CUP] = OpStr.CUP;
   tokenToOperator[TK_BIGCUP] = OpStr.BIGCUP;
@@ -1007,17 +1007,10 @@ export let Model = (function () {
       //   return newNode(Model.LOG, args);
       //   break;
       case TK_LIM:
-        next();
-        args = [];
-        // Collect the subscript and expression
-        eat(TK_UNDERSCORE);
-        args.push(primaryExpr());
-        args.push(primaryExpr());
-        // Finish the log function
-        return newNode(tokenToOperator[tk], args);
-        break;
-      case TK_SUM:
+        return limitExpr();
       case TK_INT:
+        return integralExpr();
+      case TK_SUM:
       case TK_PROD:
       case TK_CUP:
       case TK_BIGCUP:
@@ -1034,12 +1027,8 @@ export let Model = (function () {
             args.push(primaryExpr());
           }
         }
-        if (hd()) {
-          args.push(commaExpr());
-        }
-        // Finish the log function
+        args.push(commaExpr());
         return newNode(tokenToOperator[tk], args);
-        break;
       case TK_EXISTS:
         next();
         return newNode(Model.EXISTS, [equalExpr()]);
@@ -1750,7 +1739,93 @@ export let Model = (function () {
       }
       return expr;
     }
-    //
+    function flattenNestedNodes(node) {
+      var args = [];
+      if (node.op === Model.NUM || node.op === Model.VAR) {
+        return node;
+      }
+      forEach(node.args, function (n) {
+        n = flattenNestedNodes(n);
+        if (n.op === node.op) {
+          args = args.concat(n.args);
+        } else {
+          args.push(n);
+        }
+      });
+      var isMixedNumber = node.isMixedNumber;
+      node = newNode(node.op, args);
+      node.isMixedNumber = isMixedNumber;
+      return node;
+    }
+    // Parse '\int a + b dx'
+    function hasDX(node) {
+      var len = node.args.length;
+      var dvar = node.args[len - 2];
+      var ivar = node.args[len - 1];
+      return (
+        node && node.op === Model.MUL &&
+          dvar.op === Model.VAR && dvar.args[0] === "d" &&
+          ivar.op === Model.VAR && ivar || null
+      );
+    }
+    function stripDX(node) {
+      assert(node.op === Model.MUL);
+      // Strip off last two args ('dx')
+      return multiplyNode(node.args.slice(0, node.args.length - 2));
+    }
+    function integralExpr() {
+      eat(TK_INT);
+      var args = [];
+      // Collect the subscript and expression
+      if (hd() === TK_UNDERSCORE) {
+        next({oneCharToken: true});
+        args.push(primaryExpr());
+        if (hd() === TK_CARET) {
+          eat(TK_CARET, {oneCharToken: true});
+          args.push(primaryExpr());
+        }
+      }
+      var expr;
+      if (hd() === TK_INT) {
+        // FIXME nested integrals are still broken.
+        expr = integralExpr();
+      } else {
+        expr = flattenNestedNodes(multiplicativeExpr());
+        var t;
+        var dx = hasDX(expr)
+        expr = dx && stripDX(expr) || expr;
+        while (isAdditive(t = hd()) && !dx) {
+          next();
+          var expr2 = multiplicativeExpr();
+          dx = hasDX(expr2);
+          expr2 = dx && stripDX(expr2) || expr2;
+          switch(t) {
+          case TK_SUB:
+            expr = binaryNode(Model.SUB, [expr, expr2]);
+            break;
+          default:
+            expr = binaryNode(Model.ADD, [expr, expr2], true /*flatten*/);
+            break;
+          }
+        }
+      }
+      args.push(expr);
+      args.push(dx || nodeEmpty);
+      // [sub, sup,  expr, var], [expr, var]
+      return newNode(Model.INTEGRAL, args);
+    }
+    function limitExpr() {
+      eat(TK_LIM);
+      var args = [];
+      // Collect the subscript and expression
+      if (hd() === TK_UNDERSCORE) {
+        next({oneCharToken: true});
+        args.push(primaryExpr());
+      }
+      args.push(multiplicativeExpr());
+      console.log("limitExpr() args=" + JSON.stringify(args));
+      return newNode(Model.LIM, args);
+    }
     function isRelational(t) {
       return t === TK_LT || t === TK_LE || t === TK_GT || t === TK_GE ||
              t === TK_IN || t === TK_TO || t === TK_PERP || t === TK_PROPTO ||
