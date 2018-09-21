@@ -180,21 +180,21 @@ export let Model = (function () {
     VEC: "vec",
     PM: "pm",
     NOT: "not",
-    // SIN: "sin",
-    // COS: "cos",
-    // TAN: "tan",
-    // SEC: "sec",
-    // COT: "cot",
-    // CSC: "csc",
-    // ARCSIN: "arcsin",
-    // ARCCOS: "arccos",
-    // ARCTAN: "arctan",
-    // ARCSEC: "arcsec",
-    // ARCCOT: "arccot",
-    // ARCCSC: "arccsc",
-    // LOG: "log",
-    // LN: "ln",
-    // LG: "lg",
+    SIN: "sin",
+    COS: "cos",
+    TAN: "tan",
+    SEC: "sec",
+    COT: "cot",
+    CSC: "csc",
+    ARCSIN: "arcsin",
+    ARCCOS: "arccos",
+    ARCTAN: "arctan",
+    ARCSEC: "arcsec",
+    ARCCOT: "arccot",
+    ARCCSC: "arccsc",
+    LOG: "log",
+    LN: "ln",
+    LG: "lg",
     VAR: "var",
     NUM: "num",
     CST: "cst",
@@ -1823,7 +1823,7 @@ export let Model = (function () {
         args.push(primaryExpr());
       }
       args.push(multiplicativeExpr());
-      console.log("limitExpr() args=" + JSON.stringify(args));
+      console.log("limitExpr() args=" + JSON.stringify(args, null, 2));
       return newNode(Model.LIM, args);
     }
     function isRelational(t) {
