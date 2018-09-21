@@ -1123,6 +1123,7 @@ export let Model = (function () {
       return node;
     }
     // Parse '[ expr ]'
+    var bracketTokenCount = 0;
     function bracketExpr() {
       eat(TK_LEFTBRACKET);
       let e = commaExpr();
@@ -1130,31 +1131,82 @@ export let Model = (function () {
       return e;
     }
     // Parse '( expr )' and '( expr ]' and '[ expr )' and '[ expr ]'
+    // function parenExpr(tk) {
+    //   // Handle grouping and intervals.
+    //   let e;
+    //   let tk2;
+    //   eat(tk);
+    //   if (hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
+    //     eat(tk === TK_LEFTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+    //     e = newNode(Model.COMMA, []);
+    //   } else {
+    //     e = commaExpr();
+    //     // (..], [..], [..), (..)
+    //     eat(tk2 = hd() === TK_RIGHTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+    //   }
+    //   // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
+    //   if (e.args.length === 2 &&
+    //       (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) &&
+    //       (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET)) {
+    //     // Make bracket tokens part of the node for comparision.
+    //     //e.args.push(numberNode(tk));
+    //     //e.args.push(numberNode(tk2));
+    //     e = newNode(Model.PAREN, [e]);
+    //   } else if (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) {
+    //     e = newNode(Model.PAREN, [e]);
+    //   }
+    //   // Save the brackets as attributes on the node for later use.
+    //   e.lbrk = tk;
+    //   e.rbrk = tk2;
+    //   return e;
+    // }
+    var inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let e;
-      let tk2;
+      var e;
+      var tk2;
+      var allowInterval = Model.option("allowInterval");
+      bracketTokenCount++;
       eat(tk);
       if (hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
-        eat(tk === TK_LEFTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+        eat((tk2 = tk === TK_LEFTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET));
+        // We have an empty list.
         e = newNode(Model.COMMA, []);
       } else {
-        e = commaExpr();
-        // (..], [..], [..), (..)
-        eat(tk2 = hd() === TK_RIGHTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+        inParenExpr = true;
+        var allowSemicolon = allowInterval; // Allow semis if in an interval.
+        e = commaExpr(allowSemicolon);
+        if (allowInterval) {
+          // (..], [..], [..), (..), ]..], ]..[, [..[
+          eat(tk2 = hd() === TK_RIGHTPAREN ? TK_RIGHTPAREN
+              : hd() === TK_LEFTBRACKET ? TK_LEFTBRACKET
+              : TK_RIGHTBRACKET);
+        } else {
+          // (..), [..]
+          eat(tk2 = tk === TK_LEFTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+        }
       }
+      // Save the brackets as attributes on the node for later use. Normalize
+      // French style brackets.
+      e.lbrk = tk = tk === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk;
+      e.rbrk = tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
-      if (e.args.length === 2 &&
-          (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) &&
-          (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET)) {
+      if (allowInterval && e.args.length === 2 &&
+          (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET || tk === TK_RIGHTBRACKET) &&
+          (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
+        e.op = Model.INTERVAL;
         // Make bracket tokens part of the node for comparision.
-        //e.args.push(numberNode(tk));
-        //e.args.push(numberNode(tk2));
-        e = newNode(Model.PAREN, [e]);
-      } else if (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) {
-        e = newNode(Model.PAREN, [e]);
+        e.args.push(numberNode(tk));
+        e.args.push(numberNode(tk2));
+//        e = newNode(Model.PAREN, [e]);
+      } else if (e.op === Model.COMMA) {
+        assert(tk === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN ||
+               tk === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET, message(1011));
+        e.op = Model.LIST;
+//        e = newNode(Model.PAREN, [e]);
       }
-      // Save the brackets as attributes on the node for later use.
+      bracketTokenCount--;
+      inParenExpr = false;
       e.lbrk = tk;
       e.rbrk = tk2;
       return e;
@@ -1823,7 +1875,7 @@ export let Model = (function () {
         args.push(primaryExpr());
       }
       args.push(multiplicativeExpr());
-      console.log("limitExpr() args=" + JSON.stringify(args, null, 2));
+      console.log("limitExpr() args=" + JSON.stringify(args));
       return newNode(Model.LIM, args);
     }
     function isRelational(t) {
