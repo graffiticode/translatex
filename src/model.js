@@ -307,7 +307,7 @@ export let Model = (function () {
   // OpToLaTeX[OpStr.ARCSEC] = "\\arcsec";
   // OpToLaTeX[OpStr.ARCCOT] = "\\arccot";
   // OpToLaTeX[OpStr.ARCCSC] = "\\arccsc";
-  // OpToLaTeX[OpStr.LN] = "\\ln";
+  OpToLaTeX[OpStr.LN] = "\\ln";
   OpToLaTeX[OpStr.COMMA] = ",";
   OpToLaTeX[OpStr.M] = "\\M";
   OpToLaTeX[OpStr.BINOM] = "\\binom";
@@ -986,26 +986,26 @@ export let Model = (function () {
       //     return args[0];
       //   }
       //   break;
-      // case TK_LN:
-      //   next();
-      //   return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), primaryExpr()]);
-      // case TK_LG:
-      //   next();
-      //   return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), primaryExpr()]);
-      // case TK_LOG:
-      //   next();
-      //   args = [];
-      //   // Collect the subscript if there is one
-      //   if ((t=hd())===TK_UNDERSCORE) {
-      //     next({oneCharToken:true});
-      //     args.push(primaryExpr());
-      //   } else {
-      //     args.push(newNode(Model.VAR, ["e"]));    // default to natural log
-      //   }
-      //   args.push(primaryExpr());
-      //   // Finish the log function
-      //   return newNode(Model.LOG, args);
-      //   break;
+      case TK_LN:
+        next();
+        return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), primaryExpr()]);
+      case TK_LG:
+        next();
+        return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), primaryExpr()]);
+      case TK_LOG:
+        next();
+        args = [];
+        // Collect the subscript if there is one
+        if ((t=hd())===TK_UNDERSCORE) {
+          next({oneCharToken:true});
+          args.push(primaryExpr());
+        } else {
+          args.push(newNode(Model.VAR, ["10"]));    // default to base 10
+        }
+        args.push(primaryExpr());
+        // Finish the log function
+        return newNode(Model.LOG, args);
+        break;
       case TK_LIM:
         return limitExpr();
       case TK_INT:
@@ -1980,9 +1980,9 @@ export let Model = (function () {
         // "\\arcsec": TK_ARCSEC,
         // "\\arccot": TK_ARCCOT,
         // "\\arccsc": TK_ARCCSC,
-        // "\\ln": TK_LN,
-        // "\\lg": TK_LG,
-        // "\\log": TK_LOG,
+        "\\ln": TK_LN,
+        "\\lg": TK_LG,
+        "\\log": TK_LOG,
         "\\left": null,  // whitespace
         "\\right": null,
         "\\big": null,
