@@ -276,6 +276,7 @@ export let Model = (function () {
     MATHBF: "mathbf",
     DOT: "dot",
     MATHFIELD: "mathfield",
+    DELTA: "delta",
     NONE: "none",
   };
 
@@ -521,6 +522,7 @@ export let Model = (function () {
   const TK_LEFTRIGHTARROW = 0x14F;
   const TK_CAPLEFTRIGHTARROW = 0x150;
   const TK_CAPRIGHTARROW = 0x151;
+  const TK_DELTA = 0x152;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -601,6 +603,7 @@ export let Model = (function () {
   tokenToOperator[TK_MATHBF] = OpStr.MATHBF;
   tokenToOperator[TK_DOT] = OpStr.DOT;
   tokenToOperator[TK_MATHFIELD] = OpStr.MATHFIELD;
+  tokenToOperator[TK_DELTA] = OpStr.DELTA;
 
   let parse = function parse(src, env) {
     src = stripInvisible(src);
@@ -1071,6 +1074,14 @@ export let Model = (function () {
       case TK_QMARK:
         next();
         return newNode(Model.VAR, ["?"]);
+      case TK_DELTA:
+        next();
+        if (hd() === TK_VAR) {
+          let name = lexeme();
+          next();
+          return newNode(Model.VAR, ["delta_" + name]);
+        }
+        break;
       default:
         assert(!Model.option("strict"), message(1006, [tokenToOperator[tk]]));
         node = nodeEmpty;
@@ -1959,6 +1970,7 @@ export let Model = (function () {
       let curIndex = 0;
       let lexeme = "";
       let lexemeToToken = {
+        "\\Delta": TK_DELTA,
         "\\cdot": TK_DOT,
         "\\times": TK_MUL,
         "\\div": TK_DIV,
