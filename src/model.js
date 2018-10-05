@@ -296,18 +296,18 @@ export let Model = (function () {
   OpToLaTeX[OpStr.SUBSCRIPT] = "_";
   OpToLaTeX[OpStr.PM] = "\\pm";
   OpToLaTeX[OpStr.NOT] = "\\not";
-  // OpToLaTeX[OpStr.SIN] = "\\sin";
-  // OpToLaTeX[OpStr.COS] = "\\cos";
-  // OpToLaTeX[OpStr.TAN] = "\\tan";
-  // OpToLaTeX[OpStr.SEC] = "\\sec";
-  // OpToLaTeX[OpStr.COT] = "\\cot";
-  // OpToLaTeX[OpStr.CSC] = "\\csc";
-  // OpToLaTeX[OpStr.ARCSIN] = "\\arcsin";
-  // OpToLaTeX[OpStr.ARCCOS] = "\\arccos";
-  // OpToLaTeX[OpStr.ARCTAN] = "\\arctan";
-  // OpToLaTeX[OpStr.ARCSEC] = "\\arcsec";
-  // OpToLaTeX[OpStr.ARCCOT] = "\\arccot";
-  // OpToLaTeX[OpStr.ARCCSC] = "\\arccsc";
+  OpToLaTeX[OpStr.SIN] = "\\sin";
+  OpToLaTeX[OpStr.COS] = "\\cos";
+  OpToLaTeX[OpStr.TAN] = "\\tan";
+  OpToLaTeX[OpStr.SEC] = "\\sec";
+  OpToLaTeX[OpStr.COT] = "\\cot";
+  OpToLaTeX[OpStr.CSC] = "\\csc";
+  OpToLaTeX[OpStr.ARCSIN] = "\\arcsin";
+  OpToLaTeX[OpStr.ARCCOS] = "\\arccos";
+  OpToLaTeX[OpStr.ARCTAN] = "\\arctan";
+  OpToLaTeX[OpStr.ARCSEC] = "\\arcsec";
+  OpToLaTeX[OpStr.ARCCOT] = "\\arccot";
+  OpToLaTeX[OpStr.ARCCSC] = "\\arccsc";
   OpToLaTeX[OpStr.LN] = "\\ln";
   OpToLaTeX[OpStr.COMMA] = ",";
   OpToLaTeX[OpStr.M] = "\\M";
@@ -523,6 +523,18 @@ export let Model = (function () {
   const TK_CAPLEFTRIGHTARROW = 0x150;
   const TK_CAPRIGHTARROW = 0x151;
   const TK_DELTA = 0x152;
+  const TK_SINH = 0x153;
+  const TK_COSH = 0x154;
+  const TK_TANH = 0x155;
+  const TK_SECH = 0x156;
+  const TK_COTH = 0x157;
+  const TK_CSCH = 0x158;
+  const TK_ARCSINH = 0x159;
+  const TK_ARCCOSH = 0x15A;
+  const TK_ARCTANH = 0x15B;
+  const TK_ARCSECH = 0x15C;
+  const TK_ARCCSCH = 0x15D;
+  const TK_ARCCOTH = 0x15E;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -540,6 +552,30 @@ export let Model = (function () {
   tokenToOperator[TK_MUL] = OpStr.MUL;
   tokenToOperator[TK_DOT] = OpStr.DOT;
   tokenToOperator[TK_DIV] = OpStr.DIV;
+  tokenToOperator[TK_SIN] = OpStr.SIN;
+  tokenToOperator[TK_COS] = OpStr.COS;
+  tokenToOperator[TK_TAN] = OpStr.TAN;
+  tokenToOperator[TK_ARCSIN] = OpStr.ARCSIN;
+  tokenToOperator[TK_ARCCOS] = OpStr.ARCCOS;
+  tokenToOperator[TK_ARCTAN] = OpStr.ARCTAN;
+  tokenToOperator[TK_ARCSEC] = OpStr.ARCSEC;
+  tokenToOperator[TK_ARCCSC] = OpStr.ARCCSC;
+  tokenToOperator[TK_ARCCOT] = OpStr.ARCCOT;
+  tokenToOperator[TK_SEC] = OpStr.SEC;
+  tokenToOperator[TK_COT] = OpStr.COT;
+  tokenToOperator[TK_CSC] = OpStr.CSC;
+  tokenToOperator[TK_SINH] = OpStr.SINH;
+  tokenToOperator[TK_COSH] = OpStr.COSH;
+  tokenToOperator[TK_TANH] = OpStr.TANH;
+  tokenToOperator[TK_ARCSINH] = OpStr.ARCSINH;
+  tokenToOperator[TK_ARCCOSH] = OpStr.ARCCOSH;
+  tokenToOperator[TK_ARCTANH] = OpStr.ARCTANH;
+  tokenToOperator[TK_ARCSECH] = OpStr.ARCSECH;
+  tokenToOperator[TK_ARCCSCH] = OpStr.ARCCSCH;
+  tokenToOperator[TK_ARCCOTH] = OpStr.ARCCOTH;
+  tokenToOperator[TK_SECH] = OpStr.SECH;
+  tokenToOperator[TK_COTH] = OpStr.COTH;
+  tokenToOperator[TK_CSCH] = OpStr.CSCH;
   tokenToOperator[TK_EQL] = OpStr.EQL;
   tokenToOperator[TK_COMMA] = OpStr.COMMA;
   tokenToOperator[TK_TEXT] = OpStr.TEXT;
@@ -608,6 +644,7 @@ export let Model = (function () {
   let parse = function parse(src, env) {
     src = stripInvisible(src);
     function newNode(op, args) {
+      assert(op);
       return {
         op: op,
         args: args
@@ -941,34 +978,34 @@ export let Model = (function () {
         let name = braceExpr();
         node = newNode(Model.VEC, [name]);
         break;
-      // case TK_SIN:
-      // case TK_COS:
-      // case TK_TAN:
-      // case TK_SEC:
-      // case TK_COT:
-      // case TK_CSC:
-      //   next();
-      //   let t;
-      //   args = [];
-      //   // Collect exponents if there are any
-      //   while ((t=hd())===TK_CARET) {
-      //     next({oneCharToken: true});
-      //     args.push(unaryExpr());
-      //   }
-      //   if (args.length === 1 && isMinusOne(args[0])) {
-      //     // Special case for sin^{-1} and friends.
-      //     op = "arc" + tokenToOperator[tk];
-      //     args = [];
-      //   } else {
-      //     op = tokenToOperator[tk];
-      //   }
-      //   args.unshift(newNode(op, [postfixExpr()]));
-      //   if (args.length > 1) {
-      //     return newNode(Model.POW, args);
-      //   } else {
-      //     return args[0];
-      //   }
-      //   break;
+      case TK_SIN:
+      case TK_COS:
+      case TK_TAN:
+      case TK_SEC:
+      case TK_COT:
+      case TK_CSC:
+        next();
+        let t;
+        args = [];
+        // Collect exponents if there are any
+        while ((t=hd())===TK_CARET) {
+          next({oneCharToken: true});
+          args.push(unaryExpr());
+        }
+        if (args.length === 1 && isMinusOne(args[0])) {
+          // Special case for sin^{-1} and friends.
+          op = "arc" + tokenToOperator[tk];
+          args = [];
+        } else {
+          op = tokenToOperator[tk];
+        }
+        args.unshift(newNode(op, [postfixExpr()]));
+        if (args.length > 1) {
+          return newNode(Model.POW, args);
+        } else {
+          return args[0];
+        }
+        break;
       // case TK_ARCSIN:
       // case TK_ARCCOS:
       // case TK_ARCTAN:
@@ -1980,18 +2017,18 @@ export let Model = (function () {
         "\\vec": TK_VEC,
         "\\pm": TK_PM,
         "\\not": TK_NOT,
-        // "\\sin": TK_SIN,
-        // "\\cos": TK_COS,
-        // "\\tan": TK_TAN,
-        // "\\sec": TK_SEC,
-        // "\\cot": TK_COT,
-        // "\\csc": TK_CSC,
-        // "\\arcsin": TK_ARCSIN,
-        // "\\arccos": TK_ARCCOS,
-        // "\\arctan": TK_ARCTAN,
-        // "\\arcsec": TK_ARCSEC,
-        // "\\arccot": TK_ARCCOT,
-        // "\\arccsc": TK_ARCCSC,
+        "\\sin": TK_SIN,
+        "\\cos": TK_COS,
+        "\\tan": TK_TAN,
+        "\\sec": TK_SEC,
+        "\\cot": TK_COT,
+        "\\csc": TK_CSC,
+        "\\arcsin": TK_ARCSIN,
+        "\\arccos": TK_ARCCOS,
+        "\\arctan": TK_ARCTAN,
+        "\\arcsec": TK_ARCSEC,
+        "\\arccot": TK_ARCCOT,
+        "\\arccsc": TK_ARCCSC,
         "\\ln": TK_LN,
         "\\lg": TK_LG,
         "\\log": TK_LOG,
