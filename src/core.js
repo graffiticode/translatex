@@ -505,6 +505,9 @@ import {rules} from "./rules.js";
         if (str.indexOf("%IP") >= 0) {
           str = str.replace("%IP", env.ip);
         }
+        if (str.indexOf("%FP0") >= 0) {
+          str = str.replace("%FP0", env.fp);
+        }
         if (str.indexOf("%FP") >= 0) {
           str = str.replace("%FP", env.fp.split("").join(" "));
         }
