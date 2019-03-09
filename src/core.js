@@ -466,10 +466,10 @@ import {rules} from "./rules.js";
         }
         return false;
       });
-      // if (matches.length > 0) {
-      //   console.log("node: " + JSON.stringify(node, null, 2));
-      //   console.log("matches: " + JSON.stringify(matches, null, 2));
-      // }
+      if (matches.length > 0) {
+        console.log("node: " + JSON.stringify(node, null, 2));
+        console.log("matches: " + JSON.stringify(matches, null, 2));
+      }
       return matches;
     }
     function expandBinary(str, args) {
@@ -531,6 +531,8 @@ import {rules} from "./rules.js";
           args: [str],
         };
       }
+      console.log("expand() str=" + str);
+      console.log("expand() args=" + JSON.stringify(args));
       assert(args.length === 1 && isEmpty(args[0]));
       return args[0];
     }

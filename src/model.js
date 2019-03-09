@@ -1444,9 +1444,10 @@ export let Model = (function () {
       var denom = n.args[1];
       var denomHead =
         denom.op === Model.MUL && denom.args[0].op === Model.VAR && denom.args[0].args[0];
-      return numerHead === "d" && denomHead === "d" &&
+      return numerHead === "d" && denomHead === "d" && (
         denom.args[1] && denom.args[1].op === Model.VAR ||
-        denom.args[1] && denom.args[1].op === Model.POW && denom.args[1].args[0] && denom.args[1].args[0].op === Model.VAR;
+        denom.args[1] && denom.args[1].op === Model.POW && denom.args[1].args[0] && denom.args[1].args[0].op === Model.VAR
+      );
     }
     function derivativeExpr(node) {
       if (node.op !== Model.FRAC) {
@@ -1883,6 +1884,7 @@ export let Model = (function () {
              t === TK_PARALLEL || t === TK_NPARALLEL || t === TK_SIM || t === TK_CONG;
     }
     // Parse 'x < y'
+    // x + y > z ==> (x + y) > z, x + (y > z)
     function relationalExpr() {
       let t = hd();
       let expr = additiveExpr();
