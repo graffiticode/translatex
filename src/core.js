@@ -1352,6 +1352,7 @@ export let Core = (function () {
     case "words":
     case "rules":
     case "types":
+    case "data":
       if (typeof v === "undefined" ||
           typeof v === "object") {
         break;
