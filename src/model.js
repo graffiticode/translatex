@@ -1247,9 +1247,12 @@ export let Model = (function () {
         forEach(args.reverse(), function (base) {
           expo = newNode(Model.POW, [base, expo]);
         });
+        expo.isPolynomial = isPolynomial(expo);
         return expo;
       } else {
-        return args[0];
+        let node = args[0];
+        node.isPolynomial = isPolynomial(node);
+        return node;
       }
     }
     // Parse '10%', '4!'
@@ -1636,6 +1639,27 @@ export let Model = (function () {
         n = node;
       }
       return !isNaN(parseInt(n));
+    }
+
+    function isPolynomial(node) {
+      // This recognizes some common shapes of polynomials.
+      let degree;
+      console.log("isPolynomial() node=" + JSON.stringify(node));
+      if (node.op === Model.POW) {
+        let base = node.args[0];
+        let expo = node.args[1];
+        if ((base.op === Model.VAR ||
+             base.isPolynomial ||
+             base.op === Model.PAREN &&
+             base.args[0].op === Model.ADD &&
+             isPolynomial(base.args[0].args[0])) &&
+            isInteger(expo)) {
+          degree = parseInt(expo.args[0]);
+        } 
+      } else if (node.op === Model.VAR) {
+        degree = 1;
+      }
+      return degree;
     }
 
     function isRepeatingDecimal(args) {

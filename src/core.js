@@ -227,6 +227,15 @@ import {rules} from "./rules.js";
       }
       return list;
     }
+    function parseFormatPattern(pattern) {
+      // Normalize the fmt object to an array of objects
+      let [name, arg] = pattern.split("[");
+      console.log("parseFormatPattern() arg=" + arg);
+      return {
+        name: name,
+        arg: arg && arg.substring(0, arg.indexOf("]")) || undefined,
+      }
+    }
     function checkNumberType(fmt, node) {
       var fmtList = normalizeFormatObject(fmt);
       return fmtList.some(function (f) {
@@ -348,6 +357,27 @@ import {rules} from "./rules.js";
         }
       });
     }
+    function checkPolynomialType(pattern, node) {
+      var fmt = parseFormatPattern(pattern);
+      console.log("checkPolynomial() fmt=" + JSON.stringify(fmt));
+      var name = fmt.name;
+      var arg = fmt.arg;
+      switch (name) {
+      case "polynomial":
+        if (arg) {
+          if (arg.indexOf(">") === 0) {
+            let n = parseInt(arg.substring(1));
+            return node.isPolynomial > n;
+          } else {
+            let n = parseInt(arg);
+            return node.isPolynomial > n;
+          }
+        }
+        return node.isPolynomial;
+      default:
+        return false;
+      }
+    }
     function isSimpleExpression(node) {
       if (node.op === Model.NUM ||
           node.op === Model.VAR ||
@@ -366,10 +396,10 @@ import {rules} from "./rules.js";
       });
     }
     function matchType(pattern, node) {
-      let types = Model.option("types");
       if (pattern.op === Model.TYPE &&
           pattern.args[0].op === Model.VAR) {
-        let name = pattern.args[0].args[0];
+        let name = pattern.args[0].args[0].slice(0, pattern.args[0].args[0].indexOf("["));
+        console.log("matchType() name=" + name);
         switch (name) {
         case "number":
         case "integer":
@@ -393,7 +423,10 @@ import {rules} from "./rules.js";
         case "row":
         case "column":
           return checkMatrixType(pattern.args[0], node);
+        case "polynomial":
+          return checkPolynomialType(pattern.args[0].args[0], node);
         default:
+          let types = Model.option("types");
           let type = types[name];
           if (type) {
             assert(type instanceof Array);
@@ -466,10 +499,10 @@ import {rules} from "./rules.js";
         }
         return false;
       });
-      if (matches.length > 0) {
-        console.log("node: " + JSON.stringify(node, null, 2));
-        console.log("matches: " + JSON.stringify(matches, null, 2));
-      }
+      // if (matches.length > 0) {
+      //   console.log("node: " + JSON.stringify(node, null, 2));
+      //   console.log("matches: " + JSON.stringify(matches, null, 2));
+      // }
       return matches;
     }
     function expandBinary(str, args) {
