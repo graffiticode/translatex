@@ -1247,11 +1247,11 @@ export let Model = (function () {
         forEach(args.reverse(), function (base) {
           expo = newNode(Model.POW, [base, expo]);
         });
-        expo.isPolynomial = isPolynomial(expo);
+//        expo.isPolynomial = isPolynomial(expo);
         return expo;
       } else {
         let node = args[0];
-        node.isPolynomial = isPolynomial(node);
+//        node.isPolynomial = isPolynomial(node);
         return node;
       }
     }
@@ -1644,7 +1644,7 @@ export let Model = (function () {
     function isPolynomial(node) {
       // This recognizes some common shapes of polynomials.
       let degree;
-      console.log("isPolynomial() node=" + JSON.stringify(node));
+//      console.log("isPolynomial() node=" + JSON.stringify(node));
       if (node.op === Model.POW) {
         let base = node.args[0];
         let expo = node.args[1];
@@ -1655,7 +1655,7 @@ export let Model = (function () {
              isPolynomial(base.args[0].args[0])) &&
             isInteger(expo)) {
           degree = parseInt(expo.args[0]);
-        } 
+        }
       } else if (node.op === Model.VAR) {
         degree = 1;
       }

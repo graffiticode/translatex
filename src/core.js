@@ -230,7 +230,7 @@ import {rules} from "./rules.js";
     function parseFormatPattern(pattern) {
       // Normalize the fmt object to an array of objects
       let [name, arg] = pattern.split("[");
-      console.log("parseFormatPattern() arg=" + arg);
+//      console.log("parseFormatPattern() arg=" + arg);
       return {
         name: name,
         arg: arg && arg.substring(0, arg.indexOf("]")) || undefined,
@@ -359,7 +359,7 @@ import {rules} from "./rules.js";
     }
     function checkPolynomialType(pattern, node) {
       var fmt = parseFormatPattern(pattern);
-      console.log("checkPolynomial() fmt=" + JSON.stringify(fmt));
+//      console.log("checkPolynomial() fmt=" + JSON.stringify(fmt));
       var name = fmt.name;
       var arg = fmt.arg;
       switch (name) {
@@ -398,8 +398,8 @@ import {rules} from "./rules.js";
     function matchType(pattern, node) {
       if (pattern.op === Model.TYPE &&
           pattern.args[0].op === Model.VAR) {
-        let name = pattern.args[0].args[0].slice(0, pattern.args[0].args[0].indexOf("["));
-        console.log("matchType() name=" + name);
+        let name = pattern.args[0].args[0]; //.slice(0, pattern.args[0].args[0].indexOf("["));
+//        console.log("matchType() name=" + name);
         switch (name) {
         case "number":
         case "integer":
@@ -564,8 +564,8 @@ import {rules} from "./rules.js";
           args: [str],
         };
       }
-      console.log("expand() str=" + str);
-      console.log("expand() args=" + JSON.stringify(args));
+//      console.log("expand() str=" + str);
+//      console.log("expand() args=" + JSON.stringify(args));
       assert(args.length === 1 && isEmpty(args[0]));
       return args[0];
     }
