@@ -1247,11 +1247,11 @@ export let Model = (function () {
         forEach(args.reverse(), function (base) {
           expo = newNode(Model.POW, [base, expo]);
         });
-//        expo.isPolynomial = isPolynomial(expo);
+        expo.isPolynomial = isPolynomial(expo);
         return expo;
       } else {
         let node = args[0];
-//        node.isPolynomial = isPolynomial(node);
+        node.isPolynomial = isPolynomial(node);
         return node;
       }
     }
@@ -1354,7 +1354,7 @@ export let Model = (function () {
           if (hd()) {
             // Give $1 a higher precedence than ordinary multiplication.
             expr = multiplyNode([newNode(Model.VAR, ["$"]), postfixExpr()]);
-            expr.args[1].isPolynomial = true;
+            expr.args[1].isPolynomialTerm = true;
           } else {
             // Standalone "$". Probably not useful but we had a test case for it.
             expr = newNode(Model.VAR, ["$"]);
@@ -1544,9 +1544,9 @@ export let Model = (function () {
             expr.isImplicit = true;
           } else if (!isChemCore() && isPolynomialTerm(args[args.length-1], expr)) {
             // 2x, -3y but not CH (in chem)
-            expr.isPolynomial = true;
+            expr.isPolynomialTerm = true;
             var t = args.pop();
-            if (!t.isPolynomial) {
+            if (!t.isPolynomialTerm) {
               expr = binaryNode(Model.MUL, [t, expr]);
               expr.isImplicit = t.isImplicit;
               t.isImplicit = undefined;
@@ -1577,9 +1577,9 @@ export let Model = (function () {
             !expr.isScientific &&
             !expr.isBinomial && args.length &&
             !args[args.length-1].isImplicit &&
-            !args[args.length-1].isPolynomial &&
+            !args[args.length-1].isPolynomialTerm &&
             expr.isImplicit &&
-            expr.isPolynomial) {
+            expr.isPolynomialTerm) {
           args = args.concat(expr.args);
         } else {
           args.push(expr);
@@ -1625,7 +1625,7 @@ export let Model = (function () {
            isVar(n0) && n1.op === Model.NUM ||
            n0.op === Model.NUM && n1.op === Model.NUM ||
            isVar(n0) && isVar(n1) ||
-           n0.op === Model.MUL && n0.args[n0.args.length-1].isPolynomial && (isVar(n1) || n1.op === Model.NUM))) {
+           n0.op === Model.MUL && n0.args[n0.args.length-1].isPolynomialTerm && (isVar(n1) || n1.op === Model.NUM))) {
         return true;
       }
       return false;
@@ -1644,7 +1644,6 @@ export let Model = (function () {
     function isPolynomial(node) {
       // This recognizes some common shapes of polynomials.
       let degree;
-//      console.log("isPolynomial() node=" + JSON.stringify(node));
       if (node.op === Model.POW) {
         let base = node.args[0];
         let expo = node.args[1];
