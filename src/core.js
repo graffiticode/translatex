@@ -658,6 +658,8 @@ import {rules} from "./rules.js";
           n.isScientific = node.isScientific;
           n.isMixedFraction = node.isMixedFraction;
           n.isBinomial = node.isBinomial;
+          n.isPolynomial = node.isPolynomial;
+          n.isPolynomialTerm = node.isPolynomialTerm;
           return n;
         },
         unary: function(node) {
@@ -665,8 +667,9 @@ import {rules} from "./rules.js";
           forEach(node.args, function (n) {
             args.push(normalizeLiteral(n));
           });
-          node = newNode(node.op, args);
-          return node;
+          let n = newNode(node.op, args);
+          n.isPolynomial = node.isPolynomial;
+          return n;
         },
         exponential: function (node) {
           var args = [];
@@ -1432,6 +1435,7 @@ export let Core = (function () {
       valueNode = value != undefined ? Model.create(value, "spec") : undefined;
       Model.popEnv();
     } catch (e) {
+      console.log(JSON.stringify(spec));
       console.log(e.stack);
       pendingError = e;
     }
@@ -1458,6 +1462,7 @@ export let Core = (function () {
         Model.popEnv();
         resume(null, result);
       } catch (e) {
+        console.log(JSON.stringify(solution));
         console.log(e.stack);
         let message = e.message;
         resume({

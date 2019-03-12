@@ -6842,16 +6842,6 @@
     },
     {
       "options": {},
-      "source": "\\frac{1-2t^2+t^4+4t^2}{1+2t^2+t^4} =1",
-      "expected": "Eq(diff(1, t, 4),1)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{1-2t^2+t^4}{1+2t^2+t^4} + \\frac{4t^2}{1+2t^2+t^4}=1",
-      "expected": "Eq((diff(1, t, 4)+diff(t**2, t, 4)),1)"
-    },
-    {
-      "options": {},
       "source": "4x-7 = 3x+9",
       "expected": "Eq(((4*x)-7),((3*x)+9))"
     },
@@ -7617,11 +7607,6 @@
     },
     {
       "options": {},
-      "source": " \\int_1^5 \\frac{du}{2u^2}",
-      "expected": "integrate(diff(u, u, 2),(,1,5))"
-    },
-    {
-      "options": {},
       "source": "\\frac{1}{2} \\int_{1}^{5} \\frac{du}{u^2}",
       "expected": "(Rational(1,2)*integrate(((d*u)/u**2),(,1,5)))"
     },
@@ -7634,11 +7619,6 @@
       "options": {},
       "source": "\\int_{0}^{2} x (1+x^2)^{-2} dx",
       "expected": "integrate((x*(1+x**2)**-2),(x,0,2))"
-    },
-    {
-      "options": {},
-      "source": "\\int_{1}^{5} \\frac{du}{2u^2}",
-      "expected": "integrate(diff(u, u, 2),(,1,5))"
     },
     {
       "options": {},
@@ -8244,11 +8224,6 @@
       "options": {},
       "source": "\\int_{1}^{2} e^{-u^2/4} du = \\int_{1/2}^{1} e^{-t^2} \\cdot 2 dt",
       "expected": "Eq(integrate(exp((-u**2/4)),(u,1,2)),integrate((exp(-t**2)*2),(t,Rational(1,2),1)))"
-    },
-    {
-      "options": {},
-      "source": "1/e^{x^2}",
-      "expected": "diff(1, x, 2)"
     },
     {
       "options": {},

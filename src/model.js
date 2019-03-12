@@ -1586,11 +1586,14 @@ export let Model = (function () {
         }
         assert(loopCount++ < 1000, message(1000, ["Stuck in loop in mutliplicativeExpr()"]));
       }
+      let n;
       if (args.length > 1) {
-        return binaryNode(Model.MUL, args);
+        n = binaryNode(Model.MUL, args);
       } else {
-        return args[0];
+        n = args[0];
       }
+      n.isPolynomial = isPolynomial(n);
+      return n;
       //
       function isMultiplicative(t) {
         return t === TK_MUL || t === TK_DIV || t === TK_SLASH || t === TK_DOT;
@@ -1643,20 +1646,29 @@ export let Model = (function () {
 
     function isPolynomial(node) {
       // This recognizes some common shapes of polynomials.
-      let degree;
+      let degree = 0;
       if (node.op === Model.POW) {
         let base = node.args[0];
         let expo = node.args[1];
         if ((base.op === Model.VAR ||
              base.isPolynomial ||
              base.op === Model.PAREN &&
-             base.args[0].op === Model.ADD &&
-             isPolynomial(base.args[0].args[0])) &&
+             isPolynomial(base.args[0])) &&
             isInteger(expo)) {
           degree = parseInt(expo.args[0]);
         }
       } else if (node.op === Model.VAR) {
         degree = 1;
+      } else if (node.op === Model.ADD || node.op === Model.SUB) {
+        node.args.forEach(n => {
+          let d = isPolynomial(n) ;
+          degree = d > degree && d || degree;
+        });
+      } else if (node.op === Model.MUL) {
+        node.args.forEach(n => {
+          let d = isPolynomial(n) ;
+          degree = d > degree && d || degree;
+        });
       }
       return degree;
     }
@@ -1810,6 +1822,7 @@ export let Model = (function () {
           break;
         }
       }
+      expr.isPolynomial = isPolynomial(expr);
       return expr;
     }
     function flattenNestedNodes(node) {
