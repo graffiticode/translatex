@@ -1006,26 +1006,26 @@ export let Model = (function () {
           return args[0];
         }
         break;
-      // case TK_ARCSIN:
-      // case TK_ARCCOS:
-      // case TK_ARCTAN:
-      // case TK_ARCSEC:
-      // case TK_ARCCOT:
-      // case TK_ARCCSC:
-      //   next();
-      //   args = [];
-      //   // Collect exponents if there are any
-      //   while ((t=hd())===TK_CARET) {
-      //     next({oneCharToken: true});
-      //     args.push(unaryExpr());
-      //   }
-      //   args.unshift(newNode(tokenToOperator[tk], [primaryExpr()]));
-      //   if (args.length > 1) {
-      //     return newNode(Model.POW, args);
-      //   } else {
-      //     return args[0];
-      //   }
-      //   break;
+      case TK_ARCSIN:
+      case TK_ARCCOS:
+      case TK_ARCTAN:
+      case TK_ARCSEC:
+      case TK_ARCCOT:
+      case TK_ARCCSC:
+        next();
+        args = [];
+        // Collect exponents if there are any
+        while ((t=hd())===TK_CARET) {
+          next({oneCharToken: true});
+          args.push(unaryExpr());
+        }
+        args.unshift(newNode(tokenToOperator[tk], [primaryExpr()]));
+        if (args.length > 1) {
+          return newNode(Model.POW, args);
+        } else {
+          return args[0];
+        }
+        break;
       case TK_LN:
         next();
         return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), primaryExpr()]);
