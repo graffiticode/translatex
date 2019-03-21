@@ -393,6 +393,8 @@ import {rules} from "./rules.js";
         case "row":
         case "column":
           return checkMatrixType(pattern.args[0], node);
+        case "polynomial":
+          return checkPolynomialType(pattern.args[0], node);
         default:
           let type = types[name];
           if (type) {
