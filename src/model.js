@@ -1543,6 +1543,12 @@ export let Model = (function () {
             var t = args.pop();
             expr = binaryNode(Model.MUL, [t, expr]);
             expr.isImplicit = true;
+          } else if (isENotation(args, expr)) {
+            // 1E2, 1E-2, 1e2
+            var tmp = args.pop();
+            expr = binaryNode(Model.POW, [numberNode("10"), unaryExpr()]);
+            expr = binaryNode(Model.MUL, [tmp, expr]);
+            expr.isScientific = true;
           } else if (!isChemCore() && isPolynomialTerm(args[args.length-1], expr)) {
             // 2x, -3y but not CH (in chem)
             expr.isPolynomialTerm = true;
@@ -1746,6 +1752,20 @@ export let Model = (function () {
         expr = null;
       }
       return expr;
+    }
+
+    function isENotation(args, expr, t) {
+      var n;
+      var eulers = Model.option("allowEulersNumber");
+      if (args.length > 0 && isNumber(args[args.length-1]) &&
+          expr.op === Model.VAR &&
+          (expr.args[0] === "E" ||
+           expr.args[0] === "e" && !eulers) &&
+          (hd() === TK_NUM || (hd() === 45 || hd() === 43) && lookahead() === TK_NUM)) {
+        // 1E-2, 1E2
+        return true;
+      }
+      return false;
     }
 
     function isScientific(args) {
