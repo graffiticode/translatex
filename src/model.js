@@ -192,6 +192,18 @@ export let Model = (function () {
     ARCSEC: "arcsec",
     ARCCOT: "arccot",
     ARCCSC: "arccsc",
+    SINH: "sinh",
+    COSH: "cosh",
+    TANH: "tanh",
+    SECH: "sech",
+    COTH: "coth",
+    CSCH: "csch",
+    ARCSINH: "arcsinh",
+    ARCCOSH: "arccosh",
+    ARCTANH: "arctanh",
+    ARCSECH: "arcsech",
+    ARCCSCH: "arccsch",
+    ARCCOTH: "arccoth",
     LOG: "log",
     LN: "ln",
     LG: "lg",
@@ -308,6 +320,18 @@ export let Model = (function () {
   OpToLaTeX[OpStr.ARCSEC] = "\\arcsec";
   OpToLaTeX[OpStr.ARCCOT] = "\\arccot";
   OpToLaTeX[OpStr.ARCCSC] = "\\arccsc";
+  OpToLaTeX[OpStr.SINH] = "\\sinh";
+  OpToLaTeX[OpStr.COSH] = "\\cosh";
+  OpToLaTeX[OpStr.TANH] = "\\tanh";
+  OpToLaTeX[OpStr.ARCSINH] = "\\arcsinh";
+  OpToLaTeX[OpStr.ARCCOSH] = "\\arccosh";
+  OpToLaTeX[OpStr.ARCTANH] = "\\arctanh";
+  OpToLaTeX[OpStr.ARCSECH] = "\\arcsech";
+  OpToLaTeX[OpStr.ARCCSCH] = "\\arccsch";
+  OpToLaTeX[OpStr.ARCCOTH] = "\\arccoth";
+  OpToLaTeX[OpStr.SECH] = "\\sech";
+  OpToLaTeX[OpStr.COTH] = "\\coth";
+  OpToLaTeX[OpStr.CSCH] = "\\csch";
   OpToLaTeX[OpStr.LN] = "\\ln";
   OpToLaTeX[OpStr.COMMA] = ",";
   OpToLaTeX[OpStr.M] = "\\M";
@@ -985,6 +1009,12 @@ export let Model = (function () {
       case TK_SEC:
       case TK_COT:
       case TK_CSC:
+      case TK_SINH:
+      case TK_COSH:
+      case TK_TANH:
+      case TK_SECH:
+      case TK_COTH:
+      case TK_CSCH:
         next();
         let t;
         args = [];
@@ -1013,6 +1043,12 @@ export let Model = (function () {
       case TK_ARCSEC:
       case TK_ARCCOT:
       case TK_ARCCSC:
+      case TK_ARCSINH:
+      case TK_ARCCOSH:
+      case TK_ARCTANH:
+      case TK_ARCSECH:
+      case TK_ARCCSCH:
+      case TK_ARCCOTH:
         next();
         args = [];
         // Collect exponents if there are any
@@ -2088,6 +2124,18 @@ export let Model = (function () {
         "\\arcsec": TK_ARCSEC,
         "\\arccot": TK_ARCCOT,
         "\\arccsc": TK_ARCCSC,
+        "\\sinh": TK_SINH,
+        "\\cosh": TK_COSH,
+        "\\tanh": TK_TANH,
+        "\\sech": TK_SECH,
+        "\\coth": TK_COTH,
+        "\\csch": TK_CSCH,
+        "\\arcsinh": TK_ARCSINH,
+        "\\arccosh": TK_ARCCOSH,
+        "\\arctanh": TK_ARCTANH,
+        "\\arcsech": TK_ARCSECH,
+        "\\arccsch": TK_ARCCSCH,
+        "\\arccoth": TK_ARCCOTH,
         "\\ln": TK_LN,
         "\\lg": TK_LG,
         "\\log": TK_LOG,

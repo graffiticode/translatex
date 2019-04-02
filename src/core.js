@@ -84,6 +84,18 @@ import {rules} from "./rules.js";
       case Model.ARCSEC:
       case Model.ARCCSC:
       case Model.ARCCOT:
+      case Model.SINH:
+      case Model.COSH:
+      case Model.TANH:
+      case Model.ARCSINH:
+      case Model.ARCCOSH:
+      case Model.ARCTANH:
+      case Model.ARCSECH:
+      case Model.ARCCSCH:
+      case Model.ARCCOTH:
+      case Model.SECH:
+      case Model.CSCH:
+      case Model.COTH:
       case Model.PERCENT:
       case Model.M:
       case Model.ABS:
