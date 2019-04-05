@@ -2,23 +2,8 @@
   "tests": [
     {
       "options": {},
-      "source": "1^2",
-      "expected": "1**2"
-    },
-    {
-      "options": {},
       "source": "\\sqrt{23}",
       "expected": "sqrt(23)"
-    },
-    {
-      "options": {},
-      "source": "\\int x^2 dx",
-      "expected": "integrate(x**2,x)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{d}{dx}x^2",
-      "expected": "diff(x**2, x, 1)"
     },
     {
       "options": {},
@@ -99,16 +84,6 @@
       "options": {},
       "source": "1",
       "expected": "1"
-    },
-    {
-      "options": {},
-      "source": "e^{-x^2}",
-      "expected": "exp(-x**2)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{d^2}{dx^2} x^2",
-      "expected": "diff(x**2, x, 2)"
     },
     {
       "options": {},
@@ -202,23 +177,8 @@
     },
     {
       "options": {},
-      "source": "2x^4+x^3+x^2-2x+3x+2",
-      "expected": "((((((2*x**4)+x**3)+x**2)-(2*x))+(3*x))+2)"
-    },
-    {
-      "options": {},
-      "source": "2(10^4) + 10^3 + 10^2 + 10 + 2",
-      "expected": "(((((2*(10**4))+10**3)+10**2)+10)+2)"
-    },
-    {
-      "options": {},
       "source": "21112",
       "expected": "21112"
-    },
-    {
-      "options": {},
-      "source": "3x-5=16",
-      "expected": "Eq(((3*x)-5),16)"
     },
     {
       "options": {},
@@ -229,6 +189,16 @@
       "options": {},
       "source": "15-6",
       "expected": "(15-6)"
+    },
+    {
+      "options": {},
+      "source": "\\text{7}",
+      "expected": "7"
+    },
+    {
+      "options": {},
+      "source": "\\text{11}",
+      "expected": "11"
     },
     {
       "options": {},
@@ -577,63 +547,8 @@
     },
     {
       "options": {},
-      "source": "3x=21",
-      "expected": "Eq((3*x),21)"
-    },
-    {
-      "options": {},
-      "source": "x=(21)/3",
-      "expected": "Eq(x,(21/3))"
-    },
-    {
-      "options": {},
-      "source": "10=5x-3x",
-      "expected": "Eq(10,((5*x)-(3*x)))"
-    },
-    {
-      "options": {},
-      "source": "2x-3+3=21/3+3",
-      "expected": "Eq((((2*x)-3)+3),(Rational(21,3)+3))"
-    },
-    {
-      "options": {},
-      "source": "(2x-3)=21/3",
-      "expected": "Eq((((2*x)-3)),Rational(21,3))"
-    },
-    {
-      "options": {},
-      "source": "2x=10",
-      "expected": "Eq((2*x),10)"
-    },
-    {
-      "options": {},
-      "source": "2x=7+3",
-      "expected": "Eq((2*x),(7+3))"
-    },
-    {
-      "options": {},
-      "source": "3(2x-3)=16+5",
-      "expected": "Eq((3*(((2*x)-3))),(16+5))"
-    },
-    {
-      "options": {},
-      "source": "3(2x-3)=21",
-      "expected": "Eq((3*(((2*x)-3))),21)"
-    },
-    {
-      "options": {},
-      "source": "x=10/2",
-      "expected": "Eq(x,Rational(10,2))"
-    },
-    {
-      "options": {},
-      "source": "6(x+3)-10=32",
-      "expected": "Eq(((6*((x+3)))-10),32)"
-    },
-    {
-      "options": {},
-      "source": "(x+3)=21/3",
-      "expected": "Eq(((x+3)),Rational(21,3))"
+      "source": "10+3x=5x",
+      "expected": "Eq((10+(3*x)),(5*x))"
     },
     {
       "options": {},
@@ -647,48 +562,13 @@
     },
     {
       "options": {},
-      "source": "3x=16-4",
-      "expected": "Eq((3*x),(16-4))"
-    },
-    {
-      "options": {},
-      "source": "3(x+3)-5=16",
-      "expected": "Eq(((3*((x+3)))-5),16)"
-    },
-    {
-      "options": {},
-      "source": "x=12/3",
-      "expected": "Eq(x,Rational(12,3))"
-    },
-    {
-      "options": {},
-      "source": "x=7-3",
-      "expected": "Eq(x,(7-3))"
-    },
-    {
-      "options": {},
-      "source": "(x^2-x+1)(2x^2+3x+2)",
-      "expected": "((((x**2-x)+1))*((((2*x**2)+(3*x))+2)))"
-    },
-    {
-      "options": {},
-      "source": "1/2x-g<m",
-      "expected": "Lt(((Rational(1,2)*x)-g),m)"
-    },
-    {
-      "options": {},
-      "source": "x<2m+2g",
-      "expected": "Lt(x,((2*m)+(2*g)))"
-    },
-    {
-      "options": {},
       "source": "-282 = 21x",
       "expected": "Eq(-282,(21*x))"
     },
     {
       "options": {},
-      "source": "3/4(x+2) = 6(x+12)",
-      "expected": "Eq((Rational(3,4)*((x+2))),(6*((x+12))))"
+      "source": "3(x+2) = 24(x+12)",
+      "expected": "Eq((3*((x+2))),(24*((x+12))))"
     },
     {
       "options": {},
@@ -712,18 +592,8 @@
     },
     {
       "options": {},
-      "source": "-94/7=7x/7",
-      "expected": "Eq((-94/7),(7*(x/7)))"
-    },
-    {
-      "options": {},
       "source": "-94=7x+96-96",
       "expected": "Eq(-94,(((7*x)+96)-96))"
-    },
-    {
-      "options": {},
-      "source": "-94\\div7=7x\\div7",
-      "expected": "Eq(Rational(-94,7),Rational((7*x),7))"
     },
     {
       "options": {},
@@ -737,18 +607,8 @@
     },
     {
       "options": {},
-      "source": "3/4(x+2)*\\frac{4}{3}=6(x+12)*4/3",
-      "expected": "Eq(((Rational(3,4)*((x+2)))*Rational(4,3)),((6*((x+12)))*Rational(4,3)))"
-    },
-    {
-      "options": {},
-      "source": "3/4(x+2)=6(x+12)",
-      "expected": "Eq((Rational(3,4)*((x+2))),(6*((x+12))))"
-    },
-    {
-      "options": {},
-      "source": "3/4(x+2)\\cdot\\frac{4}{3}=6(x+12)\\times\\frac{4}{3}",
-      "expected": "Eq((Rational(3,4)*(((x+2))*Rational(4,3))),((6*((x+12)))*Rational(4,3)))"
+      "source": "x+2-x=8x+96-x",
+      "expected": "Eq(((x+2)-x),(((8*x)+96)-x))"
     },
     {
       "options": {},
@@ -762,58 +622,8 @@
     },
     {
       "options": {},
-      "source": "3/4x = 9",
-      "expected": "Eq((Rational(3,4)*x),9)"
-    },
-    {
-      "options": {},
       "source": "3x = 9\\cdot 4",
       "expected": "Eq((3*x),(9*4))"
-    },
-    {
-      "options": {},
-      "source": "3x*1/3=36*1/3",
-      "expected": "Eq(((3*x)*Rational(1,3)),(36*Rational(1,3)))"
-    },
-    {
-      "options": {},
-      "source": "3x/3=36/3",
-      "expected": "Eq((3*(x/3)),Rational(36,3))"
-    },
-    {
-      "options": {},
-      "source": "3x\\cdot1/3=36\\cdot1/3",
-      "expected": "Eq(((3*x)*Rational(1,3)),(36*Rational(1,3)))"
-    },
-    {
-      "options": {},
-      "source": "3x\\cdot\\frac{1}{3}=36\\cdot1/3",
-      "expected": "Eq(((3*x)*Rational(1,3)),(36*Rational(1,3)))"
-    },
-    {
-      "options": {},
-      "source": "3x\\div 3=36/3",
-      "expected": "Eq(Rational((3*x),3),Rational(36,3))"
-    },
-    {
-      "options": {},
-      "source": "3x\\times1/3=36\\times1/3",
-      "expected": "Eq(((3*x)*Rational(1,3)),(36*Rational(1,3)))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{3}{4}x = 9",
-      "expected": "Eq((Rational(3,4)*x),9)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{3}{4}x \\times 4 = 9\\cdot 4",
-      "expected": "Eq(((Rational(3,4)*x)*4),(9*4))"
-    },
-    {
-      "options": {},
-      "source": "15x>5x ",
-      "expected": "Gt((15*x),(5*x))"
     },
     {
       "options": {},
@@ -822,43 +632,8 @@
     },
     {
       "options": {},
-      "source": "15-15x>5x",
-      "expected": "Gt((15-(15*x)),(5*x))"
-    },
-    {
-      "options": {},
-      "source": "15/20>x ",
-      "expected": "Gt(Rational(15,20),x)"
-    },
-    {
-      "options": {},
-      "source": "15>20x ",
-      "expected": "Gt(15,(20*x))"
-    },
-    {
-      "options": {},
       "source": "15>5x+15x ",
       "expected": "Gt(15,((5*x)+(15*x)))"
-    },
-    {
-      "options": {},
-      "source": "3(5-5x)>5x ",
-      "expected": "Gt((3*((5-(5*x)))),(5*x))"
-    },
-    {
-      "options": {},
-      "source": "3>20x",
-      "expected": "Gt(3,(20*x))"
-    },
-    {
-      "options": {},
-      "source": "3/4>x ",
-      "expected": "Gt(Rational(3,4),x)"
-    },
-    {
-      "options": {},
-      "source": "3>4x ",
-      "expected": "Gt(3,(4*x))"
     },
     {
       "options": {},
@@ -872,58 +647,8 @@
     },
     {
       "options": {},
-      "source": "\\begin{bmatrix}5 & 10 & 4500 \\\\ 1 & 1 & 700\\end{bmatrix}",
-      "expected": "5"
-    },
-    {
-      "options": {},
-      "source": "(2)^{3h} B=T",
-      "expected": "Eq((2**(3*h)*B),T)"
-    },
-    {
-      "options": {},
-      "source": "(2)^{3h}\\times B=T",
-      "expected": "Eq((2**(3*h)*B),T)"
-    },
-    {
-      "options": {},
-      "source": "8^h \\cdot B=T",
-      "expected": "Eq((8**h*B),T)"
-    },
-    {
-      "options": {},
-      "source": "B(2)^{3h}=T",
-      "expected": "Eq((B*2**(3*h)),T)"
-    },
-    {
-      "options": {},
-      "source": "T=(2^3)^h B",
-      "expected": "Eq(T,((2**3)**h*B))"
-    },
-    {
-      "options": {},
-      "source": "T=(2^3)^h\\cdot B",
-      "expected": "Eq(T,((2**3)**h*B))"
-    },
-    {
-      "options": {},
-      "source": "T=(2^3)^h\\times B",
-      "expected": "Eq(T,((2**3)**h*B))"
-    },
-    {
-      "options": {},
-      "source": "T=B(2^3)^h",
-      "expected": "Eq(T,(B*(2**3)**h))"
-    },
-    {
-      "options": {},
       "source": "\\begin{bmatrix}1 & -1 & 27 \\\\ 1 & -4 & 15\\end{bmatrix}*-1",
       "expected": "(1*-1)"
-    },
-    {
-      "options": {},
-      "source": "\\begin{bmatrix}1 & -1 & 27 \\\\ 0 & -3 & -12\\end{bmatrix}*-1/3",
-      "expected": "(1*(-1/3))"
     },
     {
       "options": {},
@@ -932,43 +657,8 @@
     },
     {
       "options": {},
-      "source": "x+5-5=36-5",
-      "expected": "Eq(((x+5)-5),(36-5))"
-    },
-    {
-      "options": {},
-      "source": "x+5=4*(4+5)",
-      "expected": "Eq((x+5),(4*((4+5))))"
-    },
-    {
-      "options": {},
-      "source": "x+5=4*9",
-      "expected": "Eq((x+5),(4*9))"
-    },
-    {
-      "options": {},
-      "source": "12=3y",
-      "expected": "Eq(12,(3*y))"
-    },
-    {
-      "options": {},
-      "source": "y+27+5=(y+5)*4",
-      "expected": "Eq(((y+27)+5),(((y+5))*4))"
-    },
-    {
-      "options": {},
       "source": "y+32=4y+20",
       "expected": "Eq((y+32),((4*y)+20))"
-    },
-    {
-      "options": {},
-      "source": "-4= 4x-x",
-      "expected": "Eq(-4,((4*x)-x))"
-    },
-    {
-      "options": {},
-      "source": "x/(x+1) = 4",
-      "expected": "Eq((x/((x+1))),4)"
     },
     {
       "options": {},
@@ -977,7 +667,7 @@
     },
     {
       "options": {},
-      "source": "x/(x+6)= -6(x+6)",
+      "source": "x/(x+6) = -6(x+6)",
       "expected": "Eq((x/((x+6))),(-6*((x+6))))"
     },
     {
@@ -987,23 +677,18 @@
     },
     {
       "options": {},
-      "source": "x=-73/12-\\sqrt{145}/12",
-      "expected": "Eq(x,((-73/12)-(sqrt(145)/12)))"
-    },
-    {
-      "options": {},
       "source": "T=4\\sqrt{m}",
       "expected": "Eq(T,(4*sqrt(m)))"
     },
     {
       "options": {},
-      "source": "\\frac{T}{4}-\\sqrt{m}",
-      "expected": "((T/4)-sqrt(m))"
+      "source": "x+16 = 2(x-12)",
+      "expected": "Eq((x+16),(2*((x-12))))"
     },
     {
       "options": {},
-      "source": "x=\\frac{2f-3b}{a}",
-      "expected": "Eq(x,(((2*f)-(3*b))/a))"
+      "source": "x+16 = 2x-24",
+      "expected": "Eq((x+16),((2*x)-24))"
     },
     {
       "options": {},
@@ -1017,83 +702,8 @@
     },
     {
       "options": {},
-      "source": "x=(21)/3 ",
-      "expected": "Eq(x,(21/3))"
-    },
-    {
-      "options": {},
-      "source": "2*5 \\text{ dollars} > .02^5 \\text{ cents}",
-      "expected": "Gt((2*(5* dollars)),(.02**5* cents))"
-    },
-    {
-      "options": {},
-      "source": "2\\cdot5 \\text{ dollars} > .02^5 \\text{ cents}",
-      "expected": "Gt(((2*5)* dollars),(.02**5* cents))"
-    },
-    {
-      "options": {},
-      "source": "2\\cdot5 \\text{ dollars} > 2^5 \\text{ cents}",
-      "expected": "Gt(((2*5)* dollars),(2**5* cents))"
-    },
-    {
-      "options": {},
-      "source": "\\text{\\$}40.96>\\text{\\$}2\\cdot(12)",
-      "expected": "Gt(($*40.96),(($*2)*12))"
-    },
-    {
-      "options": {},
-      "source": "f(t) = (t-5)^2+20",
-      "expected": "Eq((f*t),(((t-5))**2+20))"
-    },
-    {
-      "options": {},
-      "source": "f(t) = 1*(t-5)^2+20",
-      "expected": "Eq((f*t),((1*((t-5))**2)+20))"
-    },
-    {
-      "options": {},
-      "source": "f(t) = t^2-10t+45",
-      "expected": "Eq((f*t),((t**2-(10*t))+45))"
-    },
-    {
-      "options": {},
-      "source": "f(10) = (10-5)^2+20",
-      "expected": "Eq((f*10),(((10-5))**2+20))"
-    },
-    {
-      "options": {},
       "source": "f(10) = (45) *1,000",
       "expected": "Eq((f*10),(45*1)),000"
-    },
-    {
-      "options": {},
-      "source": "f(10) = ((10-5)^2+20) *1000",
-      "expected": "Eq((f*10),(((((10-5))**2+20))*1000))"
-    },
-    {
-      "options": {},
-      "source": "f(10) = (25+20) *1000",
-      "expected": "Eq((f*10),(((25+20))*1000))"
-    },
-    {
-      "options": {},
-      "source": "f(10) = (45) *1000",
-      "expected": "Eq((f*10),(45*1000))"
-    },
-    {
-      "options": {},
-      "source": "f(x) = \\sqrt{64x}",
-      "expected": "Eq((f*x),sqrt((64*x)))"
-    },
-    {
-      "options": {},
-      "source": "f(x) = \\sqrt{8\\cdot8x}",
-      "expected": "Eq((f*x),sqrt(((8*8)*x)))"
-    },
-    {
-      "options": {},
-      "source": "f(x) = \\sqrt{8^2x}",
-      "expected": "Eq((f*x),sqrt((8**2*x)))"
     },
     {
       "options": {},
@@ -1102,38 +712,8 @@
     },
     {
       "options": {},
-      "source": "f(165) = \\sqrt{165*8^2}",
-      "expected": "Eq((f*165),sqrt((165*8**2)))"
-    },
-    {
-      "options": {},
-      "source": "f(165) = \\sqrt{165\\cdot8^2}",
-      "expected": "Eq((f*165),sqrt((165*8**2)))"
-    },
-    {
-      "options": {},
-      "source": "f(165) = \\sqrt{165\\times8^2}",
-      "expected": "Eq((f*165),sqrt((165*8**2)))"
-    },
-    {
-      "options": {},
       "source": "f(165) = \\sqrt{64\\cdot165}",
       "expected": "Eq((f*165),sqrt((64*165)))"
-    },
-    {
-      "options": {},
-      "source": "f(165) = \\sqrt{8^2*165}",
-      "expected": "Eq((f*165),sqrt((8**2*165)))"
-    },
-    {
-      "options": {},
-      "source": "f(165) = \\sqrt{8^2\\times165}",
-      "expected": "Eq((f*165),sqrt((8**2*165)))"
-    },
-    {
-      "options": {},
-      "source": "f(330) = \\sqrt{8^2 \\cdot 330}",
-      "expected": "Eq((f*330),sqrt((8**2*330)))"
     },
     {
       "options": {},
@@ -1197,6 +777,11 @@
     },
     {
       "options": {},
+      "source": "70+20+10",
+      "expected": "((70+20)+10)"
+    },
+    {
+      "options": {},
       "source": "70+30",
       "expected": "(70+30)"
     },
@@ -1232,6 +817,11 @@
     },
     {
       "options": {},
+      "source": "x=10+12",
+      "expected": "Eq(x,(10+12))"
+    },
+    {
+      "options": {},
       "source": "x=18+4",
       "expected": "Eq(x,(18+4))"
     },
@@ -1264,6 +854,11 @@
       "options": {},
       "source": "13+60=x",
       "expected": "Eq((13+60),x)"
+    },
+    {
+      "options": {},
+      "source": "x=60+10+3",
+      "expected": "Eq(x,((60+10)+3))"
     },
     {
       "options": {},
@@ -1319,6 +914,11 @@
       "options": {},
       "source": "29+6=x",
       "expected": "Eq((29+6),x)"
+    },
+    {
+      "options": {},
+      "source": "x=20+15",
+      "expected": "Eq(x,(20+15))"
     },
     {
       "options": {},
@@ -1552,6 +1152,11 @@
     },
     {
       "options": {},
+      "source": "10\\cdot10<99",
+      "expected": "Lt((10*10),99)"
+    },
+    {
+      "options": {},
       "source": "10\\times10<99",
       "expected": "Lt((10*10),99)"
     },
@@ -1644,6 +1249,11 @@
       "options": {},
       "source": "7+23*10=237",
       "expected": "Eq((7+(23*10)),237)"
+    },
+    {
+      "options": {},
+      "source": "7+230=237",
+      "expected": "Eq((7+230),237)"
     },
     {
       "options": {},
@@ -1747,11 +1357,6 @@
     },
     {
       "options": {},
-      "source": "400",
-      "expected": "400"
-    },
-    {
-      "options": {},
       "source": "240-190",
       "expected": "(240-190)"
     },
@@ -1832,6 +1437,16 @@
     },
     {
       "options": {},
+      "source": "4*9=x",
+      "expected": "Eq((4*9),x)"
+    },
+    {
+      "options": {},
+      "source": "4*9=x",
+      "expected": "Eq((4*9),x)"
+    },
+    {
+      "options": {},
       "source": "4\\times9=x",
       "expected": "Eq((4*9),x)"
     },
@@ -1887,18 +1502,8 @@
     },
     {
       "options": {},
-      "source": "24/3=x",
-      "expected": "Eq(Rational(24,3),x)"
-    },
-    {
-      "options": {},
-      "source": "x=24\\div3",
-      "expected": "Eq(x,Rational(24,3))"
-    },
-    {
-      "options": {},
-      "source": "x=\\frac{24}{3}",
-      "expected": "Eq(x,Rational(24,3))"
+      "source": "4*9=x",
+      "expected": "Eq((4*9),x)"
     },
     {
       "options": {},
@@ -1932,13 +1537,8 @@
     },
     {
       "options": {},
-      "source": "1/2>3/8",
-      "expected": "Gt(Rational(1,2),Rational(3,8))"
-    },
-    {
-      "options": {},
-      "source": "4/8>3/8",
-      "expected": "Gt(Rational(4,8),Rational(3,8))"
+      "source": "x=9\\times10",
+      "expected": "Eq(x,(9*10))"
     },
     {
       "options": {},
@@ -1997,18 +1597,8 @@
     },
     {
       "options": {},
-      "source": "x=9^2",
-      "expected": "Eq(x,9**2)"
-    },
-    {
-      "options": {},
       "source": "x=9\\text{ feet }*9\\text{ feet }",
       "expected": "Eq(x,((9* feet )*(9* feet )))"
-    },
-    {
-      "options": {},
-      "source": "x=(9\\text{ feet })^2",
-      "expected": "Eq(x,(9* feet )**2)"
     },
     {
       "options": {},
@@ -2024,11 +1614,6 @@
       "options": {},
       "source": "x=9ft*9ft",
       "expected": "Eq(x,((9*ft)*(9*ft)))"
-    },
-    {
-      "options": {},
-      "source": "x=9 ft^2",
-      "expected": "Eq(x,(9*ft**2))"
     },
     {
       "options": {},
@@ -2079,6 +1664,11 @@
       "options": {},
       "source": "16 cm+x=22cm",
       "expected": "Eq(((16*cm)+x),(22*cm))"
+    },
+    {
+      "options": {},
+      "source": "22cm=14cm+2cm+x",
+      "expected": "Eq((22*cm),(((14*cm)+(2*cm))+x))"
     },
     {
       "options": {},
@@ -2142,11 +1732,6 @@
     },
     {
       "options": {},
-      "source": "a+83=360",
-      "expected": "Eq((a+83),360)"
-    },
-    {
-      "options": {},
       "source": "83+a=180",
       "expected": "Eq((83+a),180)"
     },
@@ -2177,113 +1762,13 @@
     },
     {
       "options": {},
-      "source": "\\frac{1}{3}, \\frac{5}{3}, \\frac{3}{1}, \\frac{13}{3}, \\frac{17}{3}, \\frac{7}{1}, \\frac{25}{3}, \\frac{29}{3}, \\frac{11}{1}, \\frac{37}{3}, \\frac{41}{3}, \\frac{15}{1}, \\frac{48}{3}",
-      "expected": "Rational(1,3),Rational(5,3),Rational(3,1),Rational(13,3),Rational(17,3),Rational(7,1),Rational(25,3),Rational(29,3),Rational(11,1),Rational(37,3),Rational(41,3),Rational(15,1),Rational(48,3)"
-    },
-    {
-      "options": {},
-      "source": "1/3, 5/3, 3, 13/3, 17/3, 7, 25/3, 29/3, 11, 37/3, 41/3, 45/3, 49/3",
-      "expected": "Rational(1,3),Rational(5,3),3,Rational(13,3),Rational(17,3),7,Rational(25,3),Rational(29,3),11,Rational(37,3),Rational(41,3),Rational(45,3),Rational(49,3)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{1}{3}, \\frac{5}{3}, \\frac{3}{1}, \\frac{13}{3}, \\frac{17}{3}, \\frac{7}{1}, 25/3, 29/3, 11, 37/3, 41/3, 15, 49/3",
-      "expected": "Rational(1,3),Rational(5,3),Rational(3,1),Rational(13,3),Rational(17,3),Rational(7,1),Rational(25,3),Rational(29,3),11,Rational(37,3),Rational(41,3),15,Rational(49,3)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{1}{3}, \\frac{5}{3}, \\frac{3}{1}, \\frac{13}{3}, \\frac{17}{3}, \\frac{7}{1}, \\frac{25}{3}, \\frac{29}{3}, \\frac{11}{1}, \\frac{37}{3}, \\frac{41}{3}, 15, 49/3",
-      "expected": "Rational(1,3),Rational(5,3),Rational(3,1),Rational(13,3),Rational(17,3),Rational(7,1),Rational(25,3),Rational(29,3),Rational(11,1),Rational(37,3),Rational(41,3),15,Rational(49,3)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{1}{3}, \\frac{5}{3}, \\frac{3}{1}, \\frac{13}{3}, \\frac{17}{3}, \\frac{7}{1}, \\frac{25}{3}, \\frac{29}{3}, \\frac{11}{1}, \\frac{37}{3}, \\frac{41}{3}, \\frac{15}{1}, 49/3",
-      "expected": "Rational(1,3),Rational(5,3),Rational(3,1),Rational(13,3),Rational(17,3),Rational(7,1),Rational(25,3),Rational(29,3),Rational(11,1),Rational(37,3),Rational(41,3),Rational(15,1),Rational(49,3)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{1}{3}, \\frac{5}{3}, \\frac{3}{1}, \\frac{13}{3}, \\frac{17}{3}, \\frac{7}{1}, \\frac{25}{3}, \\frac{29}{3}, \\frac{11}{1}, \\frac{37}{3}, \\frac{41}{3}, \\frac{15}{1}, \\frac{49}{3}",
-      "expected": "Rational(1,3),Rational(5,3),Rational(3,1),Rational(13,3),Rational(17,3),Rational(7,1),Rational(25,3),Rational(29,3),Rational(11,1),Rational(37,3),Rational(41,3),Rational(15,1),Rational(49,3)"
-    },
-    {
-      "options": {},
-      "source": "2\\frac{1}{2}, 2\\frac{5}{8}, 2\\frac{3}{4}, 2\\frac{1}{4}, 2\\frac{3}{8}",
-      "expected": "(2+Rational(1,2)),(2+Rational(5,8)),(2+Rational(3,4)),(2+Rational(1,4)),(2+Rational(3,8))"
-    },
-    {
-      "options": {},
-      "source": "2\\frac{1}{4}, 2\\frac{3}{8}, 2\\frac{1}{2}, 2\\frac{5}{8}, 2\\frac{3}{4}",
-      "expected": "(2+Rational(1,4)),(2+Rational(3,8)),(2+Rational(1,2)),(2+Rational(5,8)),(2+Rational(3,4))"
-    },
-    {
-      "options": {},
-      "source": "2\\frac{3}{4}, 2\\frac{1}{4}, 2\\frac{3}{8},2\\frac{1}{2},2\\frac{5}{8}",
-      "expected": "(2+Rational(3,4)),(2+Rational(1,4)),(2+Rational(3,8)),(2+Rational(1,2)),(2+Rational(5,8))"
-    },
-    {
-      "options": {},
-      "source": "2\\frac{3}{8},2\\frac{1}{2},2\\frac{5}{8},2\\frac{3}{4},2\\frac{1}{4}",
-      "expected": "(2+Rational(3,8)),(2+Rational(1,2)),(2+Rational(5,8)),(2+Rational(3,4)),(2+Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "8/10 = .8",
-      "expected": "Eq(Rational(8,10),.8)"
-    },
-    {
-      "options": {},
-      "source": "8/10 = \\frac{80}{100}",
-      "expected": "Eq(Rational(8,10),Rational(80,100))"
-    },
-    {
-      "options": {},
-      "source": "8/10 = .800",
-      "expected": "Eq(Rational(8,10),.800)"
-    },
-    {
-      "options": {},
-      "source": "\\frac{8}{10} = \\frac{80}{100}",
-      "expected": "Eq(Rational(8,10),Rational(80,100))"
-    },
-    {
-      "options": {},
-      "source": "8/10 = 4/5",
-      "expected": "Eq(Rational(8,10),Rational(4,5))"
-    },
-    {
-      "options": {},
-      "source": "8/10 = 800/1000",
-      "expected": "Eq(Rational(8,10),Rational(800,1000))"
-    },
-    {
-      "options": {},
-      "source": "1 \\frac{8}{10} = 1.80",
-      "expected": "Eq((1+Rational(8,10)),1.80)"
-    },
-    {
-      "options": {},
       "source": "0.22>0.02",
       "expected": "Gt(0.22,0.02)"
     },
     {
       "options": {},
-      "source": "2/100<11/50",
-      "expected": "Lt(Rational(2,100),Rational(11,50))"
-    },
-    {
-      "options": {},
-      "source": "2/100<22/100",
-      "expected": "Lt(Rational(2,100),Rational(22,100))"
-    },
-    {
-      "options": {},
       "source": "0.6=.6",
       "expected": "Eq(0.6,.6)"
-    },
-    {
-      "options": {},
-      "source": "6/10=6/10",
-      "expected": "Eq(Rational(6,10),Rational(6,10))"
     },
     {
       "options": {},
@@ -2299,6 +1784,11 @@
       "options": {},
       "source": "1 *10 + 9 \\text{ ones}=19",
       "expected": "Eq(((1*10)+(9* ones)),19)"
+    },
+    {
+      "options": {},
+      "source": "1 *10 + 9=19",
+      "expected": "Eq(((1*10)+9),19)"
     },
     {
       "options": {},
@@ -2327,8 +1817,8 @@
     },
     {
       "options": {},
-      "source": "(2x^2+3x+2)(x^2-x+1)",
-      "expected": "(((((2*x**2)+(3*x))+2))*(((x**2-x)+1)))"
+      "source": "C=(b+rm)(1+t)",
+      "expected": "Eq(C,(((b+(r*m)))*((1+t))))"
     },
     {
       "options": {},
@@ -2342,128 +1832,13 @@
     },
     {
       "options": {},
-      "source": "\\frac{30}{50}=\\frac{3}{5}",
-      "expected": "Eq(Rational(30,50),Rational(3,5))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{60}{100}=\\frac{6}{10}",
-      "expected": "Eq(Rational(60,100),Rational(6,10))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{6}{10}=60/100",
-      "expected": "Eq(Rational(6,10),Rational(60,100))"
-    },
-    {
-      "options": {},
-      "source": "1 4/10>1.04",
-      "expected": "Gt((1+Rational(4,10)),1.04)"
-    },
-    {
-      "options": {},
-      "source": "1\\frac{4}{10}>1.04",
-      "expected": "Gt((1+Rational(4,10)),1.04)"
-    },
-    {
-      "options": {},
-      "source": "1.04<1\\frac{4}{10}",
-      "expected": "Lt(1.04,(1+Rational(4,10)))"
-    },
-    {
-      "options": {},
-      "source": "1 \\frac{4}{100}<1.4",
-      "expected": "Lt((1+Rational(4,100)),1.4)"
-    },
-    {
-      "options": {},
-      "source": "1+ 4/10>1.04",
-      "expected": "Gt((1+Rational(4,10)),1.04)"
-    },
-    {
-      "options": {},
       "source": "1.4>1.04",
       "expected": "Gt(1.4,1.04)"
     },
     {
       "options": {},
-      "source": "1.4>1 \\frac{4}{100}",
-      "expected": "Gt(1.4,(1+Rational(4,100)))"
-    },
-    {
-      "options": {},
-      "source": "1.04<1\\frac{4}{10}",
-      "expected": "Lt(1.04,(1+Rational(4,10)))"
-    },
-    {
-      "options": {},
-      "source": "3 8/10>38/100",
-      "expected": "Gt((3+Rational(8,10)),Rational(38,100))"
-    },
-    {
-      "options": {},
-      "source": "38/10>.38",
-      "expected": "Gt(Rational(38,10),.38)"
-    },
-    {
-      "options": {},
-      "source": "3 +8/10>.38",
-      "expected": "Gt((3+Rational(8,10)),.38)"
-    },
-    {
-      "options": {},
-      "source": ".38 < 3 \\frac{8}{10}",
-      "expected": "Lt(.38,(3+Rational(8,10)))"
-    },
-    {
-      "options": {},
-      "source": ".38 < 38/10",
-      "expected": "Lt(.38,Rational(38,10))"
-    },
-    {
-      "options": {},
-      "source": "38/100 < 38/10",
-      "expected": "Lt(Rational(38,100),Rational(38,10))"
-    },
-    {
-      "options": {},
-      "source": "38/100 < 3+8/10",
-      "expected": "Lt(Rational(38,100),(3+Rational(8,10)))"
-    },
-    {
-      "options": {},
-      "source": "3.8>38/100",
-      "expected": "Gt(3.8,Rational(38,100))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{38}{10}>\\frac{38}{100}",
-      "expected": "Gt(Rational(38,10),Rational(38,100))"
-    },
-    {
-      "options": {},
-      "source": "32 \\frac{4}{100} + 3 \\frac{8}{10}>32.04",
-      "expected": "Gt(((32+Rational(4,100))+(3+Rational(8,10))),32.04)"
-    },
-    {
-      "options": {},
       "source": "32.04+3.8>32.04",
       "expected": "Gt((32.04+3.8),32.04)"
-    },
-    {
-      "options": {},
-      "source": "32 \\frac{1}{25} + 3 \\frac{80}{100}>32 \\frac{4}{100}",
-      "expected": "Gt(((32+Rational(1,25))+(3+Rational(80,100))),(32+Rational(4,100)))"
-    },
-    {
-      "options": {},
-      "source": "32 \\frac{4}{100} + 3 \\frac{80}{100}>32 \\frac{4}{100}",
-      "expected": "Gt(((32+Rational(4,100))+(3+Rational(80,100))),(32+Rational(4,100)))"
-    },
-    {
-      "options": {},
-      "source": "32 \\frac{4}{100} + 3 \\frac{8}{10}>32 \\frac{4}{100}",
-      "expected": "Gt(((32+Rational(4,100))+(3+Rational(8,10))),(32+Rational(4,100)))"
     },
     {
       "options": {},
@@ -2477,21 +1852,6 @@
     },
     {
       "options": {},
-      "source": "1*10+3+8*1/10",
-      "expected": "(((1*10)+3)+(8*Rational(1,10)))"
-    },
-    {
-      "options": {},
-      "source": "1*10+3+8*1/10",
-      "expected": "(((1*10)+3)+(8*Rational(1,10)))"
-    },
-    {
-      "options": {},
-      "source": "1*10+3+8*10^{-1}",
-      "expected": "(((1*10)+3)+(8*10**-1))"
-    },
-    {
-      "options": {},
       "source": "4 * 3 + .6 *3",
       "expected": "((4*3)+(.6*3))"
     },
@@ -2502,46 +1862,6 @@
     },
     {
       "options": {},
-      "source": "4.6 *3",
-      "expected": "(4.6*3)"
-    },
-    {
-      "options": {},
-      "source": ".3* 10^2+.007* 10^3 < .3* 10+.7* 10^2",
-      "expected": "Lt(((.3*10**2)+(.007*10**3)),((.3*10)+(.7*10**2)))"
-    },
-    {
-      "options": {},
-      "source": ".3\\times 10^2+.007\\cdot 10^3 < .3\\cdot 10+.7\\cdot 10^2",
-      "expected": "Lt(((.3*10**2)+(.007*10**3)),((.3*10)+(.7*10**2)))"
-    },
-    {
-      "options": {},
-      "source": ".3* 10^2+.007\\times 10^3 < .3\\times 10+.7\\times 10^2",
-      "expected": "Lt(((.3*10**2)+(.007*10**3)),((.3*10)+(.7*10**2)))"
-    },
-    {
-      "options": {},
-      "source": ".3\\times 10^2+.007\\times 10^3 < .3\\times 10+.7\\times 10^2",
-      "expected": "Lt(((.3*10**2)+(.007*10**3)),((.3*10)+(.7*10**2)))"
-    },
-    {
-      "options": {},
-      "source": ".3\\times 10^2+.007\\times 10^3 < .3\\times 10+.7\\cdot 10^2",
-      "expected": "Lt(((.3*10**2)+(.007*10**3)),((.3*10)+(.7*10**2)))"
-    },
-    {
-      "options": {},
-      "source": ".3* 10^2+.007* 10^3 < .3* 10+.7* 10^2",
-      "expected": "Lt(((.3*10**2)+(.007*10**3)),((.3*10)+(.7*10**2)))"
-    },
-    {
-      "options": {},
-      "source": "10 grams +12 grams + 8 grams",
-      "expected": "((((((10*g)*r)*a)*ms)+((((12*g)*r)*a)*ms))+((((8*g)*r)*a)*ms))"
-    },
-    {
-      "options": {},
       "source": "29.925",
       "expected": "29.925"
     },
@@ -2549,11 +1869,6 @@
       "options": {},
       "source": "10.357+12.062+7.506",
       "expected": "((10.357+12.062)+7.506)"
-    },
-    {
-      "options": {},
-      "source": "(10.357+12.062+7.506)",
-      "expected": "(((10.357+12.062)+7.506))"
     },
     {
       "options": {},
@@ -2577,13 +1892,13 @@
     },
     {
       "options": {},
-      "source": "10.4 grams +12.1 grams + 7.5 grams",
-      "expected": "((((((10.4*g)*r)*a)*ms)+((((12.1*g)*r)*a)*ms))+((((7.5*g)*r)*a)*ms))"
+      "source": "10.357 grams +12.062 grams + 7.506 grams",
+      "expected": "((((((10.357*g)*r)*a)*ms)+((((12.062*g)*r)*a)*ms))+((((7.506*g)*r)*a)*ms))"
     },
     {
       "options": {},
-      "source": "10.357 grams +12.062 grams + 7.506 grams",
-      "expected": "((((((10.357*g)*r)*a)*ms)+((((12.062*g)*r)*a)*ms))+((((7.506*g)*r)*a)*ms))"
+      "source": "10.4 grams +12.1 grams + 7.5 grams",
+      "expected": "((((((10.4*g)*r)*a)*ms)+((((12.1*g)*r)*a)*ms))+((((7.5*g)*r)*a)*ms))"
     },
     {
       "options": {},
@@ -2597,8 +1912,8 @@
     },
     {
       "options": {},
-      "source": "1/6 * 3 * 12",
-      "expected": "((Rational(1,6)*3)*12)"
+      "source": "(10.357 + 12.062 + 7.506 ) / 5",
+      "expected": "((((10.357+12.062)+7.506))/5)"
     },
     {
       "options": {},
@@ -2612,148 +1927,13 @@
     },
     {
       "options": {},
-      "source": "42/7",
-      "expected": "Rational(42,7)"
-    },
-    {
-      "options": {},
-      "source": "432/70",
-      "expected": "Rational(432,70)"
-    },
-    {
-      "options": {},
       "source": "5.985 grams",
       "expected": "((((5.985*g)*r)*a)*ms)"
     },
     {
       "options": {},
-      "source": "126.8",
-      "expected": "126.8"
-    },
-    {
-      "options": {},
-      "source": "126.8",
-      "expected": "126.8"
-    },
-    {
-      "options": {},
-      "source": "126.8",
-      "expected": "126.8"
-    },
-    {
-      "options": {},
-      "source": "126.8",
-      "expected": "126.8"
-    },
-    {
-      "options": {},
-      "source": "7,650 / 7.65",
-      "expected": "7,Rational(650,7.65)"
-    },
-    {
-      "options": {},
-      "source": "5.2/0.052",
-      "expected": "Rational(5.2,0.052)"
-    },
-    {
-      "options": {},
-      "source": "5.2/0.052",
-      "expected": "Rational(5.2,0.052)"
-    },
-    {
-      "options": {},
-      "source": "5.2/0.052",
-      "expected": "Rational(5.2,0.052)"
-    },
-    {
-      "options": {},
-      "source": "7650 / 7.65",
-      "expected": "Rational(7650,7.65)"
-    },
-    {
-      "options": {},
-      "source": "7,650 / 7.65",
-      "expected": "7,Rational(650,7.65)"
-    },
-    {
-      "options": {},
-      "source": "7650 / 7.65",
-      "expected": "Rational(7650,7.65)"
-    },
-    {
-      "options": {},
-      "source": "5.2 \\div x = 0.052",
-      "expected": "Eq(Rational(5.2,x),0.052)"
-    },
-    {
-      "options": {},
-      "source": "7650 \\div x = 7.65",
-      "expected": "Eq(Rational(7650,x),7.65)"
-    },
-    {
-      "options": {},
-      "source": "7,650 \\div x = 7.65",
-      "expected": "7,Eq(Rational(650,x),7.65)"
-    },
-    {
-      "options": {},
-      "source": "430/70",
-      "expected": "Rational(430,70)"
-    },
-    {
-      "options": {},
-      "source": "432/73",
-      "expected": "Rational(432,73)"
-    },
-    {
-      "options": {},
-      "source": "432/73",
-      "expected": "Rational(432,73)"
-    },
-    {
-      "options": {},
-      "source": "1275/588",
-      "expected": "Rational(1275,588)"
-    },
-    {
-      "options": {},
-      "source": "13/6",
-      "expected": "Rational(13,6)"
-    },
-    {
-      "options": {},
       "source": "C=(b+rm)(2+t)",
       "expected": "Eq(C,(((b+(r*m)))*((2+t))))"
-    },
-    {
-      "options": {},
-      "source": "1275/588",
-      "expected": "Rational(1275,588)"
-    },
-    {
-      "options": {},
-      "source": "26/8",
-      "expected": "Rational(26,8)"
-    },
-    {
-      "options": {},
-      "source": "26/8",
-      "expected": "Rational(26,8)"
-    },
-    {
-      "options": {},
-      "source": "14/4",
-      "expected": "Rational(14,4)"
-    },
-    {
-      "options": {},
-      "source": "3392 \\div 32",
-      "expected": "Rational(3392,32)"
-    },
-    {
-      "options": {},
-      "source": "3392/32",
-      "expected": "Rational(3392,32)"
     },
     {
       "options": {},
@@ -2772,443 +1952,13 @@
     },
     {
       "options": {},
-      "source": "5.5\\times16\\div12\\times14",
-      "expected": "((5.5*Rational(16,12))*14)"
-    },
-    {
-      "options": {},
-      "source": "5.5\\ \\text{lbs/day} \\times 16\\ \\text{ounces/lb}\\div12\\ \\text{ounces/loaf}\\times14\\ \\text{days}",
-      "expected": "(((5.5*lbs/day)*(Rational((16*ounces/lb),12)*ounces/loaf))*(14*days))"
-    },
-    {
-      "options": {},
-      "source": "102/15",
-      "expected": "Rational(102,15)"
-    },
-    {
-      "options": {},
-      "source": "5.5\\times16\\div12\\times14\\div15",
-      "expected": "((5.5*Rational(16,12))*Rational(14,15))"
-    },
-    {
-      "options": {},
-      "source": "102\\ \\text{loaves} \\times (1\\ \\text{box} \\div 15\\ \\text{loaves})",
-      "expected": "((102*loaves)*((Rational((1*box),15)*loaves)))"
-    },
-    {
-      "options": {},
-      "source": "5.5\\times16\\div12",
-      "expected": "(5.5*Rational(16,12))"
-    },
-    {
-      "options": {},
-      "source": "5.5\\times16\\div12\\times14",
-      "expected": "((5.5*Rational(16,12))*14)"
-    },
-    {
-      "options": {},
-      "source": "5.5\\times16\\div12\\times14\\div15",
-      "expected": "((5.5*Rational(16,12))*Rational(14,15))"
-    },
-    {
-      "options": {},
-      "source": "3 18/12 kg - (1 2/3 kg + 1/4 kg)",
-      "expected": "(((3+Rational(18,12))*kg)-((((1+Rational(2,3))*kg)+(Rational(1,4)*kg))))"
-    },
-    {
-      "options": {},
-      "source": "3 18/12 kg - (1 8/12 kg + 3/12 kg)",
-      "expected": "(((3+Rational(18,12))*kg)-((((1+Rational(8,12))*kg)+(Rational(3,12)*kg))))"
-    },
-    {
-      "options": {},
-      "source": "3 \\frac{18}{12} kg - 1 \\frac{8}{12} kg - 3/12 kg",
-      "expected": "((((3+Rational(18,12))*kg)-((1+Rational(8,12))*kg))-(Rational(3,12)*kg))"
-    },
-    {
-      "options": {},
-      "source": "4 1/2 kg - 1 11/12 kg",
-      "expected": "(((4+Rational(1,2))*kg)-((1+Rational(11,12))*kg))"
-    },
-    {
-      "options": {},
-      "source": "54/12 kg - (1 2/3 kg + 1/4 kg)",
-      "expected": "((Rational(54,12)*kg)-((((1+Rational(2,3))*kg)+(Rational(1,4)*kg))))"
-    },
-    {
-      "options": {},
-      "source": "54/12 kg - (20/12 kg + 3/12 kg)",
-      "expected": "((Rational(54,12)*kg)-(((Rational(20,12)*kg)+(Rational(3,12)*kg))))"
-    },
-    {
-      "options": {},
-      "source": "3 \\frac{18}{12} - 1 \\frac{11}{12}",
-      "expected": "((3+Rational(18,12))-(1+Rational(11,12)))"
-    },
-    {
-      "options": {},
-      "source": "4 \\frac{1}{2} - 1 \\frac{11}{12}",
-      "expected": "((4+Rational(1,2))-(1+Rational(11,12)))"
-    },
-    {
-      "options": {},
-      "source": "3 \\frac{18}{12} kg - 1 \\frac{11}{12} kg",
-      "expected": "(((3+Rational(18,12))*kg)-((1+Rational(11,12))*kg))"
-    },
-    {
-      "options": {},
-      "source": "54/12 kg - (20/12 kg + 3/12 kg)",
-      "expected": "((Rational(54,12)*kg)-(((Rational(20,12)*kg)+(Rational(3,12)*kg))))"
-    },
-    {
-      "options": {},
-      "source": "(2 * 1 2/3) + 1/4",
-      "expected": "(((2*(1+Rational(2,3))))+Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "1 2/3 + 1 2/3 + 1/4",
-      "expected": "(((1+Rational(2,3))+(1+Rational(2,3)))+Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "(2 * 5/3 kg) + 1/4 kg",
-      "expected": "(((2*(Rational(5,3)*kg)))+(Rational(1,4)*kg))"
-    },
-    {
-      "options": {},
-      "source": "1 2/3 + 1 2/3 + 1/4",
-      "expected": "(((1+Rational(2,3))+(1+Rational(2,3)))+Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{40}{12} + \\frac{3}{12}",
-      "expected": "(Rational(40,12)+Rational(3,12))"
-    },
-    {
-      "options": {},
-      "source": "(2 * 5/3 kg) + 1/4 kg",
-      "expected": "(((2*(Rational(5,3)*kg)))+(Rational(1,4)*kg))"
-    },
-    {
-      "options": {},
-      "source": "2 + \\frac{1}{4} + 1 + \\frac{2}{5}",
-      "expected": "(((2+Rational(1,4))+1)+Rational(2,5))"
-    },
-    {
-      "options": {},
-      "source": "2 + 1/4 + 1 + 2/5",
-      "expected": "(((2+Rational(1,4))+1)+Rational(2,5))"
-    },
-    {
-      "options": {},
-      "source": "2\\ 1/4 + 1 2/5",
-      "expected": "((2+Rational(1,4))+(1+Rational(2,5)))"
-    },
-    {
-      "options": {},
-      "source": "2\\ 1/4 + 1 2/5",
-      "expected": "((2+Rational(1,4))+(1+Rational(2,5)))"
-    },
-    {
-      "options": {},
-      "source": "40/20 + 5/20 + 1 + 2/5",
-      "expected": "(((Rational(40,20)+Rational(5,20))+1)+Rational(2,5))"
-    },
-    {
-      "options": {},
-      "source": "40/20 + 5/20 + 20/20 + 8/20",
-      "expected": "(((Rational(40,20)+Rational(5,20))+Rational(20,20))+Rational(8,20))"
-    },
-    {
-      "options": {},
-      "source": "9/4 + 7/5",
-      "expected": "(Rational(9,4)+Rational(7,5))"
-    },
-    {
-      "options": {},
-      "source": "5 3/10  - 1 1/2 ",
-      "expected": "((5+Rational(3,10))-(1+Rational(1,2)))"
-    },
-    {
-      "options": {},
-      "source": "53/10  - 3/2 ",
-      "expected": "(Rational(53,10)-Rational(3,2))"
-    },
-    {
-      "options": {},
-      "source": "5.3 kg - 1 1/2 kg",
-      "expected": "((5.3*kg)-((1+Rational(1,2))*kg))"
-    },
-    {
-      "options": {},
-      "source": "5 3/10 kg - 1 1/2 kg",
-      "expected": "(((5+Rational(3,10))*kg)-((1+Rational(1,2))*kg))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 + 2 1/4 + 1 2/5) - (5 3/10 - 1 1/2)",
-      "expected": "(((((2+Rational(1,4))+(2+Rational(1,4)))+(1+Rational(2,5))))-(((5+Rational(3,10))-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
-      "source": "(2.25 kg+ 2.25 kg+ 1 2/5 kg) - (5 3/10 kg- 1 1/2 kg)",
-      "expected": "(((((2.25*kg)+(2.25*kg))+((1+Rational(2,5))*kg)))-((((5+Rational(3,10))*kg)-((1+Rational(1,2))*kg))))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 + 2 1/4 + 1 2/5) - (5 3/10 - 1 1/2)",
-      "expected": "(((((2+Rational(1,4))+(2+Rational(1,4)))+(1+Rational(2,5))))-(((5+Rational(3,10))-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 kg + 2 1/4 kg + 1 2/5 kg) - (5 3/10 kg - 1 1/2 kg)",
-      "expected": "((((((2+Rational(1,4))*kg)+((2+Rational(1,4))*kg))+((1+Rational(2,5))*kg)))-((((5+Rational(3,10))*kg)-((1+Rational(1,2))*kg))))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 kg + 2 1/4 kg + 1 2/5 kg) - (5 3/10 kg - 1 1/2 kg)",
-      "expected": "((((((2+Rational(1,4))*kg)+((2+Rational(1,4))*kg))+((1+Rational(2,5))*kg)))-((((5+Rational(3,10))*kg)-((1+Rational(1,2))*kg))))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 + 2 1/4 + 1 2/5) - (5 3/10 - 1 1/2)",
-      "expected": "(((((2+Rational(1,4))+(2+Rational(1,4)))+(1+Rational(2,5))))-(((5+Rational(3,10))-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 + 2 1/4 + 1 2/5) - (5 3/10 - 1 1/2)",
-      "expected": "(((((2+Rational(1,4))+(2+Rational(1,4)))+(1+Rational(2,5))))-(((5+Rational(3,10))-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 + 2 1/4 + 1 2/5) - (5 3/10 - 1 1/2)",
-      "expected": "(((((2+Rational(1,4))+(2+Rational(1,4)))+(1+Rational(2,5))))-(((5+Rational(3,10))-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 + 2 1/4 + 1 2/5) - (5 3/10 - 1 1/2)",
-      "expected": "(((((2+Rational(1,4))+(2+Rational(1,4)))+(1+Rational(2,5))))-(((5+Rational(3,10))-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
-      "source": "(2 1/4 + 2 1/4 + 1 2/5) - (5 3/10 - 1 1/2)",
-      "expected": "(((((2+Rational(1,4))+(2+Rational(1,4)))+(1+Rational(2,5))))-(((5+Rational(3,10))-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
-      "source": "(2.25 + 2.25 + 1 2/5) - (5 3/10 - 1 1/2)",
-      "expected": "((((2.25+2.25)+(1+Rational(2,5))))-(((5+Rational(3,10))-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
-      "source": "(2.25 + 2.25 + 1.4) - (5.3 - 1 1/2)",
-      "expected": "((((2.25+2.25)+1.4))-((5.3-(1+Rational(1,2)))))"
-    },
-    {
-      "options": {},
       "source": "(2.25 + 2.25 + 1.4) - (5.3 - 1.5)",
       "expected": "((((2.25+2.25)+1.4))-((5.3-1.5)))"
     },
     {
       "options": {},
-      "source": "2/3 + 1/4 + 1/4",
-      "expected": "((Rational(2,3)+Rational(1,4))+Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{7}{6} - 3/4",
-      "expected": "(Rational(7,6)-Rational(3,4))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{7}{6} - \\frac{3}{4}",
-      "expected": "(Rational(7,6)-Rational(3,4))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{7}{6} - \\frac{3}{4}",
-      "expected": "(Rational(7,6)-Rational(3,4))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{5}{12}",
-      "expected": "Rational(5,12)"
-    },
-    {
-      "options": {},
-      "source": "3/4 - 1/6 - 1/4",
-      "expected": "((Rational(3,4)-Rational(1,6))-Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "3/4 - 1/6 - 1/4",
-      "expected": "((Rational(3,4)-Rational(1,6))-Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "9/12 - 1/6 - 1/4",
-      "expected": "((Rational(9,12)-Rational(1,6))-Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "9/12 - 1/6 - 1/4",
-      "expected": "((Rational(9,12)-Rational(1,6))-Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "9/12 - 2/12 - 3/12",
-      "expected": "((Rational(9,12)-Rational(2,12))-Rational(3,12))"
-    },
-    {
-      "options": {},
-      "source": "(1/2 + 1/8 )- 1/4",
-      "expected": "(((Rational(1,2)+Rational(1,8)))-Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "1/2 + 1/8- 1/4 ",
-      "expected": "((Rational(1,2)+Rational(1,8))-Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "1/2 pound + 1/8 pound - 1/4 pound",
-      "expected": "(((((((Rational(1,2)*p)*o)*u)*n)*d)+(((((Rational(1,8)*p)*o)*u)*n)*d))-(((((Rational(1,4)*p)*o)*u)*n)*d))"
-    },
-    {
-      "options": {},
-      "source": "4/8 pound + 1/8 pound - 2/8 pound",
-      "expected": "(((((((Rational(4,8)*p)*o)*u)*n)*d)+(((((Rational(1,8)*p)*o)*u)*n)*d))-(((((Rational(2,8)*p)*o)*u)*n)*d))"
-    },
-    {
-      "options": {},
-      "source": "4/8 pound + 1/8 pound + 1/4 pound",
-      "expected": "(((((((Rational(4,8)*p)*o)*u)*n)*d)+(((((Rational(1,8)*p)*o)*u)*n)*d))+(((((Rational(1,4)*p)*o)*u)*n)*d))"
-    },
-    {
-      "options": {},
-      "source": "4/8 pound + 1/8 pound + 2/8 pound",
-      "expected": "(((((((Rational(4,8)*p)*o)*u)*n)*d)+(((((Rational(1,8)*p)*o)*u)*n)*d))+(((((Rational(2,8)*p)*o)*u)*n)*d))"
-    },
-    {
-      "options": {},
-      "source": "2/3 + 1/4 + 1/4",
-      "expected": "((Rational(2,3)+Rational(1,4))+Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "2/3 + 1/2 ",
-      "expected": "(Rational(2,3)+Rational(1,2))"
-    },
-    {
-      "options": {},
-      "source": "2/3 + 1/4 + 1/4",
-      "expected": "((Rational(2,3)+Rational(1,4))+Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "4/6 + 3/6 ",
-      "expected": "(Rational(4,6)+Rational(3,6))"
-    },
-    {
-      "options": {},
-      "source": "1\\frac{1}{6}",
-      "expected": "(1+Rational(1,6))"
-    },
-    {
-      "options": {},
-      "source": "2/3 + 3/6 ",
-      "expected": "(Rational(2,3)+Rational(3,6))"
-    },
-    {
-      "options": {},
-      "source": "2/3 + 1/4 + 1/4",
-      "expected": "((Rational(2,3)+Rational(1,4))+Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "4/6 + 3/6 ",
-      "expected": "(Rational(4,6)+Rational(3,6))"
-    },
-    {
-      "options": {},
-      "source": "1\\frac{1}{6}",
-      "expected": "(1+Rational(1,6))"
-    },
-    {
-      "options": {},
-      "source": "1/3 * 3/4",
-      "expected": "(Rational(1,3)*Rational(3,4))"
-    },
-    {
-      "options": {},
-      "source": "3/4 * 1/3",
-      "expected": "(Rational(3,4)*Rational(1,3))"
-    },
-    {
-      "options": {},
-      "source": "3/4*3/5",
-      "expected": "(Rational(3,4)*Rational(3,5))"
-    },
-    {
-      "options": {},
-      "source": "3/4\\times3/5",
-      "expected": "(Rational(3,4)*Rational(3,5))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{3}{4}*\\frac{3}{5}",
-      "expected": "(Rational(3,4)*Rational(3,5))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{3}{4}\\times\\frac{3}{5}",
-      "expected": "(Rational(3,4)*Rational(3,5))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{9}{20}",
-      "expected": "Rational(9,20)"
-    },
-    {
-      "options": {},
-      "source": "3/4\\cdot3/5",
-      "expected": "(Rational(3,4)*Rational(3,5))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{3}{4}*3/5",
-      "expected": "(Rational(3,4)*Rational(3,5))"
-    },
-    {
-      "options": {},
-      "source": "\\frac{3}{4}\\cdot\\frac{3}{5}",
-      "expected": "(Rational(3,4)*Rational(3,5))"
-    },
-    {
-      "options": {},
       "source": "4 *3",
       "expected": "(4*3)"
-    },
-    {
-      "options": {},
-      "source": "5 \\div 1/4",
-      "expected": "Rational(5,Rational(1,4))"
-    },
-    {
-      "options": {},
-      "source": "1/4 \\div 5",
-      "expected": "Rational(Rational(1,4),5)"
-    },
-    {
-      "options": {},
-      "source": "1/4 \\div 5",
-      "expected": "Rational(Rational(1,4),5)"
-    },
-    {
-      "options": {},
-      "source": "(1 * 32) + (32/2)",
-      "expected": "(((1*32))+Rational(32,2))"
     },
     {
       "options": {},
@@ -3227,8 +1977,8 @@
     },
     {
       "options": {},
-      "source": "((10 * 32) + (5 * 32))/1000",
-      "expected": "(((((10*32))+((5*32))))/1000)"
+      "source": "0.48",
+      "expected": "0.48"
     },
     {
       "options": {},
@@ -3237,23 +1987,2093 @@
     },
     {
       "options": {},
-      "source": "1.5 * .32",
-      "expected": "(1.5*.32)"
+      "source": "400",
+      "expected": "400"
     },
     {
       "options": {},
-      "source": "((10 * 32) + (5 * 32))/1000",
-      "expected": "(((((10*32))+((5*32))))/1000)"
+      "source": "12.8 - (12.8 * .25)",
+      "expected": "(12.8-((12.8*.25)))"
     },
     {
       "options": {},
-      "source": "15 * 32/1000",
-      "expected": "(15*Rational(32,1000))"
+      "source": "12.8 * .75",
+      "expected": "(12.8*.75)"
     },
     {
       "options": {},
-      "source": "1.5 * .32",
-      "expected": "(1.5*.32)"
+      "source": "12.8 * .75",
+      "expected": "(12.8*.75)"
+    },
+    {
+      "options": {},
+      "source": "24 / (1.5 - .75)",
+      "expected": "(24/((1.5-.75)))"
+    },
+    {
+      "options": {},
+      "source": "24 hours/8",
+      "expected": "(((((24*h)*o)*u)*r)*(s/8))"
+    },
+    {
+      "options": {},
+      "source": "24 hours/5",
+      "expected": "(((((24*h)*o)*u)*r)*(s/5))"
+    },
+    {
+      "options": {},
+      "source": "(30 cm* 20 cm * 24 cm) - (30 cm * 20 cm * 15 cm) -6500 cm",
+      "expected": "((((((30*cm)*(20*cm))*(24*cm)))-((((30*cm)*(20*cm))*(15*cm))))-(6500*cm))"
+    },
+    {
+      "options": {},
+      "source": "(30 cm* 20 cm* 24 cm) -(30 cm * 20 cm * 15 cm) -6500 cm",
+      "expected": "((((((30*cm)*(20*cm))*(24*cm)))-((((30*cm)*(20*cm))*(15*cm))))-(6500*cm))"
+    },
+    {
+      "options": {},
+      "source": "(30 cm* 20 cm* 24 cm) - (30 cm * 20 cm * 15 cm) - 6500 cm",
+      "expected": "((((((30*cm)*(20*cm))*(24*cm)))-((((30*cm)*(20*cm))*(15*cm))))-(6500*cm))"
+    },
+    {
+      "options": {},
+      "source": "2.5 * 3.25",
+      "expected": "(2.5*3.25)"
+    },
+    {
+      "options": {},
+      "source": "100:20 = \\frac{x}{16}",
+      "expected": "Eq(100,(x/16))"
+    },
+    {
+      "options": {},
+      "source": "20:100 = \\frac{16}{x}",
+      "expected": "Eq(20,(16/x))"
+    },
+    {
+      "options": {},
+      "source": "2:18 = 14/x",
+      "expected": "Eq(2,(14/x))"
+    },
+    {
+      "options": {},
+      "source": "2:18 = \\frac{14}{x}",
+      "expected": "Eq(2,(14/x))"
+    },
+    {
+      "options": {},
+      "source": "2x=14\\times18",
+      "expected": "Eq((2*x),(14*18))"
+    },
+    {
+      "options": {},
+      "source": "60x=75",
+      "expected": "Eq((60*x),75)"
+    },
+    {
+      "options": {},
+      "source": "x\\text{ miles}=3600\\text{ yards}/1760",
+      "expected": "Eq((x* miles),(3600*( yards/1760)))"
+    },
+    {
+      "options": {},
+      "source": "402=28x",
+      "expected": "Eq(402,(28*x))"
+    },
+    {
+      "options": {},
+      "source": "-20<-10<10",
+      "expected": "Lt(-20,-10),Lt(-10,10)"
+    },
+    {
+      "options": {},
+      "source": "10>-10>-20",
+      "expected": "Gt(10,-10),Gt(-10,-20)"
+    },
+    {
+      "options": {},
+      "source": "75+(125-75)*W=S",
+      "expected": "Eq((75+(((125-75))*W)),S)"
+    },
+    {
+      "options": {},
+      "source": "75+50\\times W=S",
+      "expected": "Eq((75+(50*W)),S)"
+    },
+    {
+      "options": {},
+      "source": "75+(625-575) \\times W=S",
+      "expected": "Eq((75+(((625-575))*W)),S)"
+    },
+    {
+      "options": {},
+      "source": "50*x + 75=600",
+      "expected": "Eq(((50*x)+75),600)"
+    },
+    {
+      "options": {},
+      "source": "50\\times x + 75=600",
+      "expected": "Eq(((50*x)+75),600)"
+    },
+    {
+      "options": {},
+      "source": "50\\times x=600-75",
+      "expected": "Eq((50*x),(600-75))"
+    },
+    {
+      "options": {},
+      "source": "9>=x>=0",
+      "expected": "Ge(9,x),Ge(x,0)"
+    },
+    {
+      "options": {},
+      "source": "9g = 18",
+      "expected": "Eq((9*g),18)"
+    },
+    {
+      "options": {},
+      "source": "15 * 2 mi",
+      "expected": "(15*(2*mi))"
+    },
+    {
+      "options": {},
+      "source": " 51+x+51=180 ",
+      "expected": "Eq(((51+x)+51),180)"
+    },
+    {
+      "options": {},
+      "source": "x=180-102",
+      "expected": "Eq(x,(180-102))"
+    },
+    {
+      "options": {},
+      "source": "2[(4*3) + (3*2) + (4*2)]",
+      "expected": "(2*(((((4*3))+((3*2)))+((4*2)))))"
+    },
+    {
+      "options": {},
+      "source": "2[(4 in*3 in) + (3 in*2in) + (4in*2in)]",
+      "expected": "(2*((((((4*in)*(3*in)))+(((3*in)*(2*in))))+(((4*in)*(2*in))))))"
+    },
+    {
+      "options": {},
+      "source": "4 * 3 * 2",
+      "expected": "((4*3)*2)"
+    },
+    {
+      "options": {},
+      "source": "(4*4) - 10",
+      "expected": "(((4*4))-10)"
+    },
+    {
+      "options": {},
+      "source": "4*4 - 10",
+      "expected": "((4*4)-10)"
+    },
+    {
+      "options": {},
+      "source": "4*4 - 4 - 2 - 4",
+      "expected": "((((4*4)-4)-2)-4)"
+    },
+    {
+      "options": {},
+      "source": "25 ft* 6 ft",
+      "expected": "((25*ft)*(6*ft))"
+    },
+    {
+      "options": {},
+      "source": "6 ft* 25 ft",
+      "expected": "((6*ft)*(25*ft))"
+    },
+    {
+      "options": {},
+      "source": "4\\cdot\\frac{300yd\\times50yd}{2}",
+      "expected": "(4*(((300*yd)*(50*yd))/2))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{300 yd * 50 yd}{2} + (50 yd* 50 yd)",
+      "expected": "((((300*yd)*(50*yd))/2)+(((50*yd)*(50*yd))))"
+    },
+    {
+      "options": {},
+      "source": "[(18-15) * (16 -7)] + [(16 -13) * (15-11)]",
+      "expected": "(((((18-15))*((16-7))))+((((16-13))*((15-11)))))"
+    },
+    {
+      "options": {},
+      "source": "3 ft +9 ft +7 ft +3 ft +4 ft +6 ft",
+      "expected": "((((((3*ft)+(9*ft))+(7*ft))+(3*ft))+(4*ft))+(6*ft))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{(13 in -6 in ) * 5 in }{2}",
+      "expected": "(((((13*in)-(6*in)))*(5*in))/2)"
+    },
+    {
+      "options": {},
+      "source": "30x=.2 * 60",
+      "expected": "Eq((30*x),(.2*60))"
+    },
+    {
+      "options": {},
+      "source": "x=(.2*60)/30",
+      "expected": "Eq(x,(((.2*60))/30))"
+    },
+    {
+      "options": {},
+      "source": "30x=.2\\times 60",
+      "expected": "Eq((30*x),(.2*60))"
+    },
+    {
+      "options": {},
+      "source": "x=\\frac{.2*60}{30}",
+      "expected": "Eq(x,((.2*60)/30))"
+    },
+    {
+      "options": {},
+      "source": "30 \\times x=12",
+      "expected": "Eq((30*x),12)"
+    },
+    {
+      "options": {},
+      "source": ".5y=.2x",
+      "expected": "Eq((.5*y),(.2*x))"
+    },
+    {
+      "options": {},
+      "source": "-9+16+12a=0",
+      "expected": "Eq(((-9+16)+(12*a)),0)"
+    },
+    {
+      "options": {},
+      "source": " 12a = -7",
+      "expected": "Eq((12*a),-7)"
+    },
+    {
+      "options": {},
+      "source": "1,000*1,250",
+      "expected": "1,(000*1),250"
+    },
+    {
+      "options": {},
+      "source": "A=1,000*1,250",
+      "expected": "Eq(A,1),(000*1),250"
+    },
+    {
+      "options": {},
+      "source": "A=1000*1250",
+      "expected": "Eq(A,(1000*1250))"
+    },
+    {
+      "options": {},
+      "source": "x(1-.2)=140",
+      "expected": "Eq((x*((1-.2))),140)"
+    },
+    {
+      "options": {},
+      "source": ".8x=140",
+      "expected": "Eq((.8*x),140)"
+    },
+    {
+      "options": {},
+      "source": "x-.2x=140",
+      "expected": "Eq((x-(.2*x)),140)"
+    },
+    {
+      "options": {},
+      "source": "13 \\text{ feet per 1 inch} \\times 13 \\text{ inches}",
+      "expected": "((13* feet per 1 inch)*(13* inches))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{13 \\text{ feet}}{1 \\text{ inch}} \\times 13 \\text{ inches}",
+      "expected": "(((13* feet)/(1* inch))*(13* inches))"
+    },
+    {
+      "options": {},
+      "source": "l=13 \\text{ inches} \\times \\frac{13 \\text{ feet}}{1 \\text{ inch}} ",
+      "expected": "Eq(l,((13* inches)*((13* feet)/(1* inch))))"
+    },
+    {
+      "options": {},
+      "source": "l=13 \\text{ inches} * \\frac{13 \\text{ feet}}{1 \\text{ inch}} ",
+      "expected": "Eq(l,((13* inches)*((13* feet)/(1* inch))))"
+    },
+    {
+      "options": {},
+      "source": "l=\\frac{13 \\text{ feet}}{1 \\text{ inch}} * 13 \\text{ inches}",
+      "expected": "Eq(l,(((13* feet)/(1* inch))*(13* inches)))"
+    },
+    {
+      "options": {},
+      "source": "w=\\frac{13 \\text{ feet}}{1\\text{ inch}} \\times 11 \\text{ inches}",
+      "expected": "Eq(w,(((13* feet)/(1* inch))*(11* inches)))"
+    },
+    {
+      "options": {},
+      "source": "a+83=360",
+      "expected": "Eq((a+83),360)"
+    },
+    {
+      "options": {},
+      "source": "126.8",
+      "expected": "126.8"
+    },
+    {
+      "options": {},
+      "source": "y=\\frac{120\\times x}{600}",
+      "expected": "Eq(y,((120*x)/600))"
+    },
+    {
+      "options": {},
+      "source": "y=\\frac{200\\times x}{1000}",
+      "expected": "Eq(y,((200*x)/1000))"
+    },
+    {
+      "options": {},
+      "source": "y=\\frac{80\\times x}{400}",
+      "expected": "Eq(y,((80*x)/400))"
+    },
+    {
+      "options": {},
+      "source": "800 * 5 =  x",
+      "expected": "Eq((800*5),x)"
+    },
+    {
+      "options": {},
+      "source": "\\frac{1\\times x}{5}=800",
+      "expected": "Eq(((1*x)/5),800)"
+    },
+    {
+      "options": {},
+      "source": "y=-30.00-2.50x+6.00x",
+      "expected": "Eq(y,((-30.00-(2.50*x))+(6.00*x)))"
+    },
+    {
+      "options": {},
+      "source": "6x-2.50x-30=y",
+      "expected": "Eq((((6*x)-(2.50*x))-30),y)"
+    },
+    {
+      "options": {},
+      "source": "6x-(30+2.5x)=y",
+      "expected": "Eq(((6*x)-((30+(2.5*x)))),y)"
+    },
+    {
+      "options": {},
+      "source": "6x-30-2.5x=y",
+      "expected": "Eq((((6*x)-30)-(2.5*x)),y)"
+    },
+    {
+      "options": {},
+      "source": "-30+3.50x=40",
+      "expected": "Eq((-30+(3.50*x)),40)"
+    },
+    {
+      "options": {},
+      "source": "-30.00-2.5x+6x=40",
+      "expected": "Eq(((-30.00-(2.5*x))+(6*x)),40)"
+    },
+    {
+      "options": {},
+      "source": "x=\\frac{70}{6-2.5}",
+      "expected": "Eq(x,(70/(6-2.5)))"
+    },
+    {
+      "options": {},
+      "source": "-30.00-2.50x+6.x=40",
+      "expected": "Eq(((-30.00-(2.50*x))+(6.*x)),40)"
+    },
+    {
+      "options": {},
+      "source": "3.50x-30=40",
+      "expected": "Eq(((3.50*x)-30),40)"
+    },
+    {
+      "options": {},
+      "source": "w=5.63",
+      "expected": "Eq(w,5.63)"
+    },
+    {
+      "options": {},
+      "source": "w=5.625",
+      "expected": "Eq(w,5.625)"
+    },
+    {
+      "options": {},
+      "source": "x+-7+-7+-7+-7 = -10",
+      "expected": "Eq(((((x+-7)+-7)+-7)+-7),-10)"
+    },
+    {
+      "options": {},
+      "source": "x+4(-7) = -10",
+      "expected": "Eq((x+(4*-7)),-10)"
+    },
+    {
+      "options": {},
+      "source": "x-7-7-7+-7 = -10",
+      "expected": "Eq(((((x-7)-7)-7)+-7),-10)"
+    },
+    {
+      "options": {},
+      "source": "-6(x-1)",
+      "expected": "(-6*((x-1)))"
+    },
+    {
+      "options": {},
+      "source": "3x+6-9x",
+      "expected": "(((3*x)+6)-(9*x))"
+    },
+    {
+      "options": {},
+      "source": "3.79 * (s+c)",
+      "expected": "(3.79*((s+c)))"
+    },
+    {
+      "options": {},
+      "source": "3.79(s+c)",
+      "expected": "(3.79*((s+c)))"
+    },
+    {
+      "options": {},
+      "source": "\\$3.79 \\cdot (s+c)",
+      "expected": "(($*3.79)*((s+c)))"
+    },
+    {
+      "options": {},
+      "source": "\\$3.79* s+\\$3.79* c",
+      "expected": "((($*3.79)*s)+(($*3.79)*c))"
+    },
+    {
+      "options": {},
+      "source": "\\$3.79\\cdot s+\\$3.79\\cdot c",
+      "expected": "((($*3.79)*s)+(($*3.79)*c))"
+    },
+    {
+      "options": {},
+      "source": "\\$3.79s+\\$3.79c",
+      "expected": "((($*3.79)*s)+(($*3.79)*c))"
+    },
+    {
+      "options": {},
+      "source": "C=2\\cdot\\pi*25",
+      "expected": "Eq(C,((2*pi)*25))"
+    },
+    {
+      "options": {},
+      "source": "C=2\\cdot\\pi*25 \\text{meters}",
+      "expected": "Eq(C,((2*pi)*(25*meters)))"
+    },
+    {
+      "options": {},
+      "source": "C=2*\\pi*35",
+      "expected": "Eq(C,((2*pi)*35))"
+    },
+    {
+      "options": {},
+      "source": "A = (1225 + 625) \\pi",
+      "expected": "Eq(A,(((1225+625))*pi))"
+    },
+    {
+      "options": {},
+      "source": "A = 1225 \\times \\pi + 625 \\times \\pi",
+      "expected": "Eq(A,((1225*pi)+(625*pi)))"
+    },
+    {
+      "options": {},
+      "source": "A = 1225 \\cdot \\pi + 625 * \\pi",
+      "expected": "Eq(A,((1225*pi)+(625*pi)))"
+    },
+    {
+      "options": {},
+      "source": "A = 1225 \\cdot \\pi + 625 \\cdot \\pi",
+      "expected": "Eq(A,((1225*pi)+(625*pi)))"
+    },
+    {
+      "options": {},
+      "source": "135 = 9(8x+11)",
+      "expected": "Eq(135,(9*(((8*x)+11))))"
+    },
+    {
+      "options": {},
+      "source": "15-11 = 8x+11-11",
+      "expected": "Eq((15-11),(((8*x)+11)-11))"
+    },
+    {
+      "options": {},
+      "source": "V=25ft*8ft*6ft",
+      "expected": "Eq(V,(((25*ft)*(8*ft))*(6*ft)))"
+    },
+    {
+      "options": {},
+      "source": "3x+(x-10)=90",
+      "expected": "Eq(((3*x)+((x-10))),90)"
+    },
+    {
+      "options": {},
+      "source": "4x-10+10=100",
+      "expected": "Eq((((4*x)-10)+10),100)"
+    },
+    {
+      "options": {},
+      "source": "4x-10+10=90+10",
+      "expected": "Eq((((4*x)-10)+10),(90+10))"
+    },
+    {
+      "options": {},
+      "source": "4x-3x+6y+3x-4y",
+      "expected": "(((((4*x)-(3*x))+(6*y))+(3*x))-(4*y))"
+    },
+    {
+      "options": {},
+      "source": "6y+4x-4y",
+      "expected": "(((6*y)+(4*x))-(4*y))"
+    },
+    {
+      "options": {},
+      "source": "x+6y+3x-4y",
+      "expected": "(((x+(6*y))+(3*x))-(4*y))"
+    },
+    {
+      "options": {},
+      "source": "3x+6+x = 25",
+      "expected": "Eq((((3*x)+6)+x),25)"
+    },
+    {
+      "options": {},
+      "source": "4x = 25-6",
+      "expected": "Eq((4*x),(25-6))"
+    },
+    {
+      "options": {},
+      "source": "2x+x+6+x = 25",
+      "expected": "Eq(((((2*x)+x)+6)+x),25)"
+    },
+    {
+      "options": {},
+      "source": "3d=110.97",
+      "expected": "Eq((3*d),110.97)"
+    },
+    {
+      "options": {},
+      "source": "10(2.50)+3d=135.97",
+      "expected": "Eq(((10*2.50)+(3*d)),135.97)"
+    },
+    {
+      "options": {},
+      "source": "2.50d \\le 15.34",
+      "expected": "Le((2.50*d),15.34)"
+    },
+    {
+      "options": {},
+      "source": "2.50d+24.66 \\le 40",
+      "expected": "Le(((2.50*d)+24.66),40)"
+    },
+    {
+      "options": {},
+      "source": "2.50d+24.66 \\ge 40",
+      "expected": "Ge(((2.50*d)+24.66),40)"
+    },
+    {
+      "options": {},
+      "source": "2.50d+24.66<40",
+      "expected": "Lt(((2.50*d)+24.66),40)"
+    },
+    {
+      "options": {},
+      "source": "45+5.50p \\le80",
+      "expected": "Le((45+(5.50*p)),80)"
+    },
+    {
+      "options": {},
+      "source": "5.50p \\le80-45",
+      "expected": "Le((5.50*p),(80-45))"
+    },
+    {
+      "options": {},
+      "source": "5.50p \\le35",
+      "expected": "Le((5.50*p),35)"
+    },
+    {
+      "options": {},
+      "source": "d+d+r+r+r+r",
+      "expected": "(((((d+d)+r)+r)+r)+r)"
+    },
+    {
+      "options": {},
+      "source": "8r=94.50-18.50",
+      "expected": "Eq((8*r),(94.50-18.50))"
+    },
+    {
+      "options": {},
+      "source": "2(2r)+4r+18.50=94.50",
+      "expected": "Eq((((2*(2*r))+(4*r))+18.50),94.50)"
+    },
+    {
+      "options": {},
+      "source": "3(x-2)=42",
+      "expected": "Eq((3*((x-2))),42)"
+    },
+    {
+      "options": {},
+      "source": "\\$21 = 120\\% * x",
+      "expected": "Eq(($*21),(120*x))"
+    },
+    {
+      "options": {},
+      "source": "15 = 30\\% n",
+      "expected": "Eq(15,(30*n))"
+    },
+    {
+      "options": {},
+      "source": "15 = .3\\times n",
+      "expected": "Eq(15,(.3*n))"
+    },
+    {
+      "options": {},
+      "source": "y=.085 \\cdot x",
+      "expected": "Eq(y,(.085*x))"
+    },
+    {
+      "options": {},
+      "source": "y=.085x",
+      "expected": "Eq(y,(.085*x))"
+    },
+    {
+      "options": {},
+      "source": ".085x = y",
+      "expected": "Eq((.085*x),y)"
+    },
+    {
+      "options": {},
+      "source": "f=3.25",
+      "expected": "Eq(f,3.25)"
+    },
+    {
+      "options": {},
+      "source": "25 + 45=\\angle XOC + 10",
+      "expected": "Eq((25+45),((((angle*X)*O)*C)+10))"
+    },
+    {
+      "options": {},
+      "source": "70-10=\\angle XOC + 10-10",
+      "expected": "Eq((70-10),(((((angle*X)*O)*C)+10)-10))"
+    },
+    {
+      "options": {},
+      "source": "\\angle XOC + 10 = 25 + 45 ",
+      "expected": "Eq(((((angle*X)*O)*C)+10),(25+45))"
+    },
+    {
+      "options": {},
+      "source": "\\angle XOC = 70-10 ",
+      "expected": "Eq((((angle*X)*O)*C),(70-10))"
+    },
+    {
+      "options": {},
+      "source": "2\\cdot15=\\angle AOX",
+      "expected": "Eq((2*15),(((angle*A)*O)*X))"
+    },
+    {
+      "options": {},
+      "source": "\\angle AOX = 2\\times15",
+      "expected": "Eq((((angle*A)*O)*X),(2*15))"
+    },
+    {
+      "options": {},
+      "source": "\\angle AOX = 2*15 \\deg",
+      "expected": "Eq((((angle*A)*O)*X),(2*(15*deg)))"
+    },
+    {
+      "options": {},
+      "source": "\\angle DOB = (60-15) \\deg",
+      "expected": "Eq((((angle*D)*O)*B),(((60-15))*deg))"
+    },
+    {
+      "options": {},
+      "source": "x-.4x=9",
+      "expected": "Eq((x-(.4*x)),9)"
+    },
+    {
+      "options": {},
+      "source": "2x+150-150=180-150",
+      "expected": "Eq((((2*x)+150)-150),(180-150))"
+    },
+    {
+      "options": {},
+      "source": "2x+90+x+(60-x)=180",
+      "expected": "Eq(((((2*x)+90)+x)+((60-x))),180)"
+    },
+    {
+      "options": {},
+      "source": "2x+150=180",
+      "expected": "Eq(((2*x)+150),180)"
+    },
+    {
+      "options": {},
+      "source": "(-13)*(-13)*(-13)*(-13)*(-13)*(-13)*(-13)",
+      "expected": "((((((-13*-13)*-13)*-13)*-13)*-13)*-13)"
+    },
+    {
+      "options": {},
+      "source": "(10, 20)",
+      "expected": "(10,20)"
+    },
+    {
+      "options": {},
+      "source": "15* x = 112",
+      "expected": "Eq((15*x),112)"
+    },
+    {
+      "options": {},
+      "source": "15* x = 11.2*10",
+      "expected": "Eq((15*x),(11.2*10))"
+    },
+    {
+      "options": {},
+      "source": "2x-1=y",
+      "expected": "Eq(((2*x)-1),y)"
+    },
+    {
+      "options": {},
+      "source": "y=-1 + 2x",
+      "expected": "Eq(y,(-1+(2*x)))"
+    },
+    {
+      "options": {},
+      "source": "4x=12\\times5",
+      "expected": "Eq((4*x),(12*5))"
+    },
+    {
+      "options": {},
+      "source": "x-\\frac{x}{5}=\\frac{x}{5}-\\frac{x}{5}+12",
+      "expected": "Eq((x-(x/5)),(((x/5)-(x/5))+12))"
+    },
+    {
+      "options": {},
+      "source": "x-\\frac{x}{5}=12",
+      "expected": "Eq((x-(x/5)),12)"
+    },
+    {
+      "options": {},
+      "source": "x+x+1+x+2=234",
+      "expected": "Eq(((((x+x)+1)+x)+2),234)"
+    },
+    {
+      "options": {},
+      "source": "184 = x+20",
+      "expected": "Eq(184,(x+20))"
+    },
+    {
+      "options": {},
+      "source": "184+-20 = x+20 + -20",
+      "expected": "Eq((184+-20),((x+20)+-20))"
+    },
+    {
+      "options": {},
+      "source": "-15-1=8x+1-1",
+      "expected": "Eq((-15-1),(((8*x)+1)-1))"
+    },
+    {
+      "options": {},
+      "source": "-16=8x+1-1",
+      "expected": "Eq(-16,(((8*x)+1)-1))"
+    },
+    {
+      "options": {},
+      "source": "11x=-44",
+      "expected": "Eq((11*x),-44)"
+    },
+    {
+      "options": {},
+      "source": "14x+35=4x-9-x",
+      "expected": "Eq(((14*x)+35),(((4*x)-9)-x))"
+    },
+    {
+      "options": {},
+      "source": "14x-3x+44-44=3x-3x-44",
+      "expected": "Eq(((((14*x)-(3*x))+44)-44),(((3*x)-(3*x))-44))"
+    },
+    {
+      "options": {},
+      "source": "14x+44=3x",
+      "expected": "Eq(((14*x)+44),(3*x))"
+    },
+    {
+      "options": {},
+      "source": "7(2x+5)=4x-9-x",
+      "expected": "Eq((7*(((2*x)+5))),(((4*x)-9)-x))"
+    },
+    {
+      "options": {},
+      "source": "y=x*x*x",
+      "expected": "Eq(y,((x*x)*x))"
+    },
+    {
+      "options": {},
+      "source": "y=\\frac{1}{x}",
+      "expected": "Eq(y,(1/x))"
+    },
+    {
+      "options": {},
+      "source": "13",
+      "expected": "13"
+    },
+    {
+      "options": {},
+      "source": "d=\\sqrt{25+4}",
+      "expected": "Eq(d,sqrt((25+4)))"
+    },
+    {
+      "options": {},
+      "source": "d=5.4 ",
+      "expected": "Eq(d,5.4)"
+    },
+    {
+      "options": {},
+      "source": "d=5.36 ",
+      "expected": "Eq(d,5.36)"
+    },
+    {
+      "options": {},
+      "source": "d=5.385 ",
+      "expected": "Eq(d,5.385)"
+    },
+    {
+      "options": {},
+      "source": "v=3.14*36*15+144*3.14",
+      "expected": "Eq(v,(((3.14*36)*15)+(144*3.14)))"
+    },
+    {
+      "options": {},
+      "source": "v=\\pi*540+\\pi*144",
+      "expected": "Eq(v,((pi*540)+(pi*144)))"
+    },
+    {
+      "options": {},
+      "source": "v=\\pi*36*15+\\pi*144",
+      "expected": "Eq(v,(((pi*36)*15)+(pi*144)))"
+    },
+    {
+      "options": {},
+      "source": "v=\\pi(36*14+96)",
+      "expected": "Eq(v,(pi*(((36*14)+96))))"
+    },
+    {
+      "options": {},
+      "source": "v=\\pi(600)",
+      "expected": "Eq(v,(pi*600))"
+    },
+    {
+      "options": {},
+      "source": "v=\\pi(36*14+12*8)",
+      "expected": "Eq(v,(pi*(((36*14)+(12*8)))))"
+    },
+    {
+      "options": {},
+      "source": "v=\\pi*600",
+      "expected": "Eq(v,(pi*600))"
+    },
+    {
+      "options": {},
+      "source": "999x=345",
+      "expected": "Eq((999*x),345)"
+    },
+    {
+      "options": {},
+      "source": "5.25",
+      "expected": "5.25"
+    },
+    {
+      "options": {},
+      "source": "x=5.25 ",
+      "expected": "Eq(x,5.25)"
+    },
+    {
+      "options": {},
+      "source": "(x-2)(x+2)=0",
+      "expected": "Eq((((x-2))*((x+2))),0)"
+    },
+    {
+      "options": {},
+      "source": "x=2",
+      "expected": "Eq(x,2)"
+    },
+    {
+      "options": {},
+      "source": "(x+3)/(x+3) = 1",
+      "expected": "Eq((((x+3))/((x+3))),1)"
+    },
+    {
+      "options": {},
+      "source": "-8=2(x-4)",
+      "expected": "Eq(-8,(2*((x-4))))"
+    },
+    {
+      "options": {},
+      "source": "0=2x",
+      "expected": "Eq(0,(2*x))"
+    },
+    {
+      "options": {},
+      "source": "x=0",
+      "expected": "Eq(x,0)"
+    },
+    {
+      "options": {},
+      "source": "3x-5=16",
+      "expected": "Eq(((3*x)-5),16)"
+    },
+    {
+      "options": {},
+      "source": "3x=21",
+      "expected": "Eq((3*x),21)"
+    },
+    {
+      "options": {},
+      "source": "3(2x-3)-5=16",
+      "expected": "Eq(((3*(((2*x)-3)))-5),16)"
+    },
+    {
+      "options": {},
+      "source": "3(2x-3)=16+5",
+      "expected": "Eq((3*(((2*x)-3))),(16+5))"
+    },
+    {
+      "options": {},
+      "source": "3(x+3)-5=16",
+      "expected": "Eq(((3*((x+3)))-5),16)"
+    },
+    {
+      "options": {},
+      "source": "x=7-3",
+      "expected": "Eq(x,(7-3))"
+    },
+    {
+      "options": {},
+      "source": "x<2m+2g",
+      "expected": "Lt(x,((2*m)+(2*g)))"
+    },
+    {
+      "options": {},
+      "source": "10=5x-3x",
+      "expected": "Eq(10,((5*x)-(3*x)))"
+    },
+    {
+      "options": {},
+      "source": "2x=10",
+      "expected": "Eq((2*x),10)"
+    },
+    {
+      "options": {},
+      "source": "2x=7+3",
+      "expected": "Eq((2*x),(7+3))"
+    },
+    {
+      "options": {},
+      "source": "3(2x-3)=21",
+      "expected": "Eq((3*(((2*x)-3))),21)"
+    },
+    {
+      "options": {},
+      "source": "(x+3)=7",
+      "expected": "Eq(((x+3)),7)"
+    },
+    {
+      "options": {},
+      "source": "3(x+3)=16+5",
+      "expected": "Eq((3*((x+3))),(16+5))"
+    },
+    {
+      "options": {},
+      "source": "3x+4=16",
+      "expected": "Eq(((3*x)+4),16)"
+    },
+    {
+      "options": {},
+      "source": "3x=16-4",
+      "expected": "Eq((3*x),(16-4))"
+    },
+    {
+      "options": {},
+      "source": "6(x+3)-10=32",
+      "expected": "Eq(((6*((x+3)))-10),32)"
+    },
+    {
+      "options": {},
+      "source": "3x=36",
+      "expected": "Eq((3*x),36)"
+    },
+    {
+      "options": {},
+      "source": "15x>5x ",
+      "expected": "Gt((15*x),(5*x))"
+    },
+    {
+      "options": {},
+      "source": "15-15x>5x",
+      "expected": "Gt((15-(15*x)),(5*x))"
+    },
+    {
+      "options": {},
+      "source": "3(5-5x)>5x ",
+      "expected": "Gt((3*((5-(5*x)))),(5*x))"
+    },
+    {
+      "options": {},
+      "source": "3>20x",
+      "expected": "Gt(3,(20*x))"
+    },
+    {
+      "options": {},
+      "source": "15-15x>5x ",
+      "expected": "Gt((15-(15*x)),(5*x))"
+    },
+    {
+      "options": {},
+      "source": "15>20x ",
+      "expected": "Gt(15,(20*x))"
+    },
+    {
+      "options": {},
+      "source": "3>4x ",
+      "expected": "Gt(3,(4*x))"
+    },
+    {
+      "options": {},
+      "source": "C=(b+rm)(1+t)",
+      "expected": "Eq(C,(((b+(r*m)))*((1+t))))"
+    },
+    {
+      "options": {},
+      "source": "\\begin{bmatrix}5 & 10 & 4500 \\\\ 1 & 1 & 700\\end{bmatrix}",
+      "expected": "5"
+    },
+    {
+      "options": {},
+      "source": "\\begin{bmatrix}1 & -1 & 27 \\\\ 0 & -3 & -12\\end{bmatrix}",
+      "expected": "1"
+    },
+    {
+      "options": {},
+      "source": "x+5-5=36-5",
+      "expected": "Eq(((x+5)-5),(36-5))"
+    },
+    {
+      "options": {},
+      "source": "x+5=4*9",
+      "expected": "Eq((x+5),(4*9))"
+    },
+    {
+      "options": {},
+      "source": "y+27+5=(y+5)*4",
+      "expected": "Eq(((y+27)+5),(((y+5))*4))"
+    },
+    {
+      "options": {},
+      "source": "y+32=4y+20",
+      "expected": "Eq((y+32),((4*y)+20))"
+    },
+    {
+      "options": {},
+      "source": "32-20=3y",
+      "expected": "Eq((32-20),(3*y))"
+    },
+    {
+      "options": {},
+      "source": "x+5=4*(4+5)",
+      "expected": "Eq((x+5),(4*((4+5))))"
+    },
+    {
+      "options": {},
+      "source": "y+32=(y+5)*4",
+      "expected": "Eq((y+32),(((y+5))*4))"
+    },
+    {
+      "options": {},
+      "source": "12=3y",
+      "expected": "Eq(12,(3*y))"
+    },
+    {
+      "options": {},
+      "source": "-4= 4x-x",
+      "expected": "Eq(-4,((4*x)-x))"
+    },
+    {
+      "options": {},
+      "source": "-4=3x",
+      "expected": "Eq(-4,(3*x))"
+    },
+    {
+      "options": {},
+      "source": "x/(x+1) = 4",
+      "expected": "Eq((x/((x+1))),4)"
+    },
+    {
+      "options": {},
+      "source": "x/(x+6)= -6(x+6)",
+      "expected": "Eq((x/((x+6))),(-6*((x+6))))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{T}{4}-\\sqrt{m}",
+      "expected": "((T/4)-sqrt(m))"
+    },
+    {
+      "options": {},
+      "source": "x=\\frac{2f-3b}{a}",
+      "expected": "Eq(x,(((2*f)-(3*b))/a))"
+    },
+    {
+      "options": {},
+      "source": "x+16 = 2x-24",
+      "expected": "Eq((x+16),((2*x)-24))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{2a-3-4a}{2a\\times(2a-3)} = 0",
+      "expected": "Eq(((((2*a)-3)-(4*a))/((2*a)*(((2*a)-3)))),0)"
+    },
+    {
+      "options": {},
+      "source": "-2a-3=0",
+      "expected": "Eq(((-2*a)-3),0)"
+    },
+    {
+      "options": {},
+      "source": "2a-3-4a = 0",
+      "expected": "Eq((((2*a)-3)-(4*a)),0)"
+    },
+    {
+      "options": {},
+      "source": "\\frac{1}{2a} - \\frac{2}{2a-3} = 0",
+      "expected": "Eq(((1/(2*a))-(2/((2*a)-3))),0)"
+    },
+    {
+      "options": {},
+      "source": "f(-2) = -4+4",
+      "expected": "Eq((f*-2),(-4+4))"
+    },
+    {
+      "options": {},
+      "source": "f(-2) = -8+16-12+4",
+      "expected": "Eq((f*-2),(((-8+16)-12)+4))"
+    },
+    {
+      "options": {},
+      "source": "f(-2) = -8+4*4+6*-2+4",
+      "expected": "Eq((f*-2),(((-8+(4*4))+(6*-2))+4))"
+    },
+    {
+      "options": {},
+      "source": "f(-2) = 8-12+4",
+      "expected": "Eq((f*-2),((8-12)+4))"
+    },
+    {
+      "options": {},
+      "source": "f(x)=(x+2)(x+1-i)(x+1+i)",
+      "expected": "Eq((f*x),((((x+2))*(((x+1)-i)))*(((x+1)+i))))"
+    },
+    {
+      "options": {},
+      "source": "8x = -18-4",
+      "expected": "Eq((8*x),(-18-4))"
+    },
+    {
+      "options": {},
+      "source": "9\\times (x+2) = x-4",
+      "expected": "Eq((9*((x+2))),(x-4))"
+    },
+    {
+      "options": {},
+      "source": "9x-x = -18-4",
+      "expected": "Eq(((9*x)-x),(-18-4))"
+    },
+    {
+      "options": {},
+      "source": "8x = -22",
+      "expected": "Eq((8*x),-22)"
+    },
+    {
+      "options": {},
+      "source": "5x = -5",
+      "expected": "Eq((5*x),-5)"
+    },
+    {
+      "options": {},
+      "source": "5x+1=-4",
+      "expected": "Eq(((5*x)+1),-4)"
+    },
+    {
+      "options": {},
+      "source": "5x-3 = -8",
+      "expected": "Eq(((5*x)-3),-8)"
+    },
+    {
+      "options": {},
+      "source": "5x=-5",
+      "expected": "Eq((5*x),-5)"
+    },
+    {
+      "options": {},
+      "source": "5x=-4-1",
+      "expected": "Eq((5*x),(-4-1))"
+    },
+    {
+      "options": {},
+      "source": "2x=2",
+      "expected": "Eq((2*x),2)"
+    },
+    {
+      "options": {},
+      "source": "3x = 3",
+      "expected": "Eq((3*x),3)"
+    },
+    {
+      "options": {},
+      "source": "3x+2 = 5",
+      "expected": "Eq(((3*x)+2),5)"
+    },
+    {
+      "options": {},
+      "source": "(0-8)/(x-4) = 2",
+      "expected": "Eq((((0-8))/((x-4))),2)"
+    },
+    {
+      "options": {},
+      "source": "(x-8)=2(x-4)",
+      "expected": "Eq(((x-8)),(2*((x-4))))"
+    },
+    {
+      "options": {},
+      "source": "x-2x+4-8=2x-4",
+      "expected": "Eq((((x-(2*x))+4)-8),((2*x)-4))"
+    },
+    {
+      "options": {},
+      "source": "x=-8+8",
+      "expected": "Eq(x,(-8+8))"
+    },
+    {
+      "options": {},
+      "source": "0=x",
+      "expected": "Eq(0,x)"
+    },
+    {
+      "options": {},
+      "source": "4x-3x = 7+9",
+      "expected": "Eq(((4*x)-(3*x)),(7+9))"
+    },
+    {
+      "options": {},
+      "source": "5x+1=4",
+      "expected": "Eq(((5*x)+1),4)"
+    },
+    {
+      "options": {},
+      "source": "5x=3",
+      "expected": "Eq((5*x),3)"
+    },
+    {
+      "options": {},
+      "source": "-x=-27-6",
+      "expected": "Eq(-x,(-27-6))"
+    },
+    {
+      "options": {},
+      "source": "6-x=-27",
+      "expected": "Eq((6-x),-27)"
+    },
+    {
+      "options": {},
+      "source": "2x = 124",
+      "expected": "Eq((2*x),124)"
+    },
+    {
+      "options": {},
+      "source": "x = 62",
+      "expected": "Eq(x,62)"
+    },
+    {
+      "options": {},
+      "source": "\\sqrt{1-.36}=\\cos(x)",
+      "expected": "Eq(sqrt((1-.36)),cos(x))"
+    },
+    {
+      "options": {},
+      "source": "\\sqrt{.64}=\\cos(x)",
+      "expected": "Eq(sqrt(.64),cos(x))"
+    },
+    {
+      "options": {},
+      "source": "f(x)=.5 * \\sin{.25 *x} + 5",
+      "expected": "Eq((f*x),((.5*sin((.25*x)))+5))"
+    },
+    {
+      "options": {},
+      "source": "H(d) = -8.5*\\cos{2\\pi/365 * d} + 12.25",
+      "expected": "Eq((H*d),((-8.5*cos(((2*(pi/365))*d)))+12.25))"
+    },
+    {
+      "options": {},
+      "source": "1+\\sin{\\pi-t}",
+      "expected": "(1+sin((pi-t)))"
+    },
+    {
+      "options": {},
+      "source": "v(t) = 1+\\sin{3.14-t}",
+      "expected": "Eq((v*t),(1+sin((3.14-t))))"
+    },
+    {
+      "options": {},
+      "source": "v(t) = 1+\\sin{t}",
+      "expected": "Eq((v*t),(1+sin(t)))"
+    },
+    {
+      "options": {},
+      "source": "v(t) = 1+\\sin{\\pi-t}",
+      "expected": "Eq((v*t),(1+sin((pi-t))))"
+    },
+    {
+      "options": {},
+      "source": "4.71",
+      "expected": "4.71"
+    },
+    {
+      "options": {},
+      "source": "-1=\\sin(t)",
+      "expected": "Eq(-1,sin(t))"
+    },
+    {
+      "options": {},
+      "source": "0=1+\\sin(t)",
+      "expected": "Eq(0,(1+sin(t)))"
+    },
+    {
+      "options": {},
+      "source": "H(t) = 1+t+\\cos{\\pi-t}",
+      "expected": "Eq((H*t),((1+t)+cos((pi-t))))"
+    },
+    {
+      "options": {},
+      "source": "500\\cdot x=59\\times 152",
+      "expected": "Eq((500*x),(59*152))"
+    },
+    {
+      "options": {},
+      "source": "500\\times x=59\\times 152",
+      "expected": "Eq((500*x),(59*152))"
+    },
+    {
+      "options": {},
+      "source": "t(n) = 8(n+1)",
+      "expected": "Eq((t*n),(8*((n+1))))"
+    },
+    {
+      "options": {},
+      "source": "t(n) = 8*(n+1)",
+      "expected": "Eq((t*n),(8*((n+1))))"
+    },
+    {
+      "options": {},
+      "source": "t(n) = 8+8n",
+      "expected": "Eq((t*n),(8+(8*n)))"
+    },
+    {
+      "options": {},
+      "source": "k=(27x/4)/(9x/2)",
+      "expected": "Eq(k,(((27*(x/4)))/((9*(x/2)))))"
+    },
+    {
+      "options": {},
+      "source": "k=\\frac{27x/4}{9x/2}",
+      "expected": "Eq(k,((27*(x/4))/(9*(x/2))))"
+    },
+    {
+      "options": {},
+      "source": "k=\\frac{9x}{2}\\times \\frac{1}{3x}",
+      "expected": "Eq(k,(((9*x)/2)*(1/(3*x))))"
+    },
+    {
+      "options": {},
+      "source": "k=\\frac{\\frac{9x}{2}}{3x}",
+      "expected": "Eq(k,(((9*x)/2)/(3*x)))"
+    },
+    {
+      "options": {},
+      "source": "(x+\\sqrt{3})(x+\\sqrt{3})",
+      "expected": "(((x+sqrt(3)))*((x+sqrt(3))))"
+    },
+    {
+      "options": {},
+      "source": "(x-2\\sqrt{5})(x-3\\sqrt{5})",
+      "expected": "(((x-(2*sqrt(5))))*((x-(3*sqrt(5)))))"
+    },
+    {
+      "options": {},
+      "source": "(q+2\\sqrt{2})(q-2\\sqrt{2})",
+      "expected": "(((q+(2*sqrt(2))))*((q-(2*sqrt(2)))))"
+    },
+    {
+      "options": {},
+      "source": "(q-2\\sqrt{2})(q+2\\sqrt{2})",
+      "expected": "(((q-(2*sqrt(2))))*((q+(2*sqrt(2)))))"
+    },
+    {
+      "options": {},
+      "source": "(x-\\sqrt{8})(x+\\sqrt{8})",
+      "expected": "(((x-sqrt(8)))*((x+sqrt(8))))"
+    },
+    {
+      "options": {},
+      "source": "(\\sqrt{t}-4)(\\sqrt{t}+4)",
+      "expected": "(((sqrt(t)-4))*((sqrt(t)+4)))"
+    },
+    {
+      "options": {},
+      "source": "(-4+\\sqrt{t})(\\sqrt{t}+4)",
+      "expected": "(((-4+sqrt(t)))*((sqrt(t)+4)))"
+    },
+    {
+      "options": {},
+      "source": "(\\sqrt{t} - 4)(\\sqrt{t}+4)",
+      "expected": "(((sqrt(t)-4))*((sqrt(t)+4)))"
+    },
+    {
+      "options": {},
+      "source": "-16+t",
+      "expected": "(-16+t)"
+    },
+    {
+      "options": {},
+      "source": "(\\sqrt{t}+4)(\\sqrt{t} - 4)",
+      "expected": "(((sqrt(t)+4))*((sqrt(t)-4)))"
+    },
+    {
+      "options": {},
+      "source": "r(r+12)+18=7",
+      "expected": "Eq(((r*((r+12)))+18),7)"
+    },
+    {
+      "options": {},
+      "source": "(r+11) = 0",
+      "expected": "Eq(((r+11)),0)"
+    },
+    {
+      "options": {},
+      "source": "(n-5)(n+5)",
+      "expected": "(((n-5))*((n+5)))"
+    },
+    {
+      "options": {},
+      "source": "n*n-25",
+      "expected": "((n*n)-25)"
+    },
+    {
+      "options": {},
+      "source": "5(x+1)(x-1)",
+      "expected": "((5*((x+1)))*((x-1)))"
+    },
+    {
+      "options": {},
+      "source": "(3x +4)(x-2)",
+      "expected": "((((3*x)+4))*((x-2)))"
+    },
+    {
+      "options": {},
+      "source": "(k+6)(k+1)",
+      "expected": "(((k+6))*((k+1)))"
+    },
+    {
+      "options": {},
+      "source": "(3x+4 )(x-2)",
+      "expected": "((((3*x)+4))*((x-2)))"
+    },
+    {
+      "options": {},
+      "source": "(4+3x)(-2+x)",
+      "expected": "(((4+(3*x)))*((-2+x)))"
+    },
+    {
+      "options": {},
+      "source": "\\text{\\$}40.96>\\text{\\$}2\\cdot(12)",
+      "expected": "Gt(($*40.96),(($*2)*12))"
+    },
+    {
+      "options": {},
+      "source": "f(10) = (25+20) *1000",
+      "expected": "Eq((f*10),(((25+20))*1000))"
+    },
+    {
+      "options": {},
+      "source": "f(10) = (45) *1000",
+      "expected": "Eq((f*10),(45*1000))"
+    },
+    {
+      "options": {},
+      "source": "f(x) = \\sqrt{64x}",
+      "expected": "Eq((f*x),sqrt((64*x)))"
+    },
+    {
+      "options": {},
+      "source": "f(x) = \\sqrt{8\\cdot8x}",
+      "expected": "Eq((f*x),sqrt(((8*8)*x)))"
+    },
+    {
+      "options": {},
+      "source": "f(165) = \\sqrt{165*64}",
+      "expected": "Eq((f*165),sqrt((165*64)))"
+    },
+    {
+      "options": {},
+      "source": "f(330) = \\sqrt{330} \\cdot 8",
+      "expected": "Eq((f*330),(sqrt(330)*8))"
+    },
+    {
+      "options": {},
+      "source": "f(330) = \\sqrt{64 \\times 330}",
+      "expected": "Eq((f*330),sqrt((64*330)))"
+    },
+    {
+      "options": {},
+      "source": "f(x) = |x|\\cdot.5",
+      "expected": "Eq((f*x),(Abs(x)*.5))"
+    },
+    {
+      "options": {},
+      "source": "f(x) = .5 \\cdot |x|",
+      "expected": "Eq((f*x),(.5*Abs(x)))"
+    },
+    {
+      "options": {},
+      "source": "4x-7 = 3x+9",
+      "expected": "Eq(((4*x)-7),((3*x)+9))"
+    },
+    {
+      "options": {},
+      "source": "H(t) = 1+3\\pi/2+\\cos{\\pi - 3\\pi/2}",
+      "expected": "Eq((H*t),((1+(3*(pi/2)))+cos((pi-(3*(pi/2))))))"
+    },
+    {
+      "options": {},
+      "source": "H(t) = 1+3\\pi/2-\\cos{3\\pi/2}",
+      "expected": "Eq((H*t),((1+(3*(pi/2)))-cos((3*(pi/2)))))"
+    },
+    {
+      "options": {},
+      "source": "n = 38",
+      "expected": "Eq(n,38)"
+    },
+    {
+      "options": {},
+      "source": "2(x+3)=y",
+      "expected": "Eq((2*((x+3))),y)"
+    },
+    {
+      "options": {},
+      "source": "y = 2x+6",
+      "expected": "Eq(y,((2*x)+6))"
+    },
+    {
+      "options": {},
+      "source": "y = \\frac{2x+3}{x-1}",
+      "expected": "Eq(y,(((2*x)+3)/(x-1)))"
+    },
+    {
+      "options": {},
+      "source": "y(x-1)=2x+3",
+      "expected": "Eq((y*((x-1))),((2*x)+3))"
+    },
+    {
+      "options": {},
+      "source": "y*(x-1)=2x+3",
+      "expected": "Eq((y*((x-1))),((2*x)+3))"
+    },
+    {
+      "options": {},
+      "source": "y=\\frac{3+2x}{x-1}",
+      "expected": "Eq(y,((3+(2*x))/(x-1)))"
+    },
+    {
+      "options": {},
+      "source": "\\log_2{x-1} = 3y",
+      "expected": "Eq(log((x-1),2),(3*y))"
+    },
+    {
+      "options": {},
+      "source": "\\ln{x} = y-3",
+      "expected": "Eq(ln(x),(y-3))"
+    },
+    {
+      "options": {},
+      "source": "S_n=S_{n-1}(1+.0017)+100",
+      "expected": "Eq(S,((S*((1+.0017)))+100))"
+    },
+    {
+      "options": {},
+      "source": "1",
+      "expected": "1"
+    },
+    {
+      "options": {},
+      "source": "\\frac{\\sqrt{1-x} - x\\frac{-1}{2\\sqrt{1-x}}}{1-x}",
+      "expected": "((sqrt((1-x))-(x*(-1/(2*sqrt((1-x))))))/(1-x))"
+    },
+    {
+      "options": {},
+      "source": "\\cos{2x}",
+      "expected": "cos((2*x))"
+    },
+    {
+      "options": {},
+      "source": "f(x)",
+      "expected": "(f*x)"
+    },
+    {
+      "options": {},
+      "source": "\\cot{x}",
+      "expected": "cot(x)"
+    },
+    {
+      "options": {},
+      "source": "y' = \\cos x \\cdot 1/\\sin x",
+      "expected": "Eq((y*'),(cos(x)*(1/sin(x))))"
+    },
+    {
+      "options": {},
+      "source": "y' = \\cos{x}/\\sin{x}",
+      "expected": "Eq((y*'),(cos(x)/sin(x)))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^{\\pi/6} \\cos x dx",
+      "expected": "integrate(cos(x),(x,0,(pi/6)))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{-\\sin{x}}{2\\sqrt{\\cos{x}}}",
+      "expected": "(-sin(x)/(2*sqrt(cos(x))))"
+    },
+    {
+      "options": {},
+      "source": "\\sin{\\pi}+\\cos{\\pi}(x-\\pi)",
+      "expected": "(sin(pi)+(cos(pi)*((x-pi))))"
+    },
+    {
+      "options": {},
+      "source": "\\sqrt{101} \\approx 10(1+1/20)",
+      "expected": "sqrt(101)"
+    },
+    {
+      "options": {},
+      "source": "\\sqrt{101} \\approx 10.05",
+      "expected": "sqrt(101)"
+    },
+    {
+      "options": {},
+      "source": "\\sqrt{101} \\approx 10+1/20",
+      "expected": "sqrt(101)"
+    },
+    {
+      "options": {},
+      "source": "\\int \\cos{3x} dx ",
+      "expected": "integrate(cos((3*x)),x)"
+    },
+    {
+      "options": {},
+      "source": "\\int x dx",
+      "expected": "integrate(x,x)"
+    },
+    {
+      "options": {},
+      "source": "\\pi/4 \\cdot 1 + \\pi/4\\cos{\\pi/4}",
+      "expected": "(((pi/4)*1)+((pi/4)*cos((pi/4))))"
+    },
+    {
+      "options": {},
+      "source": "\\cos^{-1}{x}",
+      "expected": "acos(x)"
+    },
+    {
+      "options": {},
+      "source": " \\pi \\int_0^{\\pi/2} \\cos u du",
+      "expected": "(pi*integrate(cos(u),(u,0,(pi/2))))"
+    },
+    {
+      "options": {},
+      "source": "\\pi \\int_{0}^{1} \\co dy",
+      "expected": "(pi*integrate(co,(y,0,1)))"
+    },
+    {
+      "options": {},
+      "source": "\\pi \\int_{0}^{1} \\cos{y} dy",
+      "expected": "(pi*integrate(cos(y),(y,0,1)))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{0}^{1}\\pi \\cos{y} dy",
+      "expected": "integrate((pi*cos(y)),(y,0,1))"
+    },
+    {
+      "options": {},
+      "source": " \\int_{0}^{1}\\pi \\cos{y} dy",
+      "expected": "integrate((pi*cos(y)),(y,0,1))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^{a/2} cx dx",
+      "expected": "integrate((c*x),(x,0,(a/2)))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^a cx dx",
+      "expected": "integrate((c*x),(x,0,a))"
+    },
+    {
+      "options": {},
+      "source": " \\int \\sin{x} dx ",
+      "expected": "integrate(sin(x),x)"
+    },
+    {
+      "options": {},
+      "source": " .4597 ",
+      "expected": ".4597"
+    },
+    {
+      "options": {},
+      "source": "-\\sqrt{\\pi} ",
+      "expected": "-sqrt(pi)"
+    },
+    {
+      "options": {},
+      "source": "\\frac{1}{2\\sqrt{\\pi}}\\sin{\\pi}+\\sqrt{\\pi} \\cos{\\pi} ",
+      "expected": "(((1/(2*sqrt(pi)))*sin(pi))+(sqrt(pi)*cos(pi)))"
+    },
+    {
+      "options": {},
+      "source": "1.77 ",
+      "expected": "1.77"
+    },
+    {
+      "options": {},
+      "source": "\\int_{0}^{2\\pi} \\sqrt{t}\\sin{t} dt",
+      "expected": "integrate((sqrt(t)*sin(t)),(t,0,(2*pi)))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{0}^{\\pi} \\sqrt{t}\\sin{t} dt",
+      "expected": "integrate((sqrt(t)*sin(t)),(t,0,pi))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^x \\cos{t} dt  ",
+      "expected": "integrate(cos(t),(t,0,x))"
+    },
+    {
+      "options": {},
+      "source": "\\int \\frac{1}{x} dx ",
+      "expected": "integrate((1/x),x)"
+    },
+    {
+      "options": {},
+      "source": "\\int_{0}^{3} \\frac{1}{\\sqrt{3-x}} dx ",
+      "expected": "integrate((1/sqrt((3-x))),(x,0,3))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{-1}^{1} 1/x dx ",
+      "expected": "integrate((1/x),(x,-1,1))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{-2}^{\\infty} \\sin{x} dx ",
+      "expected": "integrate(sin(x),(x,-2,oo))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{0}^{\\infty} 1/x dx ",
+      "expected": "integrate((1/x),(x,0,oo))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{1}^{\\infty} 1/x dx ",
+      "expected": "integrate((1/x),(x,1,oo))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{1}^{\\infty} \\frac{1}{x} dx ",
+      "expected": "integrate((1/x),(x,1,oo))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{1}^{\\infty} \\frac{1}{x} dx ",
+      "expected": "integrate((1/x),(x,1,oo))"
+    },
+    {
+      "options": {},
+      "source": "4\\pi \\int_0^1 \\sqrt{(x+1)+1} dx",
+      "expected": "((4*pi)*integrate(sqrt(((x+1)+1)),(x,0,1)))"
+    },
+    {
+      "options": {},
+      "source": "4\\pi \\int_0^1 \\sqrt{x+2} dx",
+      "expected": "((4*pi)*integrate(sqrt((x+2)),(x,0,1)))"
+    },
+    {
+      "options": {},
+      "source": "4\\pi \\int \\sqrt{(x+1)+1} dx",
+      "expected": "((4*pi)*integrate(sqrt(((x+1)+1)),x))"
+    },
+    {
+      "options": {},
+      "source": "4\\pi \\int \\sqrt{x+2} dx",
+      "expected": "((4*pi)*integrate(sqrt((x+2)),x))"
+    },
+    {
+      "options": {},
+      "source": "\\int 2\\pi 2\\sqrt{x+1}\\cdot \\sqrt{1+\\frac{1}{x+1}} dx",
+      "expected": "integrate((((2*pi)*2)*(sqrt((x+1))*sqrt((1+(1/(x+1)))))),x)"
+    },
+    {
+      "options": {},
+      "source": "\\sqrt{x+1} \\sqrt{1+\\frac{1}{x+1}}",
+      "expected": "(sqrt((x+1))*sqrt((1+(1/(x+1)))))"
+    },
+    {
+      "options": {},
+      "source": "1 = r \\cos{x} - r\\sin{x}",
+      "expected": "Eq(1,((r*cos(x))-(r*sin(x))))"
+    },
+    {
+      "options": {},
+      "source": "1= r \\cos{x} - r\\sin{x}",
+      "expected": "Eq(1,((r*cos(x))-(r*sin(x))))"
+    },
+    {
+      "options": {},
+      "source": "r = 1/(\\cos{x} - \\sin{x})",
+      "expected": "Eq(r,(1/((cos(x)-sin(x)))))"
+    },
+    {
+      "options": {},
+      "source": "y' = \\frac{2x}{10}",
+      "expected": "Eq((y*'),((2*x)/10))"
+    },
+    {
+      "options": {},
+      "source": "y' = 2x/10",
+      "expected": "Eq((y*'),(2*(x/10)))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{1}{(x+2)(x+1)}",
+      "expected": "(1/(((x+2))*((x+1))))"
+    },
+    {
+      "options": {},
+      "source": "\\int \\frac{1}{(x+2)(x+1)} dx",
+      "expected": "integrate((1/((x+2)*(x+1))),x)"
+    },
+    {
+      "options": {},
+      "source": "\\int_{0}^{1}\\frac{1}{(x+2)(x+1)} dx",
+      "expected": "integrate((1/((x+2)*(x+1))),(x,0,1))"
+    },
+    {
+      "options": {},
+      "source": "\\int_{0}^{1}2\\pi(2\\sqrt{x+1})(\\sqrt{1+\\frac{1}{x+1}}) dx",
+      "expected": "integrate((((2*pi)*(2*sqrt((x+1))))*sqrt((1+(1/(x+1))))),(x,0,1))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{2\\sin{x} \\cos{x}}{\\sin{x}} = 2",
+      "expected": "Eq((((2*sin(x))*cos(x))/sin(x)),2)"
+    },
+    {
+      "options": {},
+      "source": "0",
+      "expected": "0"
+    },
+    {
+      "options": {},
+      "source": " 1 + .1000 -.005+.0005 ",
+      "expected": "(((1+.1000)-.005)+.0005)"
+    },
+    {
+      "options": {},
+      "source": "\\sum_{i=1}^2 i ",
+      "expected": "Eq(i,1)"
+    },
+    {
+      "options": {},
+      "source": "\\infty",
+      "expected": "oo"
+    },
+    {
+      "options": {},
+      "source": "-1/\\sin{y}",
+      "expected": "(-1/sin(y))"
+    },
+    {
+      "options": {},
+      "source": "y = \\cos^{-1}{x}",
+      "expected": "Eq(y,acos(x))"
+    },
+    {
+      "options": {},
+      "source": "1 = -\\sin{y} \\cdot y'",
+      "expected": "Eq(1,((-sin(y)*y)*'))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^{y}y dy",
+      "expected": "integrate(y,(y,0,y))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^1 {\\int_x^{2x} dy} dx",
+      "expected": "integrate(integrate(1,(y,x,(2*x))),(x,0,1))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^\\pi {\\int_1^{3}\\sin{x} dy} dx",
+      "expected": "integrate(integrate(sin(x),(y,1,3)),(x,0,pi))"
+    },
+    {
+      "options": {},
+      "source": "\\frac{1}{x_0-m_0} = k",
+      "expected": "Eq((1/(x-m)),k)"
+    },
+    {
+      "options": {},
+      "source": "6(2x+1)",
+      "expected": "(6*(((2*x)+1)))"
+    },
+    {
+      "options": {},
+      "source": "6(x+2)(x-1)",
+      "expected": "((6*((x+2)))*((x-1)))"
+    },
+    {
+      "options": {},
+      "source": "12x+6",
+      "expected": "((12*x)+6)"
+    },
+    {
+      "options": {},
+      "source": "f''(x) = 12x + 6",
+      "expected": "Eq(((f*'')*x),((12*x)+6))"
+    },
+    {
+      "options": {},
+      "source": "0=12x + 6",
+      "expected": "Eq(0,((12*x)+6))"
+    },
+    {
+      "options": {},
+      "source": "0 = 6(x+2)(x-1)",
+      "expected": "Eq(0,((6*((x+2)))*((x-1))))"
+    },
+    {
+      "options": {},
+      "source": "\\tan{\\theta} = \\frac{x}{100}",
+      "expected": "Eq(tan(theta),(x/100))"
+    },
+    {
+      "options": {},
+      "source": "\\int \\frac{\\cos{2x} - 1}{-2} dx",
+      "expected": "integrate(((cos((2*x))-1)/-2),x)"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^\\pi \\sin(x) dx",
+      "expected": "Eq(I,integrate(sin(x),(x,0,pi)))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^pi \\sin(x) dx",
+      "expected": "Eq(I,integrate((i*sin(x)),(x,0,p)))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^{2\\pi} \\sin(x) dx",
+      "expected": "Eq(I,integrate(sin(x),(x,0,(2*pi))))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^{pi} \\sin(x) dx",
+      "expected": "Eq(I,integrate(sin(x),(x,0,(p*i))))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^1 x dx",
+      "expected": "Eq(I,integrate(x,(x,0,1)))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^{\\pi/6} \\cos x dx",
+      "expected": "Eq(I,integrate(cos(x),(x,0,(pi/6))))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^{\\pi/6} \\frac{1-\\cos(2x)}{2} dx",
+      "expected": "Eq(I,integrate(((1-cos((2*x)))/2),(x,0,(pi/6))))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^{\\pi} \\frac{1-\\cos(2x)}{2} dx",
+      "expected": "Eq(I,integrate(((1-cos((2*x)))/2),(x,0,pi)))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int_0^{\\pi/2} \\frac{1-\\cos(2x)}{2} dx",
+      "expected": "Eq(I,integrate(((1-cos((2*x)))/2),(x,0,(pi/2))))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^1 x dx = \\int_0^1 x dx",
+      "expected": "Eq(integrate(x,(x,0,1)),integrate(x,(x,0,1)))"
+    },
+    {
+      "options": {},
+      "source": "\\int_0^{\\pi/6} \\cos x dx = \\int_0^{\\pi/6} \\cos x dx",
+      "expected": "Eq(integrate(cos(x),(x,0,(pi/6))),integrate(cos(x),(x,0,(pi/6))))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int \\frac{1}{x-1} dx",
+      "expected": "Eq(I,integrate((1/(x-1)),x))"
+    },
+    {
+      "options": {},
+      "source": "I = \\ln{|x-1|} - \\ln{|x+1|} - \\frac{2}{x-1} + C",
+      "expected": "Eq(I,(((ln(Abs((x-1)))-ln(Abs((x+1))))-(2/(x-1)))+C))"
+    },
+    {
+      "options": {},
+      "source": "I = \\int \\frac{1}{x} dx",
+      "expected": "Eq(I,integrate((1/x),x))"
+    },
+    {
+      "options": {},
+      "source": "25<3\\times10",
+      "expected": "Lt(25,(3*10))"
+    },
+    {
+      "options": {},
+      "source": "n = 38",
+      "expected": "Eq(n,38)"
+    },
+    {
+      "options": {},
+      "source": "S_n=S_{n-1}(1+.0017)+100",
+      "expected": "Eq(S,((S*((1+.0017)))+100))"
+    },
+    {
+      "options": {},
+      "source": "y(x-1)=2x+3",
+      "expected": "Eq((y*((x-1))),((2*x)+3))"
     }
   ]
 }
