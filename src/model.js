@@ -1561,6 +1561,27 @@ export let Model = (function () {
             t = args.pop();
             expr = binaryNode(Model.ADD, [t, expr]);
             expr.isMixedFraction = true;
+          } else if (args.length > 0 &&
+                     args[args.length-1].op === Model.VAR &&
+                     expr.op === Model.VAR && expr.args[0].indexOf("'") === 0) {
+            // Merge previous var with current '.
+            expr = binaryNode(Model.POW, [args.pop(), expr]);
+            expr.isImplicit = expr.args[0].isImplicit;
+          } else if (args.length > 0 &&
+                     args[args.length-1].op === Model.MUL &&  // (2x)'
+                     args[args.length-1].args[args[args.length-1].args.length-1].isPolynomial === 1 &&
+                     expr.op === Model.VAR && expr.args[0].indexOf("'") === 0) {
+            t = args.pop();
+            expr = multiplyNode(t.args.concat(binaryNode(Model.POW, [t.args.pop(), expr])));
+            expr.isImplicit = expr.args[0].isImplicit;
+          } else if (args.length > 0 &&
+                     args[args.length-1].op === Model.VAR &&
+                     expr.op === Model.POW &&
+                     expr.args[0].op === Model.VAR &&
+                     expr.args[0].args[0].indexOf("'") === 0) {
+            // Merge previous var with current ' and raise to the power.
+            expr = newNode(Model.POW, [binaryNode(Model.POW, [args.pop(), expr.args[0]])].concat(expr.args.slice(1)));
+            expr.isImplicit = expr.args[0].args[0].isImplicit;
           } else if (Model.option("ignoreCoefficientOne") &&
                      args.length === 1 && isOneOrMinusOne(args[0]) &&
                      isPolynomialTerm(args[0], expr)) {
@@ -1574,11 +1595,6 @@ export let Model = (function () {
                      (n0 = isRepeatingDecimal([args[args.length-1], expr]))) {
             args.pop();
             expr = n0;
-          } else if (expr.op === Model.VAR &&
-                     expr.args[0].indexOf("'") === 0) {
-            var t = args.pop();
-            expr = binaryNode(Model.MUL, [t, expr]);
-            expr.isImplicit = true;
           } else if (isENotation(args, expr)) {
             // 1E2, 1E-2, 1e2
             var tmp = args.pop();
@@ -2639,14 +2655,12 @@ export let Model = (function () {
           }
           lexeme += ch;
         }
+        // Group primes into a single var.
+        while (lexeme.lastIndexOf("'") === lexeme.length - 1 && c === CC_SINGLEQUOTE) {
+          lexeme += String.fromCharCode(c);
+          c = src.charCodeAt(curIndex++);
+        }
         curIndex--;
-        // // Scan trailing primes ('). This handles single character identifier
-        // // with trailing primes.
-        // while ((c=src.charCodeAt(curIndex++)) === "'".charCodeAt(0)) {
-        //   let ch = String.fromCharCode(c);
-        //   lexeme += ch;
-        // }
-        // curIndex--;
         return TK_VAR;
       }
       // Recognize \frac, \sqrt.
