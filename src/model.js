@@ -1568,8 +1568,8 @@ export let Model = (function () {
             expr = binaryNode(Model.POW, [args.pop(), expr]);
             expr.isImplicit = expr.args[0].isImplicit;
           } else if (args.length > 0 &&
-                     args[args.length-1].op === Model.MUL &&  // (2x)'
-                     args[args.length-1].args[args[args.length-1].args.length-1].isPolynomial === 1 &&
+                     (args[args.length-1].op === Model.MUL || args[args.length-1].op === Model.DOT) &&  // 2x', 2*x', 2\cdot x'
+                     args[args.length-1].args[args[args.length-1].args.length-1].op === Model.VAR &&
                      expr.op === Model.VAR && expr.args[0].indexOf("'") === 0) {
             t = args.pop();
             expr = multiplyNode(t.args.concat(binaryNode(Model.POW, [t.args.pop(), expr])));
