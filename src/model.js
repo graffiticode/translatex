@@ -1871,7 +1871,10 @@ export let Model = (function () {
     }
     //
     function isAdditive(t) {
-      return t === TK_ADD || t === TK_SUB || t === TK_PM || t === TK_BACKSLASH;
+      return (
+        t === TK_ADD || t === TK_SUB || t === TK_PM ||
+        t === TK_BACKSLASH || t === TK_CUP || t === TK_CAP
+      );
     }
     // Parse 'a + b'
     function additiveExpr() {
@@ -1882,7 +1885,17 @@ export let Model = (function () {
         let expr2 = multiplicativeExpr();
         switch(t) {
         case TK_BACKSLASH:
-          expr = binaryNode(Model.BACKSLASH, [expr, expr2]);
+        case TK_CUP:
+        case TK_CAP:
+          if (expr.lbrk === TK_LEFTBRACE &&
+              expr.rbrk === TK_RIGHTBRACE) {
+            expr = newNode(Model.SET, [expr]);
+          }
+          if (expr2.lbrk === TK_LEFTBRACE &&
+              expr2.rbrk === TK_RIGHTBRACE) {
+            expr2 = newNode(Model.SET, [expr2]);
+          }
+          expr = binaryNode(tokenToOperator[t], [expr, expr2]);
           break;
         case TK_PM:
           expr = binaryNode(Model.PM, [expr, expr2]);
