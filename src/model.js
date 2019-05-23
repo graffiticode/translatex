@@ -560,6 +560,9 @@ export let Model = (function () {
   const TK_ARCSECH = 0x15C;
   const TK_ARCCSCH = 0x15D;
   const TK_ARCCOTH = 0x15E;
+  const TK_OPERATORNAME = 0x162;
+  const TK_LEFTCMD = 0x163;
+  const TK_RIGHTCMD = 0x164;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -604,6 +607,7 @@ export let Model = (function () {
   tokenToOperator[TK_EQL] = OpStr.EQL;
   tokenToOperator[TK_COMMA] = OpStr.COMMA;
   tokenToOperator[TK_TEXT] = OpStr.TEXT;
+  tokenToOperator[TK_OPERATORNAME] = OpStr.OPERATORNAME;
   tokenToOperator[TK_LT] = OpStr.LT;
   tokenToOperator[TK_LE] = OpStr.LE;
   tokenToOperator[TK_GT] = OpStr.GT;
@@ -2181,6 +2185,7 @@ export let Model = (function () {
         "\\textrm": TK_TEXT,
         "\\textit": TK_TEXT,
         "\\textbf": TK_TEXT,
+        "\\operatorname": TK_OPERATORNAME,
         "\\lt": TK_LT,
         "\\le": TK_LE,
         "\\leq": TK_LE,
@@ -2701,6 +2706,30 @@ export let Model = (function () {
         let tk = lexemeToToken[lexeme];
         if (tk === void 0) {
           tk = TK_VAR;   // e.g. \\theta
+        } else if (tk === TK_OPERATORNAME) {
+          c = src.charCodeAt(curIndex++);
+          // Skip whitespace before '{'
+          while (c && c !== CC_LEFTBRACE) {
+            c = src.charCodeAt(curIndex++);
+          }
+          lexeme = "";
+          c = src.charCodeAt(curIndex++);
+          while (c && c !== CC_RIGHTBRACE) {
+            var ch = String.fromCharCode(c);
+            if (ch === "&" && indexOf(src.substring(curIndex), "nbsp;") === 0) {
+              // Skip &nbsp;
+              curIndex += 5;
+            } else if (ch === " " || ch === "\t") {
+              // Skip space and tab
+            } else {
+              lexeme += ch;
+            }
+            c = src.charCodeAt(curIndex++);
+          }
+          tk = lexemeToToken["\\" + lexeme];
+          if (tk === void 0) {
+            tk = TK_VAR;   // e.g. \\theta
+          }
         } else if (tk === TK_TEXT || tk === TK_TYPE) {
           c = src.charCodeAt(curIndex++);
           // Skip whitespace before '{'
