@@ -574,7 +574,7 @@ import {rules} from "./rules.js";
           args: [str],
         };
       }
-      assert(args.length === 1 && isEmpty(args[0]));
+//      assert(args.length === 1 && isEmpty(args[0]));
       return args[0];
     }
     function isEmpty(node) {
@@ -1432,7 +1432,9 @@ export let Core = (function () {
       options: options
     };
     let evaluator = makeEvaluator(spec, resume);
-    evaluator.evaluate(solution, resume);
+    evaluator.evaluate(solution, (err, val) => {
+      resume(err, val);
+    });
   }
   function makeEvaluator(spec, resume) {
     let valueNode;
@@ -1447,9 +1449,19 @@ export let Core = (function () {
       valueNode = value != undefined ? Model.create(value, "spec") : undefined;
       Model.popEnv();
     } catch (e) {
-      console.log(JSON.stringify(spec));
-      console.log(e.stack);
+      console.log("ERROR makeEvaluator() " + e.stack);
       pendingError = e;
+      resume([{
+        result: null,
+        errorCode: parseErrorCode(message),
+        message: parseMessage(message),
+        stack: e.stack,
+        location: e.location,
+        model: null,  // Unused, for now.
+        toString: function () {
+          return this.errorCode + ": (" + this.location + ") " + this.message + "\n" + this.stack;
+        },
+      }], "");  // If error, empty string.
     }
     let evaluate = function evaluate(solution, resume) {
       try {
@@ -1472,12 +1484,11 @@ export let Core = (function () {
           break;
         }
         Model.popEnv();
-        resume(null, result);
+        resume([], result);
       } catch (e) {
-        console.log(JSON.stringify(solution));
-        console.log(e.stack);
+        console.log("ERROR evaluate() " + e.stack);
         let message = e.message;
-        resume({
+        resume([{
           result: null,
           errorCode: parseErrorCode(message),
           message: parseMessage(message),
@@ -1487,7 +1498,8 @@ export let Core = (function () {
           toString: function () {
             return this.errorCode + ": (" + this.location + ") " + this.message + "\n" + this.stack;
           },
-        }, "");  // If error, empty string.
+        }], "");  // If error, empty string.
+        return;
       }
     };
     return {
