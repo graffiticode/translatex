@@ -1,7 +1,7 @@
 import fs from "fs";
 import {execSync} from "child_process";
 
-const id = "Bq8fVzyzH9";  // Current best rule set
+const id = "p1Zt0Ny2diR";  // Current best rule set
 
 function rmdir(path) {
   try { var files = fs.readdirSync(path); }

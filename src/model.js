@@ -1339,6 +1339,14 @@ export let Model = (function () {
       }
       return expr;
     }
+    function isEndOfExpression(tk) {
+      return tk === TK_COMMA ||
+        tk === TK_RIGHTBRACE ||
+        tk === TK_RIGHTPAREN ||
+        tk === TK_RIGHTBRACKET ||
+        tk === TK_RIGHTCMD ||
+        tk === TK_NONE;
+    }
     // Parse '+x', '\pm y'
     function unaryExpr() {
       let t, expr, op;
@@ -1392,7 +1400,7 @@ export let Model = (function () {
       default:
         if (t === TK_VAR && lexeme() === "$") {
           next();
-          if (hd()) {
+          if (!isEndOfExpression(hd())) {
             // Give $1 a higher precedence than ordinary multiplication.
             expr = multiplyNode([newNode(Model.VAR, ["$"]), postfixExpr()]);
             expr.args[1].isPolynomialTerm = true;
@@ -1401,6 +1409,7 @@ export let Model = (function () {
             expr = newNode(Model.VAR, ["$"]);
           }
         } else {
+
           expr = postfixExpr();
         }
         break;
