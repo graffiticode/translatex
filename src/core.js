@@ -818,9 +818,8 @@ import {rules} from "./rules.js";
           let env = {};
           if (node.numberFormat === "decimal") {
             let parts = node.args[0].split(".");
-            assert(parts.length === 2);
             env.ip = parts[0];
-            env.fp = parts[1];
+            env.fp = parts[1] || "0";  // 7.
           }
           let matches = match(patterns, node);
           if (matches.length === 0) {
