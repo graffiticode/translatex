@@ -289,6 +289,7 @@ export let Model = (function () {
     DOT: "dot",
     MATHFIELD: "mathfield",
     DELTA: "delta",
+    OPERATORNAME: "operatorname",
     NONE: "none",
   };
 
@@ -1007,6 +1008,11 @@ export let Model = (function () {
         let name = braceExpr();
         node = newNode(Model.VEC, [name]);
         break;
+      case TK_OPERATORNAME:
+        var lex = lexeme();
+        next();
+        node = newNode(Model.OPERATORNAME, [newNode(Model.VAR, [lex]), primaryExpr()]); 
+        break;
       case TK_SIN:
       case TK_COS:
       case TK_TAN:
@@ -1161,7 +1167,7 @@ export let Model = (function () {
         }
         break;
       default:
-        assert(!Model.option("strict"), message(1006, [tokenToOperator[tk]]));
+        assert(!Model.option("strict"), message(1006, [tk]));
         node = nodeEmpty;
         break;
       }
@@ -2737,7 +2743,7 @@ export let Model = (function () {
           }
           tk = lexemeToToken["\\" + lexeme];
           if (tk === void 0) {
-            tk = TK_VAR;   // e.g. \\theta
+            tk = TK_OPERATORNAME;
           }
         } else if (tk === TK_TEXT || tk === TK_TYPE) {
           c = src.charCodeAt(curIndex++);

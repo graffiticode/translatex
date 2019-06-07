@@ -128,6 +128,7 @@ import {rules} from "./rules.js";
       case Model.MATHFIELD:
       case Model.SET:
       case Model.NOT:
+      case Model.OPERATORNAME:
         node = visit.unary(node, resume);
         break;
       case Model.COMMA:
