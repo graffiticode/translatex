@@ -519,7 +519,7 @@ import {rules} from "./rules.js";
     function expandBinary(str, args) {
       let t = str;
       forEach(args, function (arg, i) {
-        str = str.replace("%" + (i + 1), arg.args[0]);
+        str = str.replace(new RegExp("%" + (i + 1), "g"), arg.args[0]);
       });
       if (args.length > 2) {
         return expandBinary(t, [newNode(Model.VAR, [str])].concat(args.slice(2)));
@@ -567,7 +567,7 @@ import {rules} from "./rules.js";
           str = expandBinary(str, args);
         } else {
           forEach(args, function (arg, i) {
-            str = str.replace("%" + (i + 1), arg.args[0]);
+            str = str.replace(new RegExp("%" + (i + 1), "g"), arg.args[0]);
           });
         }
         return {
