@@ -519,7 +519,7 @@ import {rules} from "./rules.js";
     function expandBinary(str, args) {
       let t = str;
       forEach(args, function (arg, i) {
-        str = str.replace("%" + (i + 1), arg.args[0]);
+        str = str.replace(new RegExp("%" + (i + 1), "g"), arg.args[0]);
       });
       if (args.length > 2) {
         return expandBinary(t, [newNode(Model.VAR, [str])].concat(args.slice(2)));
@@ -533,7 +533,7 @@ import {rules} from "./rules.js";
       if (str && args) {
         let count = str.split("%").length - 1;
         if (str.indexOf("%%") >= 0) {
-          str = str.replace("%%", args[0].args[0]);
+          str = str.replace(new RegExp("%%", "g"), args[0].args[0]);
         }
         if (str.indexOf("%*") >= 0) {
           let s = "";
@@ -542,32 +542,32 @@ import {rules} from "./rules.js";
               s += " ";
             }
             // Replicate template for each argument.
-            s += str.replace("%*", arg.args[0]).replace("%M", arg.m).replace("%N", arg.n);
+            s += str.replace(new RegExp("%\*", "g"), arg.args[0]).replace(new RegExp("%M", "g"), arg.m).replace(new RegExp("%N", "g"), arg.n);
           });
           str = s;  // Overwrite str.
         }
         if (str.indexOf("%IP") >= 0) {
-          str = str.replace("%IP", env.ip);
+          str = str.replace(new RegExp("%IP", "g"), env.ip);
         }
         if (str.indexOf("%FP0") >= 0) {
-          str = str.replace("%FP0", env.fp);
+          str = str.replace(new RegExp("%FP0", "g"), env.fp);
         }
         if (str.indexOf("%FP") >= 0) {
-          str = str.replace("%FP", env.fp.split("").join(" "));
+          str = str.replace(new RegExp("%FP", "g"), env.fp.split("").join(" "));
         }
         if (str.indexOf("%M") >= 0) {
           assert(env.m);
-          str = str.replace("%M", env.m);
+          str = str.replace(new RegExp("%M", "g"), env.m);
         }
         if (str.indexOf("%N") >= 0) {
           assert(env.n);
-          str = str.replace("%N", env.n);
+          str = str.replace(new RegExp("%N", "g"), env.n);
         }
         if (count === 2 && args.length > 2) {
           str = expandBinary(str, args);
         } else {
           forEach(args, function (arg, i) {
-            str = str.replace("%" + (i + 1), arg.args[0]);
+            str = str.replace(new RegExp("%" + (i + 1), "g"), arg.args[0]);
           });
         }
         return {
