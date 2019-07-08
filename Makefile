@@ -1,3 +1,5 @@
+.PHONY: build
+
 all: init build
 
 init: .npm-install-done
