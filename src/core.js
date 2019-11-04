@@ -700,8 +700,8 @@ import {rules} from "./rules.js";
           forEach(node.args, function (n) {
             args.push(normalizeLiteral(n));
           });
-          node.args = args;
-          return node;
+          let op = node.op === Model.LIST && Model.COMMA || node.op;  // Normalize LIST.
+          return newNode(op, args);
         },
         paren: function(node) {
           var args = [];
