@@ -542,7 +542,7 @@ import {rules} from "./rules.js";
               s += " ";
             }
             // Replicate template for each argument.
-            s += str.replace(new RegExp("%\*", "g"), arg.args[0]).replace(new RegExp("%M", "g"), arg.m).replace(new RegExp("%N", "g"), arg.n);
+            s += str.replace("%*", arg.args[0]).replace("%M", arg.m).replace("%N", arg.n);
           });
           str = s;  // Overwrite str.
         }
@@ -700,8 +700,8 @@ import {rules} from "./rules.js";
           forEach(node.args, function (n) {
             args.push(normalizeLiteral(n));
           });
-          node.args = args;
-          return node;
+          let op = node.op === Model.LIST && Model.COMMA || node.op;  // Normalize LIST.
+          return newNode(op, args);
         },
         paren: function(node) {
           var args = [];
