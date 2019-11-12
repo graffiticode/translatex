@@ -542,7 +542,7 @@ import {rules} from "./rules.js";
               s += " ";
             }
             // Replicate template for each argument.
-            s += str.replace(new RegExp("%\*", "g"), arg.args[0]).replace(new RegExp("%M", "g"), arg.m).replace(new RegExp("%N", "g"), arg.n);
+            s += str.replace("%*", arg.args[0]).replace("%M", arg.m).replace("%N", arg.n);
           });
           str = s;  // Overwrite str.
         }
