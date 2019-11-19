@@ -563,7 +563,7 @@ import {rules} from "./rules.js";
           assert(env.n);
           str = str.replace(new RegExp("%N", "g"), env.n);
         }
-        if (count === 2 && args.length > 2) {
+        if (template.isBinary && args.length > 2) {
           str = expandBinary(str, args);
         } else {
           forEach(args, function (arg, i) {
@@ -841,6 +841,7 @@ import {rules} from "./rules.js";
           forEach(nodeArgs, function (n, i) {
             args = args.concat(translate(n, [globalRules, argRules]));
           });
+          template.isBinary = true;
           return expand(template, args);
         },
         multiplicative: function(node) {
@@ -856,6 +857,7 @@ import {rules} from "./rules.js";
           forEach(nodeArgs, function (n, i) {
             args = args.concat(translate(n, [globalRules, argRules]));
           });
+          template.isBinary = true;
           return expand(template, args);
         },
         unary: function(node) {
@@ -977,6 +979,7 @@ import {rules} from "./rules.js";
             forEach(nodeArgs, function (n, i) {
               args = args.concat(translate(n, [globalRules, argRules]));
             });
+            template.isBinary = true;
             return expand(template, args);
           }
         },
@@ -993,6 +996,7 @@ import {rules} from "./rules.js";
           forEach(nodeArgs, function (n, i) {
             args = args.concat(translate(n, [globalRules, argRules]));
           });
+          template.isBinary = true;
           return expand(template, args, node);
         },
         paren: function(node) {
