@@ -1983,13 +1983,13 @@ export let Model = (function () {
       } else {
         expr = flattenNestedNodes(multiplicativeExpr());
         var t;
-        var dx = hasDX(expr)
-        expr = dx && stripDX(expr) || expr;
-        while (isAdditive(t = hd()) && !dx) {
+        var foundDX = hasDX(expr);
+        expr = foundDX && stripDX(expr) || expr;
+        while (isAdditive(t = hd()) && !foundDX) {
           next();
-          var expr2 = multiplicativeExpr();
-          dx = hasDX(expr2);
-          expr2 = dx && stripDX(expr2) || expr2;
+          var expr2 = flattenNestedNodes(multiplicativeExpr());
+          foundDX = hasDX(expr2);
+          expr2 = foundDX && stripDX(expr2) || expr2;
           switch(t) {
           case TK_SUB:
             expr = binaryNode(Model.SUB, [expr, expr2]);
@@ -2001,7 +2001,7 @@ export let Model = (function () {
         }
       }
       args.push(expr);
-      args.push(dx || nodeEmpty);
+      args.push(foundDX || nodeEmpty);
       // [sub, sup,  expr, var], [expr, var]
       return newNode(Model.INTEGRAL, args);
     }
