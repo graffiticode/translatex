@@ -30,7 +30,7 @@ function cldir(path) {
 
 function exec(cmd, args) {
 //  console.log("exec() cmd=" + cmd);
-  execSync(cmd, args);
+  return execSync(cmd, args);
 }
 
 function clean() {
@@ -44,12 +44,13 @@ function rules() {
   exec('curl -L "http://www.graffiticode.com/data?id=' + id + '" -o "./build/data.txt"');
   var data = JSON.parse(fs.readFileSync("./build/data.txt", "utf8"));
   fs.writeFileSync("src/rules.js", "export var rules=" + JSON.stringify(data.options), "utf8");
-//  exec("rm build/data.txt");
 }
 
 function compile() {
   console.log("Compiling...");
+  let sha = exec("git rev-parse HEAD | cut -c 1-7").toString().replace("\n", "");
   exec("babel src --out-dir lib");
+  exec("cat ./tools/license.js | sed 's/{{sha}}/" + sha + "/' >> ./lib/core.js");
 }
 
 function bundle() {
