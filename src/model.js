@@ -2544,6 +2544,8 @@ export let Model = (function () {
           case 9:   // tab
           case 10:  // new line
           case 13:  // carriage return
+          case 0x00A0: // non-breaking space (&nbsp;)
+          case 0x200B: // zero width space
             continue;
           case 38:  // ampersand (new column or entity)
             if (indexOf(src.substring(curIndex), "nbsp;") === 0) {
