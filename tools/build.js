@@ -1,7 +1,7 @@
 import fs from "fs";
 import {execSync} from "child_process";
 
-const id = "3LgCj7lwJT0";  // Current best rule set
+const id = "rV1FN5Mjnc0";  // Current best rule set for latex-to-latex translation.
 
 function rmdir(path) {
   try { var files = fs.readdirSync(path); }
