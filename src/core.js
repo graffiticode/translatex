@@ -544,7 +544,7 @@ import {rules} from "./rules.js";
             // Replicate template for each argument.
             if (i === args.length - 1) {
               // If this is the last element in the sequence, lop off the trailing separator.
-              str = str.slice(0, str.indexOf("%*") + "%*".length);
+              str = str.slice(0, 2*str.indexOf("%*") + "%*".length);
             }
             s += str.replace("%*", arg.args[0]).replace("%M", arg.m).replace("%N", arg.n);
           });
