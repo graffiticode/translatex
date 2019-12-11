@@ -1575,11 +1575,11 @@ export let Model = (function () {
           expr = unaryNode(Model.M, [expr]);
         } else if (!explicitOperator) {
           if (args.length > 0 &&
-              isMixedFraction(args[args.length-1], expr)) {
+              isMixedNumber(args[args.length-1], expr)) {
             // 3 \frac{1}{2} -> 3 + \frac{1}{2}
             t = args.pop();
             expr = binaryNode(Model.ADD, [t, expr]);
-            expr.isMixedFraction = true;
+            expr.isMixedNumber = true;
           } else if (args.length > 0 &&
                      args[args.length-1].op === Model.VAR &&
                      expr.op === Model.VAR && expr.args[0].indexOf("'") === 0) {
@@ -1683,12 +1683,13 @@ export let Model = (function () {
       return n.op === Model.NUM;
     }
 
-    function isMixedFraction(n0, n1) {
+    function isMixedNumber(n0, n1) {
       // 3\frac{1}{2} but not 3(\frac{1}{2}) or 3 1.0/2
       if (n0.op === Model.SUB && n0.args.length === 1) {
         n0 = n0.args[0];
       }
-      if (!n0.lbrk && !n1.lbrk &&
+      if (n0.lbrk !== TK_LEFTPAREN && n1.lbrk !== TK_LEFTPAREN &&
+          n0.lbrk !== TK_LEFTBRACKET && n1.lbrk !== TK_LEFTBRACKET &&
           n0.op === Model.NUM &&
           isSimpleFraction(n1)) {
         return true;

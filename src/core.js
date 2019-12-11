@@ -315,7 +315,7 @@ import {rules} from "./rules.js";
           break;
         case "fraction":
           if (node.isFraction ||
-              node.isMixedFraction) {
+              node.isMixedNumber) {
             return true;
           }
           break;
@@ -325,14 +325,15 @@ import {rules} from "./rules.js";
             return true;
           }
           break;
-        case "mixedFraction":
-          if (node.isMixedFraction) {
+        case "mixedFraction":  // deprecated
+        case "mixedNumber":
+          if (node.isMixedNumber) {
             return true;
           }
           break;
         case "fractionOrDecimal":
           if (node.isFraction ||
-              node.isMixedFraction ||
+              node.isMixedNumber ||
               node.numberFormat === "decimal") {
             return true;
           }
@@ -418,7 +419,8 @@ import {rules} from "./rules.js";
         case "scientific":
         case "fraction":
         case "simpleFraction":
-        case "mixedFraction":
+        case "mixedFraction":  // deprecated
+        case "mixedNumber":
         case "fractionOrDecimal":
           return checkNumberType(pattern.args[0], node);
         case "variable":
@@ -676,7 +678,7 @@ import {rules} from "./rules.js";
           var op = node.op === Model.MUL ? Model.TIMES : node.op;
           var n = binaryNode(op, args, true);
           n.isScientific = node.isScientific;
-          n.isMixedFraction = node.isMixedFraction;
+          n.isMixedNumber = node.isMixedNumber;
           n.isBinomial = node.isBinomial;
           n.isPolynomial = node.isPolynomial;
           n.isPolynomialTerm = node.isPolynomialTerm;
