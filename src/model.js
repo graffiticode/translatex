@@ -102,6 +102,7 @@ export let Model = (function () {
   Assert.messages[1008] = "The same character '%1' is being used as a thousands and decimal separators.";
   Assert.messages[1009] = "Missing argument for '%1' command.";
   Assert.messages[1010] = "Expecting an operator between numbers.";
+  Assert.messages[1011] = "Invalid grouping bracket. %1";
   let message = Assert.message;
 
   // Create a model from a node object or expression string
@@ -425,6 +426,7 @@ export let Model = (function () {
   const CC_COMMA = 0x2C;
   const CC_SUB = 0x2D;
   const CC_RIGHTPAREN = 0x29;
+  const CC_PERIOD = 0x2E;
   const CC_SLASH = 0x2F;
   const CC_NUM = 0x30;
   const CC_COLON = 0x3A;
@@ -447,6 +449,7 @@ export let Model = (function () {
   const TK_ADD = CC_ADD;
   const TK_CARET = CC_CARET;
   const TK_UNDERSCORE = CC_UNDERSCORE;
+  const TK_PERIOD = CC_PERIOD;
   const TK_COS = 0x105;
   const TK_COT = 0x108;
   const TK_CSC = 0x109;
@@ -564,6 +567,8 @@ export let Model = (function () {
   const TK_OPERATORNAME = 0x162;
   const TK_LEFTCMD = 0x163;
   const TK_RIGHTCMD = 0x164;
+  const TK_LEFTBRACESET = 0x165;
+  const TK_RIGHTBRACESET = 0x166;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -933,6 +938,16 @@ export let Model = (function () {
         node = numberNode(lexeme());
         next();
         break;
+      case TK_LEFTCMD:   // \left .. \right
+        if (lookahead() === TK_LEFTBRACE ||
+            lookahead() === TK_LEFTBRACESET) {
+          node = braceExpr(tk);
+        } else if (lookahead() === TK_VERTICALBAR) {
+          node = absExpr(tk);
+        } else {
+          node = parenExpr(tk);
+        }
+        break;
       case TK_TYPE:
         node = newNode(Model.TYPE, [newNode(Model.VAR, [lexeme()])]);
         next();
@@ -943,6 +958,9 @@ export let Model = (function () {
         break;
       case TK_LEFTBRACE:
         node = braceExpr();
+        break;
+      case TK_LEFTBRACESET:
+        node = braceExpr(tk);
         break;
       case TK_BEGIN:
         next();
@@ -1196,65 +1214,198 @@ export let Model = (function () {
       return newNode(tokenToOperator[TK_NEWCOL], args);
     }
     // Parse '| expr |'
-    function absExpr() {
-      eat(TK_VERTICALBAR);
-      let e = additiveExpr();
-      eat(TK_VERTICALBAR);
+    var pipeTokenCount = 0;
+    function absExpr(tk) {
+      tk = tk || TK_VERTICALBAR;
+      pipeTokenCount++;
+      eat(tk);
+      var tk1, tk2;
+      if (tk === TK_LEFTCMD) {
+        eat((tk1 = hd())); // Capture left token.
+      } else {
+        tk1 = tk;
+      }
+      var e = additiveExpr();
+      eat((tk2 = tk === TK_LEFTCMD && TK_RIGHTCMD || tk1));
+      if (tk2 === TK_RIGHTCMD) {
+        eat((tk2 = tk1)); // Capture right token.
+      }
+      pipeTokenCount--;
       return unaryNode(Model.ABS, [e]);
     }
     // Parse '{ expr }'
-    function braceExpr() {
-      let node;
-      eat(TK_LEFTBRACE);
-      if (hd() === TK_RIGHTBRACE) {
-        eat(TK_RIGHTBRACE);
-        node = nodeEmpty;
-      } else {
-        node = commaExpr();
-        eat(TK_RIGHTBRACE);
-      }
-      node.lbrk = TK_LEFTBRACE;
-      node.rbrk = TK_RIGHTBRACE;
-      return node;
-    }
-    // Parse '[ expr ]'
-    var bracketTokenCount = 0;
-    function bracketExpr() {
-      eat(TK_LEFTBRACKET);
-      let e = commaExpr();
-      eat(TK_RIGHTBRACKET);
-      return e;
-    }
-    // Parse '( expr )' and '( expr ]' and '[ expr )' and '[ expr ]'
-    function parenExpr(tk) {
-      // Handle grouping and intervals.
-      let e;
-      let tk2;
+    function braceExpr(tk) {
+      tk = tk || TK_LEFTBRACE;
       eat(tk);
-      if (hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
-        eat(tk === TK_LEFTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+      var tk1, tk2;
+      let isSet = false;
+      let op;
+      if (tk === TK_LEFTCMD) {
+        eat((tk1 = hd() === TK_LEFTBRACESET && TK_LEFTBRACESET || TK_LEFTBRACE));
+      } else if (tk === TK_LEFTBRACESET) {
+        isSet = true;
+        tk1 = tk;
+      } else {
+        tk1 = tk;
+      }
+      var e;
+      if (hd() === TK_RIGHTCMD || hd() === TK_RIGHTBRACE || hd() === TK_RIGHTBRACESET) {
+        eat((tk2 = hd()));
+        if (tk2 === TK_RIGHTCMD) {
+          eat((tk2 = hd() === TK_PERIOD && TK_PERIOD ||
+               hd() === TK_RIGHTBRACESET && TK_RIGHTBRACESET ||
+               TK_RIGHTBRACE));
+        }
         e = newNode(Model.COMMA, []);
       } else {
         e = commaExpr();
-        // (..], [..], [..), (..)
-        eat(tk2 = hd() === TK_RIGHTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+        eat((tk2 = tk === TK_LEFTCMD && TK_RIGHTCMD ||
+             tk === TK_LEFTBRACESET && TK_RIGHTBRACESET ||
+             TK_RIGHTBRACE));
+        if (tk2 === TK_RIGHTCMD) {
+          eat((tk2 = hd() === TK_PERIOD && TK_PERIOD ||
+               hd() === TK_RIGHTBRACESET && TK_RIGHTBRACESET ||
+               TK_RIGHTBRACE));
+        }
+        if (e.op === nodeEmpty.op && e.args[0] === nodeEmpty.args[0]) {
+          // We've got empty braces.
+          e = newNode(Model.COMMA, []);
+        }
       }
+      e.lbrk = tk1;
+      e.rbrk = tk2;
+      if (isSet) {
+        e = newNode(Model.SET, [e]);
+      }
+      return e;
+    }
+    // Parse '[ expr ]'
+    var bracketTokenCount = 0;
+    function bracketExpr(tk) {
+      tk = tk || TK_LEFTBRACKET;
+      assert(tk === TK_LEFTCMD || tk === TK_LEFTBRACKET, "1000: Internal error");
+      bracketTokenCount++
+      eat(tk);
+      var tk1, tk2;
+      if (tk === TK_LEFTCMD) {
+        eat((tk1 = TK_LEFTBRACKET)); // Capture left token.
+      } else {
+        tk1 = tk;
+      }
+      var e = commaExpr();
+      eat((tk2 = tk === TK_LEFTCMD && TK_LEFTCMD || TK_RIGHTBRACKET));
+      if (tk2 === TK_RIGHTCMD) {
+        eat((tk2 = TK_RIGHTBRACKET)); // Capture right token.
+      }
+      bracketTokenCount--;
+      return e;
+    }
+    // Parse '( expr )' and '( expr ]' and '[ expr )' and '[ expr ]'
+    var inParenExpr;
+    function parenExpr(tk) {
+      // Handle grouping and intervals.
+      var allowInterval = true; //Model.option("allowInterval");
+      bracketTokenCount++;
+      eat(tk);
+      var tk1, tk2;
+      if (tk === TK_LEFTCMD) {
+        eat((tk1 = hd())); // Capture left token.
+      } else {
+        tk1 = tk;
+      }
+      var e;
+      if (hd() === TK_RIGHTCMD || hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
+        eat((tk2 = hd()));
+        if (tk2 === TK_RIGHTCMD) {
+          eat((tk2 = tk1 === TK_LEFTPAREN && TK_RIGHTPAREN || TK_RIGHTBRACKET));
+        }
+        // We have an empty list.
+        e = newNode(Model.COMMA, []);
+      } else {
+        inParenExpr = true;
+        var allowSemicolon = allowInterval; // Allow semis if in an interval.
+        e = commaExpr(allowSemicolon);
+        if (allowInterval) {
+          // (..], [..], [..), (..), ]..], ]..[, [..[
+          eat((tk2 = hd() === TK_RIGHTPAREN && TK_RIGHTPAREN ||
+                     tk === TK_LEFTCMD && TK_RIGHTCMD ||
+                     hd() === TK_LEFTBRACKET && TK_LEFTBRACKET ||
+                     TK_RIGHTBRACKET));
+          if (tk2 === TK_RIGHTCMD) {
+            eat((tk2 = hd() === TK_RIGHTPAREN && TK_RIGHTPAREN ||
+                       hd() === TK_LEFTBRACKET && TK_LEFTBRACKET ||
+                       TK_RIGHTBRACKET)); // Capture right token.
+          }
+        } else {
+          // (..), [..], \left .. \right
+          eat((tk2 = tk === TK_LEFTPAREN && TK_RIGHTPAREN ||
+                     tk === TK_LEFTCMD && TK_RIGHTCMD ||
+                     TK_RIGHTBRACKET));
+          if (tk2 === TK_RIGHTCMD) {
+            eat((tk2 = tk1 === TK_LEFTPAREN && TK_RIGHTPAREN ||
+                       tk1 === TK_PERIOD && TK_VERTICALBAR ||
+                       tk1 === TK_LEFTBRACKET && TK_RIGHTBRACKET ||
+                       hd())); // Capture right token.
+          }
+        }
+      }
+      // Save the brackets as attributes on the node for later use. Normalize
+      // French style brackets.
+      e.lbrk = tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
+      e.rbrk = tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
-      if (e.args.length === 2 && e.op === Model.COMMA &&
-          (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) &&
-          (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET)) {
-        // Make bracket tokens part of the node for comparision.
-//        e.args.push(numberNode(tk));
+      if (allowInterval && e.op === Model.COMMA && e.args.length === 2 &&
+          (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
+          (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
+//        e.op = Model.INTERVAL;
+//        // Make bracket tokens part of the node for comparision.
+//        e.args.push(numberNode(tk1));
 //        e.args.push(numberNode(tk2));
         e = newNode(Model.PAREN, [e]);
-      } else if (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) {
+      } else if (e.lbrk === TK_PERIOD && e.rbrk === TK_VERTICALBAR) {
+        e = newNode(Model.EVALAT, [e]);
+      } else if (e.op === Model.COMMA || tk1 === TK_LEFTPAREN || TK_LEFTBRACKET) {
+        assert(e.op === Model.COMMA || tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN ||
+               tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET ||
+               tk1 === tk2, message(1011, ["tk1=" + tk1 + " tk2=" + tk2]));
+//        e.op = Model.LIST;
         e = newNode(Model.PAREN, [e]);
       }
-      // Save the brackets as attributes on the node for later use.
-      e.lbrk = tk;
+      bracketTokenCount--;
+      inParenExpr = false;
+      e.lbrk = tk1;
       e.rbrk = tk2;
       return e;
     }
+//     function parenExpr(tk) {
+//       // Handle grouping and intervals.
+//       let e;
+//       let tk2;
+//       eat(tk);
+//       if (hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
+//         eat(tk === TK_LEFTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+//         e = newNode(Model.COMMA, []);
+//       } else {
+//         e = commaExpr();
+//         // (..], [..], [..), (..)
+//         eat(tk2 = hd() === TK_RIGHTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
+//       }
+//       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
+//       if (e.args.length === 2 && e.op === Model.COMMA &&
+//           (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) &&
+//           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET)) {
+//         // Make bracket tokens part of the node for comparision.
+// //        e.args.push(numberNode(tk));
+// //        e.args.push(numberNode(tk2));
+//         e = newNode(Model.PAREN, [e]);
+//       } else if (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) {
+//         e = newNode(Model.PAREN, [e]);
+//       }
+//       // Save the brackets as attributes on the node for later use.
+//       e.lbrk = tk;
+//       e.rbrk = tk2;
+//       return e;
+//     }
     // Parse 'x^2'
     function exponentialExpr() {
       let t, args = [primaryExpr()];
@@ -1351,6 +1502,7 @@ export let Model = (function () {
         tk === TK_RIGHTPAREN ||
         tk === TK_RIGHTBRACKET ||
         tk === TK_RIGHTCMD ||
+        tk === TK_RIGHTBRACESET ||
         tk === TK_NONE;
     }
     // Parse '+x', '\pm y'
@@ -1546,10 +1698,10 @@ export let Model = (function () {
       let loopCount = 0;
       while((t = hd()) && !isAdditive(t) && !isRelational(t) && !isImplies(t) &&
             t !== TK_COMMA && !isEquality(t) && t !== TK_RIGHTBRACE &&
-            t !== TK_RIGHTPAREN && t !== TK_RIGHTBRACKET &&
+            t !== TK_RIGHTPAREN && t !== TK_RIGHTBRACKET && t !== TK_RIGHTCMD &&
             t !== TK_RIGHTARROW && t !== TK_CAPRIGHTARROW && t !== TK_LT &&
             t !== TK_VERTICALBAR && t !== TK_NEWROW && t !== TK_NEWCOL &&
-            t !== TK_END) {
+            t !== TK_END && t !== TK_RIGHTBRACESET) {
         explicitOperator = false;
         if (isMultiplicative(t)) {
           next();
@@ -2099,7 +2251,7 @@ export let Model = (function () {
       let expr = impliesExpr();
       let args = [expr];
       let t;
-      while ((t = hd())===TK_COMMA) {
+      while ((t = hd()) === TK_COMMA) {
         next();
         args.push(impliesExpr());
       }
@@ -2126,12 +2278,13 @@ export let Model = (function () {
       start();
       if (hd()) {
         let n = commaExpr();
-        if (n.lbrk === TK_LEFTBRACE &&
-            n.rbrk === TK_RIGHTBRACE) {
-          // Top level {..} is a set, so make a comma expr.
-          n = newNode(Model.SET, [n]);
-        }
+        // if (n.lbrk === TK_LEFTBRACE &&
+        //     n.rbrk === TK_RIGHTBRACE) {
+        //   // Top level {..} is a set, so make a comma expr.
+        //   n = newNode(Model.SET, [n]);
+        // }
         assert(!hd(), message(1003, [scan.pos(), scan.lexeme()]));
+//        console.log("expr() n=" + JSON.stringify(n, null, 2));
         return n;
       }
       // No meaningful input. Return a dummy node to avoid choking.
@@ -2188,8 +2341,8 @@ export let Model = (function () {
         "\\ln": TK_LN,
         "\\lg": TK_LG,
         "\\log": TK_LOG,
-        "\\left": null,  // whitespace
-        "\\right": null,
+        "\\left": TK_LEFTCMD,
+        "\\right": TK_RIGHTCMD,
         "\\big": null,
         "\\Big": null,
         "\\bigg": null,
@@ -2562,10 +2715,14 @@ export let Model = (function () {
               curIndex++;
               return TK_NEWROW;   // double backslash = new row
             case 123: // left brace
-            case 124: // vertical bar
+              curIndex++;
+              return TK_LEFTBRACESET;
             case 125: // right brace
-              // Erase backslash.
-              return src.charCodeAt(curIndex++);
+              curIndex++;
+              return TK_RIGHTBRACESET;
+            case 124: // vertical bar
+              curIndex++;
+              return TK_VERTICALBAR;
             }
             let tk = latex();
             if (tk !== null) {
