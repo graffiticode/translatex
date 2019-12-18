@@ -1364,7 +1364,7 @@ export let Model = (function () {
         e = newNode(Model.PAREN, [e]);
       } else if (e.lbrk === TK_PERIOD && e.rbrk === TK_VERTICALBAR) {
         e = newNode(Model.EVALAT, [e]);
-      } else if (e.op === Model.COMMA || tk1 === TK_LEFTPAREN || TK_LEFTBRACKET) {
+      } else if (e.op === Model.COMMA || tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET) {
         assert(e.op === Model.COMMA || tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN ||
                tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET ||
                tk1 === tk2, message(1011, ["tk1=" + tk1 + " tk2=" + tk2]));
