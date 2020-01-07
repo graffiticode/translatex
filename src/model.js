@@ -1353,22 +1353,16 @@ export let Model = (function () {
       // French style brackets.
       e.lbrk = tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
       e.rbrk = tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
-      // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
       if (allowInterval && e.op === Model.COMMA && e.args.length === 2 &&
           (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
-//        e.op = Model.INTERVAL;
-//        // Make bracket tokens part of the node for comparision.
-//        e.args.push(numberNode(tk1));
-//        e.args.push(numberNode(tk2));
         e = newNode(Model.PAREN, [e]);
       } else if (e.lbrk === TK_PERIOD && e.rbrk === TK_VERTICALBAR) {
         e = newNode(Model.EVALAT, [e]);
       } else if (e.op === Model.COMMA || tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET) {
-        assert(e.op === Model.COMMA || tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN ||
+        assert(tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN ||
                tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET ||
                tk1 === tk2, message(1011, ["tk1=" + tk1 + " tk2=" + tk2]));
-//        e.op = Model.LIST;
         e = newNode(Model.PAREN, [e]);
       }
       bracketTokenCount--;
@@ -1377,35 +1371,6 @@ export let Model = (function () {
       e.rbrk = tk2;
       return e;
     }
-//     function parenExpr(tk) {
-//       // Handle grouping and intervals.
-//       let e;
-//       let tk2;
-//       eat(tk);
-//       if (hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
-//         eat(tk === TK_LEFTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
-//         e = newNode(Model.COMMA, []);
-//       } else {
-//         e = commaExpr();
-//         // (..], [..], [..), (..)
-//         eat(tk2 = hd() === TK_RIGHTPAREN ? TK_RIGHTPAREN : TK_RIGHTBRACKET);
-//       }
-//       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
-//       if (e.args.length === 2 && e.op === Model.COMMA &&
-//           (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) &&
-//           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET)) {
-//         // Make bracket tokens part of the node for comparision.
-// //        e.args.push(numberNode(tk));
-// //        e.args.push(numberNode(tk2));
-//         e = newNode(Model.PAREN, [e]);
-//       } else if (tk === TK_LEFTPAREN || tk === TK_LEFTBRACKET) {
-//         e = newNode(Model.PAREN, [e]);
-//       }
-//       // Save the brackets as attributes on the node for later use.
-//       e.lbrk = tk;
-//       e.rbrk = tk2;
-//       return e;
-//     }
     // Parse 'x^2'
     function exponentialExpr() {
       let t, args = [primaryExpr()];
