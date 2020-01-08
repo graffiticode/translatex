@@ -1242,11 +1242,11 @@ export let Model = (function () {
       let op;
       if (tk === TK_LEFTCMD) {
         eat((tk1 = hd() === TK_LEFTBRACESET && TK_LEFTBRACESET || TK_LEFTBRACE));
-      } else if (tk === TK_LEFTBRACESET) {
-        isSet = true;
-        tk1 = tk;
       } else {
         tk1 = tk;
+      }
+      if (tk1 === TK_LEFTBRACESET) {
+        isSet = true;
       }
       var e;
       if (hd() === TK_RIGHTCMD || hd() === TK_RIGHTBRACE || hd() === TK_RIGHTBRACESET) {
