@@ -57,6 +57,7 @@
 import {every, forEach, keys, some, indexOf} from "./backward.js";
 import {Assert, assert, message} from "./assert.js";
 import {Ast} from "./ast.js";
+import {Decimal} from "./decimal.js";
 
 export let Model = (function () {
 
@@ -956,7 +957,7 @@ export let Model = (function () {
             if (numberFormat === "decimal") {
               assert(false, message(1007, [ch, n2 + ch]));
             }
-            ch = '.';  // Convert to character the BigDecimal agrees with.
+            ch = '.';  // Convert to character the decimal agrees with.
             numberFormat = "decimal";
             if (separatorCount && lastSeparatorIndex !== i - 4) {
               assert(false, message(1005));
@@ -992,11 +993,11 @@ export let Model = (function () {
           }
         }
       }
-      n2 = new BigDecimal(n2);   // Normalize representation.
+      n2 = new Decimal(n2);   // Normalize representation.
       if (doScale) {
         let scale = option("decimalPlaces")
         if (!roundOnly || n2.scale() > scale) {
-          n2 = n2.setScale(scale, BigDecimal.ROUND_HALF_UP);
+          n2 = n2.setScale(scale, Decimal.ROUND_HALF_UP);
         }
       }
       return {
