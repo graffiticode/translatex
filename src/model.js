@@ -57,7 +57,7 @@
 import {every, forEach, keys, some, indexOf} from "./backward.js";
 import {Assert, assert, message} from "./assert.js";
 import {Ast} from "./ast.js";
-import {Decimal} from "./decimal.js";
+import {Decimal} from "decimal.js";
 
 export let Model = (function () {
 
@@ -2296,14 +2296,14 @@ export let Model = (function () {
           args.push(primaryExpr());
         }
       }
-      let expr;
+      let expr, foundDX;
       if (hd() === TK_INT) {
         // FIXME nested integrals are still broken.
         expr = integralExpr();
       } else {
         expr = flattenNestedNodes(multiplicativeExpr());
         let t;
-        let foundDX = hasDX(expr);
+        foundDX = hasDX(expr);
         expr = foundDX && stripDX(expr) || expr;
         while (isAdditive(t = hd()) && !foundDX) {
           next();
