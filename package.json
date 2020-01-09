@@ -21,5 +21,7 @@
   "engines": {
     "node": "5.7.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "decimal.js": "^10.2.0"
+  }
 }
