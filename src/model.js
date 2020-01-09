@@ -78,12 +78,12 @@ export let Model = (function () {
   }
 
   Model.popEnv = function popEnv() {
-    assert(envStack.length > 0, "Empty envStack");
+    assert(envStack.length > 0, "1000: Empty envStack");
     Model.env = env = envStack.pop();
   }
 
   function isChemCore() {
-    // Has chem symbols so in chem mode
+    // Has chem symbols so in chem mode.
     return !!Model.env["Au"];
   }
 
@@ -94,7 +94,7 @@ export let Model = (function () {
   Assert.messages[1000] = "Internal error. %1.";
   Assert.messages[1001] = "Invalid syntax. '%1' expected, '%2' found.";
   Assert.messages[1002] = "Only one decimal separator can be specified.";
-  Assert.messages[1003] = "Extra characters in input at position: %1, lexeme: %2.";
+  Assert.messages[1003] = "Extra characters in input at position: %1, lexeme: %2, prefix: %3.";
   Assert.messages[1004] = "Invalid character '%1' (%2) in input.";
   Assert.messages[1005] = "Misplaced thousands separator.";
   Assert.messages[1006] = "Invalid syntax. Expression expected, %1 found.";
@@ -107,7 +107,7 @@ export let Model = (function () {
 
   // Create a model from a node object or expression string
   Model.create = Mp.create = function create(node, location) {
-    assert(node != undefined, "Model.create() called with invalid argument " + node);
+    assert(node != undefined, message(1011));
     // If we already have a model, then just return it.
     if (node instanceof Model) {
       if (location) {
@@ -126,18 +126,18 @@ export let Model = (function () {
     if (!(this instanceof Model)) {
       return new Model().create(node, location);
     }
-    // Create a node that inherits from Ast
+    // Create a node that inherits from Ast.
     model = create(this);
     model.location = location;
     if (typeof node === "string") {
-      // Got a string, so parse it into a node
+      // Got a string, so parse it into a node.
       let parser = parse(node, Model.env);
       node = parser.expr();
     } else {
-      // Make a deep copy of the node
+      // Make a deep copy of the node.
       node = JSON.parse(JSON.stringify(node));
     }
-    // Add missing plugin functions to the Model prototype
+    // Add missing plugin functions to the Model prototype.
     forEach(keys(Model.fn), function (v, i) {
       if (!Mp.hasOwnProperty(v)) {
         Mp[v] = function () {
@@ -155,12 +155,21 @@ export let Model = (function () {
         }
       }
     });
-    // Now copy the node's properties into the model object
+    // Now copy the node's properties into the model object.
     forEach(keys(node), function (v, i) {
       model[v] = node[v];
     });
     return model;
   };
+
+  // Create a Model node from LaTex source.
+  Model.fromLaTex = Mp.fromLaTex = function fromLaTex(src) {
+    assert(typeof src === "string", "1000: Model.prototype.fromLaTex");
+    if (!this) {
+      return Model.create(src);
+    }
+    return this.create(src);
+  }
 
   // Render LaTex from the model node.
   Mp.toLaTex = function toLaTex(node) {
@@ -951,7 +960,7 @@ export let Model = (function () {
               hasLeadingZero = true;
             }
             lastSignificantIndex = n2.length;
-            lastSeparatorIndex = i;  // Used for thousandths separators
+            lastSeparatorIndex = i;  // Used for thousandths separators.
             separatorCount++;
           } else if (numberFormat === "decimal") {
             if (ch !== "0") {
@@ -978,6 +987,13 @@ export let Model = (function () {
           }
         }
       }
+      n2 = new BigDecimal(n2);   // Normalize representation.
+      if (doScale) {
+        let scale = option("decimalPlaces")
+        if (!roundOnly || n2.scale() > scale) {
+          n2 = n2.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        }
+      }
       return {
         op: Model.NUM,
         args: [String(n2)],
@@ -994,9 +1010,11 @@ export let Model = (function () {
       }
       return binaryNode(Model.MUL, args, flatten);
     }
-    // Construct a unary node.
+    function fractionNode(n, d) {
+      return multiplyNode([n, binaryNode(Model.POW, [d, nodeMinusOne])], true);
+    }
     function unaryNode(op, args) {
-      assert(args.length === 1, "Wrong number of arguments for unary node");
+      assert(args.length === 1, "1000: Wrong number of arguments for unary node");
       return newNode(op, args);
     }
     function binaryNode(op, args, flatten) {
@@ -1017,16 +1035,20 @@ export let Model = (function () {
     let nodeOne = numberNode("1");
     let nodeMinusOne = unaryNode(Model.SUB, [numberNode("1")]);
     let nodeNone = newNode(Model.NONE, [numberNode("0")]);
-    let nodeEmpty = newNode(Model.VAR, [""]);
+    let nodeEmpty = newNode(Model.VAR, ["0"]);
 
     //
     // PARSER
     //
     // Manage the token stream.
+    let T0 = TK_NONE;
+    let T1 = TK_NONE;
+    let lexemeT0, lexemeT1;
     let scan = scanner(src);
     // Prime the token stream.
     function start(options) {
       T0 = scan.start(options);
+      lexemeT0 = scan.lexeme();
     }
     // Get the current token.
     function hd() {
@@ -1034,20 +1056,27 @@ export let Model = (function () {
     }
     // Get the current lexeme.
     function lexeme() {
-      return scan.lexeme();
+      assert(lexemeT0 !== undefined, "1000: Lexeme for token T0=" + T0 + " is missing.");
+      return lexemeT0;
     }
     // Advance the next token.
     function next(options) {
-      T0 = T1;
-      T1 = TK_NONE;
-      if (T0 === TK_NONE) {
+      if (T1 === TK_NONE) {
         T0 = scan.start(options);
+        lexemeT0 = scan.lexeme();
+      } else {
+        assert(lexemeT1 !== undefined, "1000: Lexeme for token=" + T1 + " is missing.");
+        T0 = T1;
+        lexemeT0 = lexemeT1;
+        T1 = TK_NONE;
       }
     }
     function lookahead(options) {
       if (T1 === TK_NONE) {
         T1 = scan.start(options);
+        lexemeT1 = scan.lexeme();
       }
+      assert(lexemeT1 !== undefined, "1000: Lexeme for token=" + T1 + " is missing.");
       return T1;
     }
     // Consume the current token if it matches, otherwise throw.
