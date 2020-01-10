@@ -1038,6 +1038,7 @@ export let Model = (function () {
       });
       return newNode(op, aa);
     }
+
     let nodeOne = numberNode("1");
     let nodeMinusOne = unaryNode(Model.SUB, [numberNode("1")]);
     let nodeNone = newNode(Model.NONE, [numberNode("0")]);
@@ -1107,6 +1108,18 @@ export let Model = (function () {
       }
       return false;
     }
+    function isProperFraction(node) {
+      if (node.op === Model.FRAC) {
+        let n0 = node.args[0];
+        let n1 = node.args[1];
+        return (
+          n0.op === Model.NUM && n0.numberFormat === "integer" &&
+          n1.op === Model.NUM && n1.numberFormat === "integer" &&
+          +n0.args[0] < n1.args[0]
+        );
+      }
+      return false;
+    }
     function isMinusOne(node) {
       // Check for a "-1" literal.
       return node.op === Model.SUB &&
@@ -1115,11 +1128,37 @@ export let Model = (function () {
         node.args[0].args.length === 1 &&
         node.args[0].args[0] === "1";
     }
+    function isUnit(node) {
+      let env = Model.env;
+      if (node.op === Model.POW) {
+        return isInteger(node.args[1]) && isUnit(node.args[0]);
+      }
+      return (
+        node.op === Model.VAR &&
+        node.args.length === 1 &&
+        env[node.args[0]] &&
+        env[node.args[0]].type === "unit"
+      );
+    }
+    function foldUnit(n, u) {
+      if (n.op === Model.POW) {
+        // Bind unit to base of power.
+        let b = n.args[0];
+        let e = n.args[1];
+        return binaryNode(Model.POW, [binaryNode(Model.MUL, [b, u]), e]);
+      } else if (n.op === Model.FRAC && n.isSlash) {
+        // Bind unit to denominator.
+        let nu = n.args[0];
+        let d = n.args[1];
+        return binaryNode(Model.FRAC, [nu, binaryNode(Model.MUL, [d, u])]);
+      }
+      return binaryNode(Model.MUL, [n, u]);
+    }
     function primaryExpr() {
-      let t, node, tk, op, base, args, expr1, expr2;
-      switch ((tk=hd())) {
-      case CC_CONST:
-      case CC_VAR:
+      let t, node, tk, op, base, args = [], expr1, expr2;
+      switch ((tk = hd())) {
+      case TK_CONST:
+      case TK_VAR:
         args = [lexeme()];
         next();
         // // Collect the subscript if there is one. Subscripts make multipart variable names.
@@ -1158,6 +1197,14 @@ export let Model = (function () {
       case TK_LEFTPAREN:
         node = parenExpr(tk);
         break;
+      case TK_RIGHTBRACKET:
+        if (Model.option("allowInterval") && !inParenExpr) {
+          // French style intervals: ][, ]].
+          node = parenExpr(tk);
+        } else {
+          node = nodeEmpty;
+        }
+        break;
       case TK_LEFTBRACE:
         node = braceExpr();
         break;
@@ -1167,13 +1214,30 @@ export let Model = (function () {
       case TK_BEGIN:
         next();
         let figure = braceExpr();
+        if (figure.op === Model.VAR) {
+          if (indexOf(figure.args[0], "array") === 0) {
+            if (hd() === TK_LEFTBRACE) {
+              while (hd() !== TK_RIGHTBRACE) {
+                next();  // Eat column alignment header.
+              }
+              next();
+            }
+          } else if (indexOf(figure.args[0], "matrix") >= 0) {
+            if (hd() === TK_LEFTBRACKET) {
+              while (hd() !== TK_RIGHTBRACKET) {
+                next();  // Eat column alignment header.
+              }
+              next();
+            }
+          }
+        }
         let tbl = matrixExpr();
         eat(TK_END);
         braceExpr();
-        if (indexOf(figure.args[0], "matrix") >= 0) {
+        if (indexOf(figure.args[0], "matrix") >= 0 || indexOf(figure.args[0], "array") === 0) {
           node = newNode(Model.MATRIX, [tbl]);
         } else {
-          assert(false, "Unrecognized LaTeX name");
+          assert(false, "1000: Unrecognized LaTeX name");
         }
         break;
       case TK_VERTICALBAR:
@@ -1187,6 +1251,8 @@ export let Model = (function () {
         next();
         expr1 = braceExpr();
         expr2 = braceExpr();
+        expr1 = expr1.args.length === 0 ? newNode(Model.COMMA, [nodeNone]) : expr1;
+        expr2 = expr1.args.length === 0 ? newNode(Model.COMMA, [nodeNone]) : expr2;
         node = newNode(Model.FRAC, [expr1, expr2]);
         node.isFraction = isSimpleFraction(node);
         break;
@@ -1231,7 +1297,7 @@ export let Model = (function () {
       case TK_OPERATORNAME:
         let lex = lexeme();
         next();
-        node = newNode(Model.OPERATORNAME, [newNode(Model.VAR, [lex]), primaryExpr()]); 
+        node = newNode(Model.OPERATORNAME, [newNode(Model.VAR, [lex]), primaryExpr()]);
         break;
       case TK_SIN:
       case TK_COS:
@@ -1246,8 +1312,6 @@ export let Model = (function () {
       case TK_COTH:
       case TK_CSCH:
         next();
-        let t;
-        args = [];
         // Collect exponents if there are any
         while ((t=hd())===TK_CARET) {
           next({oneCharToken: true});
@@ -1256,7 +1320,6 @@ export let Model = (function () {
         if (args.length === 1 && isMinusOne(args[0])) {
           // Special case for sin^{-1} and friends.
           op = "arc" + tokenToOperator[tk];
-          args = [];
         } else {
           op = tokenToOperator[tk];
         }
@@ -1271,8 +1334,8 @@ export let Model = (function () {
       case TK_ARCCOS:
       case TK_ARCTAN:
       case TK_ARCSEC:
-      case TK_ARCCOT:
       case TK_ARCCSC:
+      case TK_ARCCOT:
       case TK_ARCSINH:
       case TK_ARCCOSH:
       case TK_ARCTANH:
@@ -1280,7 +1343,6 @@ export let Model = (function () {
       case TK_ARCCSCH:
       case TK_ARCCOTH:
         next();
-        args = [];
         // Collect exponents if there are any
         while ((t=hd())===TK_CARET) {
           next({oneCharToken: true});
@@ -1301,16 +1363,15 @@ export let Model = (function () {
         return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), primaryExpr()]);
       case TK_LOG:
         next();
-        args = [];
         // Collect the subscript if there is one
         if ((t=hd())===TK_UNDERSCORE) {
           next({oneCharToken:true});
           args.push(primaryExpr());
         } else {
-          args.push(newNode(Model.VAR, ["10"]));    // default to base 10
+          args.push(newNode(Model.NUM, ["10"]));    // Default to base 10.
         }
         args.push(primaryExpr());
-        // Finish the log function
+        // Finish the log function.
         return newNode(Model.LOG, args);
         break;
       case TK_LIM:
@@ -1324,8 +1385,7 @@ export let Model = (function () {
       case TK_CAP:
       case TK_BIGCAP:
         next();
-        args = [];
-        // Collect the subscript and expression
+        // Collect the subscript and expression.
         if (hd() === TK_UNDERSCORE) {
           next({oneCharToken: true});
           args.push(primaryExpr());
@@ -1359,7 +1419,12 @@ export let Model = (function () {
       case TK_M:
         next();
         return newNode(Model.M, [multiplicativeExpr()]);
+      case TK_FORMAT:
+        next();
+        return newNode(Model.FORMAT, [braceExpr()]);
       case TK_OVERLINE:
+        next();
+        return newNode(Model.OVERLINE, [braceExpr()]);
       case TK_DOT:
       case TK_MATHFIELD:
         next();
@@ -1369,7 +1434,9 @@ export let Model = (function () {
         next();
         expr1 = braceExpr();
         expr2 = braceExpr();
-        return newNode(tokenToOperator[tk], [expr1, expr2]);
+        // Add the annotation to the variable.
+        expr2.args.push(newNode(tokenToOperator[tk], [expr1]));
+        return expr2;
       case TK_MATHBF:
         // Erase this token.
         next();
@@ -1386,6 +1453,9 @@ export let Model = (function () {
           return newNode(Model.VAR, ["delta_" + name]);
         }
         break;
+      case TK_PERIOD:
+        next();
+        return nodeEmpty;
       default:
         assert(!Model.option("strict"), message(1006, [tk]));
         node = nodeEmpty;
@@ -1503,10 +1573,11 @@ export let Model = (function () {
       return e;
     }
     // Parse '( expr )' and '( expr ]' and '[ expr )' and '[ expr ]'
+    //       '\left . expr \right |_3', '\left( expr \right)'
     let inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let allowInterval = true; //Model.option("allowInterval");
+      let allowInterval = Model.option("allowInterval");
       bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
@@ -1555,9 +1626,14 @@ export let Model = (function () {
       // French style brackets.
       e.lbrk = tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
       e.rbrk = tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
+      // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
       if (allowInterval && e.op === Model.COMMA && e.args.length === 2 &&
           (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
+        e.op = Model.INTERVAL;
+        // Make bracket tokens part of the node for comparision.
+        e.args.push(numberNode(tk1));
+        e.args.push(numberNode(tk2));
         e = newNode(Model.PAREN, [e]);
       } else if (e.lbrk === TK_PERIOD && e.rbrk === TK_VERTICALBAR) {
         e = newNode(Model.EVALAT, [e]);
