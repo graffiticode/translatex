@@ -1120,14 +1120,6 @@ export let Model = (function () {
       }
       return false;
     }
-    function isMinusOne(node) {
-      // Check for a "-1" literal.
-      return node.op === Model.SUB &&
-        node.args.length === 1 &&
-        node.args[0].op === Model.NUM &&
-        node.args[0].args.length === 1 &&
-        node.args[0].args[0] === "1";
-    }
     function isUnit(node) {
       let env = Model.env;
       if (node.op === Model.POW) {
