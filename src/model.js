@@ -1131,6 +1131,20 @@ export let Model = (function () {
       }
       return false;
     }
+    function foldUnit(n, u) {
+      if (n.op === Model.POW) {
+        // Bind unit to base of power.
+        let b = n.args[0];
+        let e = n.args[1];
+        return binaryNode(Model.POW, [binaryNode(Model.MUL, [b, u]), e]);
+      } else if (n.op === Model.FRAC && n.isSlash) {
+        // Bind unit to denominator.
+        let nu = n.args[0];
+        let d = n.args[1];
+        return binaryNode(Model.FRAC, [nu, binaryNode(Model.MUL, [d, u])]);
+      }
+      return binaryNode(Model.MUL, [n, u]);
+    }
     function isUnit(node) {
       let env = Model.env;
       if (node.op === Model.POW) {
