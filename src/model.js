@@ -1157,20 +1157,6 @@ export let Model = (function () {
         env[node.args[0]].type === "unit"
       );
     }
-    function foldUnit(n, u) {
-      if (n.op === Model.POW) {
-        // Bind unit to base of power.
-        let b = n.args[0];
-        let e = n.args[1];
-        return binaryNode(Model.POW, [binaryNode(Model.MUL, [b, u]), e]);
-      } else if (n.op === Model.FRAC && n.isSlash) {
-        // Bind unit to denominator.
-        let nu = n.args[0];
-        let d = n.args[1];
-        return binaryNode(Model.FRAC, [nu, binaryNode(Model.MUL, [d, u])]);
-      }
-      return binaryNode(Model.MUL, [n, u]);
-    }
     function primaryExpr() {
       let t, node, tk, op, base, args = [], expr1, expr2;
       switch ((tk = hd())) {
