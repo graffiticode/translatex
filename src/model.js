@@ -3245,53 +3245,6 @@ export let Model = (function () {
         curIndex--;
         return TK_VAR;
       }
-      // // Recognize x, cm, kg.
-      // function variable(c) {
-      //   // Normal variables are a single character, but we treat units as
-      //   // variables too so we need to scan the whole unit string as a variable
-      //   // name.
-      //   let ch = String.fromCharCode(c);
-      //   lexeme += ch;
-      //   let identifier = lexeme;
-      //   let startIndex = curIndex + 1;
-      //   while (isAlphaCharCode(c) || c === CC_SINGLEQUOTE) {
-      //     // All single character names are valid variable lexemes. Now we check
-      //     // for longer match against unit names. The longest one wins.
-      //     c = src.charCodeAt(curIndex++);
-      //     if (!isAlphaCharCode(c)) {
-      //       // Past end of identifier.
-      //       break;
-      //     }
-      //     let ch = String.fromCharCode(c);
-      //     let prefix = lexeme + ch;
-      //     console.log('variable() prefix=' + prefix);
-      //     let match = some(identifiers, function (u) {
-      //       // Check of not an explicit variable and has a prefix that is a unit.
-      //       return indexOf(u, prefix) === 0;
-      //     });
-      //     if (!match) {
-      //       // No match, so we know it is not a unit, so bail.
-      //       break;
-      //     }
-      //     identifier += ch;
-      //   }
-      //   console.log('variable() identifier=' + identifier);
-      //   if (indexOf(identifiers, identifier) >= 0) {
-      //     // Found an identifier, so make it the lexeme.
-      //     lexeme = identifier;
-      //   } else {
-      //     // Reset curIndex.
-      //     curIndex = startIndex;
-      //   }
-      //   // Group primes into a single var.
-      //   while (lexeme.lastIndexOf("'") === lexeme.length - 1 && c === CC_SINGLEQUOTE) {
-      //     lexeme += String.fromCharCode(c);
-      //     c = src.charCodeAt(curIndex++);
-      //   }
-      //   curIndex--;
-      //   return TK_VAR;
-      // }
-      // Recognize \frac, \sqrt.
       function latex() {
         let c = src.charCodeAt(curIndex++);
         if (c === CC_DOLLAR) {
