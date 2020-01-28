@@ -717,48 +717,47 @@ export let Model = (function () {
   const TK_ARCSINH = 0x139;
   const TK_ARCCOSH = 0x13A;
   const TK_ARCTANH = 0x13B;
-  const unused = 0x14B;
   const TK_FORMAT = 0x14C;
   const TK_NI = 0x14D;
-  const TK_ARCSECH = 0x15F;
-  const TK_ARCCSCH = 0x160;
-  const TK_ARCCOTH = 0x161;
-  const TK_ARCSEC = 0x131;
-  const TK_ARCCSC = 0x132;
-  const TK_ARCCOT = 0x133;
-  const TK_MATHFIELD = 0x134;
-  const TK_CUP = 0x135;
-  const TK_BIGCUP = 0x136;
-  const TK_CAP = 0x137;
-  const TK_BIGCAP = 0x138;
-  const TK_PERP = 0x139;
-  const TK_PROPTO = 0x13A;
-  const TK_SUBSETEQ = 0x13E;
-  const TK_SUPSETEQ = 0x13F;
-  const TK_SUBSET = 0x140;
-  const TK_SUPSET = 0x141;
-  const TK_NOT = 0x142;
-  const TK_PARALLEL = 0x143;
-  const TK_NPARALLEL = 0x144;
-  const TK_SIM = 0x145;
-  const TK_CONG = 0x146;
-  const TK_LEFTARROW = 0x147;
-  const TK_LONGRIGHTARROW = 0x148;
-  const TK_LONGLEFTARROW = 0x149;
-  const TK_OVERRIGHTARROW = 0x14A;
-  const TK_OVERLEFTARROW = 0x14B;
-  const TK_LONGLEFTRIGHTARROW = 0x14C;
-  const TK_OVERLEFTRIGHTARROW = 0x14D;
-  const TK_IMPLIES = 0x14E;
-  const TK_LEFTRIGHTARROW = 0x14F;
-  const TK_CAPLEFTRIGHTARROW = 0x150;
-  const TK_CAPRIGHTARROW = 0x151;
-  const TK_DELTA = 0x152;
-  const TK_OPERATORNAME = 0x162;
-  const TK_LEFTCMD = 0x163;
-  const TK_RIGHTCMD = 0x164;
-  const TK_LEFTBRACESET = 0x166;
-  const TK_RIGHTBRACESET = 0x167;
+  const TK_ARCSECH = 0x14E;
+  const TK_ARCCSCH = 0x14F;
+  const TK_ARCCOTH = 0x150;
+  const TK_ARCSEC = 0x151;
+  const TK_ARCCSC = 0x152;
+  const TK_ARCCOT = 0x153;
+  const TK_MATHFIELD = 0x154;
+  const TK_CUP = 0x155;
+  const TK_BIGCUP = 0x156;
+  const TK_CAP = 0x157;
+  const TK_BIGCAP = 0x158;
+  const TK_PERP = 0x159;
+  const TK_PROPTO = 0x15A;
+  const TK_SUBSETEQ = 0x15B;
+  const TK_SUPSETEQ = 0x15C;
+  const TK_SUBSET = 0x15D;
+  const TK_SUPSET = 0x15E;
+  const TK_NOT = 0x15F;
+  const TK_PARALLEL = 0x160;
+  const TK_NPARALLEL = 0x161;
+  const TK_SIM = 0x162;
+  const TK_CONG = 0x163;
+  const TK_LEFTARROW = 0x164;
+  const TK_LONGRIGHTARROW = 0x165;
+  const TK_LONGLEFTARROW = 0x166;
+  const TK_OVERRIGHTARROW = 0x167;
+  const TK_OVERLEFTARROW = 0x168;
+  const TK_LONGLEFTRIGHTARROW = 0x169;
+  const TK_OVERLEFTRIGHTARROW = 0x16A;
+  const TK_IMPLIES = 0x16B;
+  const TK_LEFTRIGHTARROW = 0x16C;
+  const TK_CAPLEFTRIGHTARROW = 0x16D;
+  const TK_CAPRIGHTARROW = 0x16E;
+  const TK_DELTA = 0x16F;
+  const TK_OPERATORNAME = 0x170;
+  const TK_LEFTCMD = 0x171;
+  const TK_RIGHTCMD = 0x172;
+  const TK_LEFTBRACESET = 0x173;
+  const TK_RIGHTBRACESET = 0x174;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -873,7 +872,7 @@ export let Model = (function () {
   let parse = function parse(src, env) {
     src = stripInvisible(src);
     function newNode(op, args) {
-      assert(op);
+      assert(op && op !== "arcbigcap");
       return {
         op: op,
         args: args
@@ -2184,7 +2183,7 @@ export let Model = (function () {
           isInteger(mv)) {
         return true;
       } else if (node instanceof Decimal) {
-        return node.remainder(bigOne).compareTo(bigZero) === 0;
+        return node.modulo(bigOne).comparedTo(bigZero) === 0;
       }
       return false;
     }
@@ -3207,10 +3206,10 @@ export let Model = (function () {
         // Normal variables are a single character, but we treat units as
         // variables too so we need to scan the whole unit string as a variable
         // name.
-        let ch = String.fromCharCode(c);
+        var ch = String.fromCharCode(c);
         lexeme += ch;
-        let identifier = lexeme;
-        let startIndex = curIndex + 1;
+        var identifier = lexeme;
+        var startIndex = curIndex + 1;
         while (isAlphaCharCode(c) || c === CC_SINGLEQUOTE) {
           // All single character names are valid variable lexemes. Now we check
           // for longer match against unit names. The longest one wins.
@@ -3219,11 +3218,11 @@ export let Model = (function () {
             // Past end of identifier.
             break;
           }
-          let ch = String.fromCharCode(c);
-          let prefix = lexeme + ch;
-          let match = some(identifiers, function (u) {
+          var ch = String.fromCharCode(c);
+          var match = some(identifiers, function (u) {
+            var ident = identifier + ch;
             // Check of not an explicit variable and has a prefix that is a unit.
-            return indexOf(u, prefix) === 0;
+            return indexOf(u, ident) === 0;
           });
           if (!match) {
             // No match, so we know it is not a unit, so bail.
@@ -3246,6 +3245,52 @@ export let Model = (function () {
         curIndex--;
         return TK_VAR;
       }
+      // // Recognize x, cm, kg.
+      // function variable(c) {
+      //   // Normal variables are a single character, but we treat units as
+      //   // variables too so we need to scan the whole unit string as a variable
+      //   // name.
+      //   let ch = String.fromCharCode(c);
+      //   lexeme += ch;
+      //   let identifier = lexeme;
+      //   let startIndex = curIndex + 1;
+      //   while (isAlphaCharCode(c) || c === CC_SINGLEQUOTE) {
+      //     // All single character names are valid variable lexemes. Now we check
+      //     // for longer match against unit names. The longest one wins.
+      //     c = src.charCodeAt(curIndex++);
+      //     if (!isAlphaCharCode(c)) {
+      //       // Past end of identifier.
+      //       break;
+      //     }
+      //     let ch = String.fromCharCode(c);
+      //     let prefix = lexeme + ch;
+      //     console.log('variable() prefix=' + prefix);
+      //     let match = some(identifiers, function (u) {
+      //       // Check of not an explicit variable and has a prefix that is a unit.
+      //       return indexOf(u, prefix) === 0;
+      //     });
+      //     if (!match) {
+      //       // No match, so we know it is not a unit, so bail.
+      //       break;
+      //     }
+      //     identifier += ch;
+      //   }
+      //   console.log('variable() identifier=' + identifier);
+      //   if (indexOf(identifiers, identifier) >= 0) {
+      //     // Found an identifier, so make it the lexeme.
+      //     lexeme = identifier;
+      //   } else {
+      //     // Reset curIndex.
+      //     curIndex = startIndex;
+      //   }
+      //   // Group primes into a single var.
+      //   while (lexeme.lastIndexOf("'") === lexeme.length - 1 && c === CC_SINGLEQUOTE) {
+      //     lexeme += String.fromCharCode(c);
+      //     c = src.charCodeAt(curIndex++);
+      //   }
+      //   curIndex--;
+      //   return TK_VAR;
+      // }
       // Recognize \frac, \sqrt.
       function latex() {
         let c = src.charCodeAt(curIndex++);
