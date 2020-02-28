@@ -164,7 +164,7 @@ export let Model = (function () {
   };
 
   // Create a Model node from LaTex source.
-  Model.fromLaTex = Mp.fromLaTex = function fromLaTex(src) {
+  Model.fromLaTeX = Mp.fromLaTeX = function fromLaTeX(src) {
     assert(typeof src === "string", "1000: Model.prototype.fromLaTex");
     if (!this) {
       return Model.create(src);
@@ -1184,7 +1184,7 @@ export let Model = (function () {
       case TK_LEFTCMD:   // \left .. \right
         if (lookahead() === TK_LEFTBRACE ||
             lookahead() === TK_LEFTBRACESET) {
-          node = braceExpr(tk);
+          node = braceExpr(tk, true);
         } else if (lookahead() === TK_VERTICALBAR) {
           node = absExpr(tk);
         } else {
@@ -1208,10 +1208,10 @@ export let Model = (function () {
         }
         break;
       case TK_LEFTBRACE:
-        node = braceExpr();
+        node = braceExpr(tk, true);
         break;
       case TK_LEFTBRACESET:
-        node = braceExpr(tk);
+        node = braceExpr(tk, true);
         break;
       case TK_BEGIN:
         next();
@@ -1508,7 +1508,7 @@ export let Model = (function () {
       return unaryNode(Model.ABS, [e]);
     }
     // Parse '{ expr }'
-    function braceExpr(tk) {
+    function braceExpr(tk, allowSet) {
       tk = tk || TK_LEFTBRACE;
       eat(tk);
       let tk1, tk2;
@@ -1519,7 +1519,7 @@ export let Model = (function () {
       } else {
         tk1 = tk;
       }
-      if (tk1 === TK_LEFTBRACESET) {
+      if (tk1 === TK_LEFTBRACESET && allowSet) {
         isSet = true;
       }
       let e;
@@ -1558,7 +1558,7 @@ export let Model = (function () {
     function bracketExpr(tk) {
       tk = tk || TK_LEFTBRACKET;
       assert(tk === TK_LEFTCMD || tk === TK_LEFTBRACKET, "1000: Internal error");
-      bracketTokenCount++
+      bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
       if (tk === TK_LEFTCMD) {
