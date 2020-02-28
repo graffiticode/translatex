@@ -1,7 +1,7 @@
 import fs from "fs";
 import {execSync} from "child_process";
 
-const id = "LO8cnL97YFg";  // Current best rule set for latex-to-latex translation.
+const id = "jR7hLo4MWsy";  // Current best rule set for latex-to-latex translation.
 
 function rmdir(path) {
   try { var files = fs.readdirSync(path); }
@@ -55,7 +55,7 @@ function compile() {
 
 function bundle() {
   console.log("Bundling...");
-  exec("browserify ./lib/core.js -s spokenmath > ./build/spokenmath.js");
+  exec("browserify ./lib/core.js -s translatex > ./build/translatex.js");
 }
 
 function build() {

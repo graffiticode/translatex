@@ -1444,6 +1444,7 @@ export let Core = (function () {
       method: "translate",
       options: options
     };
+    options.allowInterval = true;
     let evaluator = makeEvaluator(spec, resume);
     evaluator.evaluate(solution, (err, val) => {
       resume(err, val);
