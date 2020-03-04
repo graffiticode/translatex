@@ -264,6 +264,9 @@ export let Model = (function () {
     SIM: "sim",
     CONG: "cong",
     INTERVAL: "interval",
+    INTERVALOPEN: "intervalopen",
+    INTERVALLEFTOPEN: "intervalleftopen",
+    INTERVALRIGHTOPEN: "intervalrightopen",
     EVALAT: "eval-at",
     LIST: "list",
     SET: "set",
@@ -1632,11 +1635,12 @@ export let Model = (function () {
       if (allowInterval && e.op === Model.COMMA && e.args.length === 2 &&
           (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
-        e.op = Model.INTERVAL;
-        // Make bracket tokens part of the node for comparision.
-        e.args.push(numberNode(tk1));
-        e.args.push(numberNode(tk2));
-        e = newNode(Model.PAREN, [e]);
+        let op =
+            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET && Model.INTERVAL ||
+            tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN && Model.INTERVALOPEN ||
+            tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTBRACKET && Model.INTERVALLEFTOPEN ||
+            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTPAREN && Model.INTERVALRIGHTOPEN;
+        e = newNode(op, [e]);
       } else if (e.lbrk === TK_PERIOD && e.rbrk === TK_VERTICALBAR) {
         e = newNode(Model.EVALAT, [e]);
       } else if (e.op === Model.COMMA || tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET) {

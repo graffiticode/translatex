@@ -180,6 +180,9 @@ import {rules} from "./rules.js";
         break;
       case Model.PAREN:
       case Model.INTERVAL:
+      case Model.INTERVALOPEN:
+      case Model.INTERVALLEFTOPEN:
+      case Model.INTERVALRIGHTOPEN:
         node = visit.paren(node);
         break;
       default:
@@ -512,10 +515,10 @@ import {rules} from "./rules.js";
         }
         return false;
       });
-      // if (matches.length > 0) {
-      //   console.log("node: " + JSON.stringify(node, null, 2));
-      //   console.log("matches: " + JSON.stringify(matches, null, 2));
-      // }
+      if (matches.length > 0) {
+        console.log("node: " + JSON.stringify(node, null, 2));
+        console.log("matches: " + JSON.stringify(matches, null, 2));
+      }
       return matches;
     }
     function expandBinary(str, args) {
