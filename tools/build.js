@@ -49,7 +49,8 @@ function rules() {
 function compile() {
   console.log("Compiling...");
   let sha = exec("git rev-parse HEAD | cut -c 1-7").toString().replace("\n", "");
-  exec("babel src --out-dir lib");
+  exec("tsc");
+  exec("cp ./build/src/* ./lib");
   exec("cat ./tools/license.js | sed 's/{{sha}}/" + sha + "/' >> ./lib/core.js");
 }
 
