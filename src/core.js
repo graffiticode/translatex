@@ -284,6 +284,13 @@ import {rules} from "./rules.js";
             }
           }
           break;
+        case "repeatingDecimal":
+          if (node.numberFormat === "decimal" &&
+              node.isRepeating) {
+            assert(!length, "The repeatingDecimal pattern does not take a length");
+            return true;
+          }
+          return false;
         case "number":
           if (node.numberFormat === "decimal" &&
               node.isRepeating) {
@@ -425,6 +432,7 @@ import {rules} from "./rules.js";
         case "mixedFraction":  // deprecated
         case "mixedNumber":
         case "fractionOrDecimal":
+        case "repeatingDecimal":
           return checkNumberType(pattern.args[0], node);
         case "variable":
           return node.op === Model.VAR;
