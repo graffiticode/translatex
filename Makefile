@@ -20,5 +20,7 @@ debug:
 clean:
 	rm -f .npm-install-done
 	rm -rf node_modules
+	rm -rf dist
+	rm -rf build
 
 .PHONY: all init clean
