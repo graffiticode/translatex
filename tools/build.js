@@ -49,14 +49,14 @@ function rules() {
 function compile() {
   console.log("Compiling...");
   let sha = exec("git rev-parse HEAD | cut -c 1-7").toString().replace("\n", "");
-  exec("tsc");
+  exec("tsc --build ./tools/config/tsconfig.json");
   exec("cp ./build/src/* ./lib");
   exec("cat ./tools/license.js | sed 's/{{sha}}/" + sha + "/' >> ./lib/core.js");
 }
 
 function bundle() {
   console.log("Bundling...");
-  exec("webpack");
+  exec("webpack --config ./tools/config/webpack.config.js");
 }
 
 function build() {
