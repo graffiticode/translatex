@@ -3,6 +3,6 @@ module.exports = {
   entry: './build/src/core.js',
   output: {
     filename: 'translatex.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, '../../dist'),
   },
 };

@@ -12,7 +12,7 @@ function rmdir(path) {
       if (fs.statSync(filePath).isFile()) {
         fs.unlinkSync(filePath);
       } else {
-	rmdir(filePath);
+	      rmdir(filePath);
       }
     }
   }
@@ -29,14 +29,13 @@ function cldir(path) {
 }
 
 function exec(cmd, args) {
-//  console.log("exec() cmd=" + cmd);
   return execSync(cmd, args);
 }
 
 function clean() {
   console.log("Cleaning...");
   cldir("./build");
-  cldir("./lib");
+  cldir("./dist");
 }
 
 function rules() {
@@ -50,8 +49,7 @@ function compile() {
   console.log("Compiling...");
   let sha = exec("git rev-parse HEAD | cut -c 1-7").toString().replace("\n", "");
   exec("tsc --build ./tools/config/tsconfig.json");
-  exec("cp ./build/src/* ./lib");
-  exec("cat ./tools/license.js | sed 's/{{sha}}/" + sha + "/' >> ./lib/core.js");
+  exec("cat ./tools/license.js | sed 's/{{sha}}/" + sha + "/' >> ./build/src/core.js");
 }
 
 function bundle() {
