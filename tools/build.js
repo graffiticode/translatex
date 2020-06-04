@@ -56,7 +56,7 @@ function compile() {
 
 function bundle() {
   console.log("Bundling...");
-  exec("browserify ./lib/core.js -s translatex > ./build/translatex.js");
+  exec("webpack");
 }
 
 function build() {

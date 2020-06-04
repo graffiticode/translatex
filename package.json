@@ -1,12 +1,11 @@
 {
   "devDependencies": {
+    "path": "^0.12.7",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11"
   },
   "scripts": {
-    "build": "./node_modules/babel-cli/bin/babel-node.js tools/build",
-    "test": "npm run build && ./node_modules/babel-cli/bin/babel-node.js tests/test",
-    "debug": "npm run build && ./node_modules/babel-cli/bin/babel-node.js tests/debug"
+    "build": "node ./tools/build.js"
   },
   "engines": {
     "node": "5.7.0"
