@@ -43,8 +43,8 @@
 
     Model.fn.isEquivalent; // register plugin function
     let model = new Model;
-    let expected = model.create("1 + 2");
-    let actual = model.create(response);
+    let expected = model.create(options, "1 + 2");
+    let actual = model.create(options, response);
     model.isEquivalent(expected, actual);
     expected.isEquivalent(actual);
 
@@ -107,7 +107,7 @@ export let Model = (function () {
   let message = Assert.message;
 
   // Create a model from a node object or expression string
-  Model.create = Mp.create = function create(node, location) {
+  Model.create = Mp.create = function create(options, node, location) {
     assert(node != undefined, message(1011));
     // If we already have a model, then just return it.
     if (node instanceof Model) {
@@ -120,19 +120,19 @@ export let Model = (function () {
     if (node instanceof Array) {
       model = [];
       forEach(node, function (n) {
-        model.push(create(n, location));
+        model.push(create(options, n, location));
       });
       return model;
     }
     if (!(this instanceof Model)) {
-      return new Model().create(node, location);
+      return new Model().create(options, node, location);
     }
     // Create a node that inherits from Ast.
-    model = create(this);
+    model = create(options, this);
     model.location = location;
     if (typeof node === "string") {
       // Got a string, so parse it into a node.
-      let parser = parse(node, Model.env);
+      let parser = parse(options, node, Model.env);
       node = parser.expr();
     } else {
       // Make a deep copy of the node.
@@ -164,12 +164,12 @@ export let Model = (function () {
   };
 
   // Create a Model node from LaTex source.
-  Model.fromLaTeX = Mp.fromLaTeX = function fromLaTeX(src) {
+  Model.fromLaTeX = Mp.fromLaTeX = function fromLaTeX(options, src) {
     assert(typeof src === "string", "1000: Model.prototype.fromLaTex");
     if (!this) {
-      return Model.create(src);
+      return Model.create(options, src);
     }
-    return this.create(src);
+    return this.create(options, src);
   };
 
   // Render LaTex from the model node.
@@ -463,7 +463,7 @@ export let Model = (function () {
       // Render operator.
       switch (n.op) {
       case OpStr.NUM:
-        text = n.args[0];
+        text = "(" + n.args[0] + ")";
         break;
       case OpStr.VAR:
       case OpStr.CST:
@@ -471,10 +471,10 @@ export let Model = (function () {
         break;
       case OpStr.SUB:
         if (n.args.length===1) {
-          text = OpToLaTeX[n.op] + args[0];
+          text = OpToLaTeX[n.op] + " " + args[0];
         }
         else {
-          text = args[0] + OpToLaTeX[n.op] + args[1];
+          text = args[0] + " " + OpToLaTeX[n.op] + " " + args[1];
         }
         break;
       case OpStr.DIV:
@@ -872,7 +872,7 @@ export let Model = (function () {
   tokenToOperator[TK_MATHFIELD] = OpStr.MATHFIELD;
   tokenToOperator[TK_DELTA] = OpStr.DELTA;
 
-  let parse = function parse(src, env) {
+  let parse = function parse(options, src, env) {
     src = stripInvisible(src);
     function newNode(op, args) {
       assert(op && op !== "arcbigcap");
@@ -884,8 +884,8 @@ export let Model = (function () {
 
     function matchThousandsSeparator(ch, last) {
       // Check separator and return if there is a match.
-      if (Model.option("allowThousandsSeparator") || Model.option("setThousandsSeparator")) {
-        let separators = Model.option("setThousandsSeparator");
+      if (Model.option(options, "allowThousandsSeparator") || Model.option(options, "setThousandsSeparator")) {
+        let separators = Model.option(options, "setThousandsSeparator");
         if (!separators) {
           // Use defaults.
           return ch === ',' ? ch : '';
@@ -906,8 +906,8 @@ export let Model = (function () {
     function matchDecimalSeparator(ch) {
       // We use the thousands separator to determine the conventional decimal
       // separator. If TS is ',' then DS is '.', otherwise DS is ','.
-      let decimalSeparator = Model.option("setDecimalSeparator");
-      let thousandsSeparators = Model.option("setThousandsSeparator");
+      let decimalSeparator = Model.option(options, "setDecimalSeparator");
+      let thousandsSeparators = Model.option(options, "setThousandsSeparator");
       if (typeof decimalSeparator === "string") {
         // Single separator.
         assert(decimalSeparator.length === 1, message(1002));
@@ -946,7 +946,7 @@ export let Model = (function () {
     function numberNode(n0, doScale, roundOnly) {
       // doScale - scale n if true
       // roundOnly - only scale if rounding
-      let ignoreTrailingZeros = Model.option("ignoreTrailingZeros");
+      let ignoreTrailingZeros = Model.option(options, "ignoreTrailingZeros");
       let n1 = n0.toString();
       let n2 = "";
       let i, ch;
@@ -976,9 +976,6 @@ export let Model = (function () {
             if (separatorCount && lastSeparatorIndex !== i - 4) {
               assert(false, message(1005));
             }
-            if (n2 === "0") {
-              hasLeadingZero = true;
-            }
             lastSignificantIndex = n2.length;
             lastSeparatorIndex = i;  // Used for thousandths separators.
             separatorCount++;
@@ -1007,7 +1004,17 @@ export let Model = (function () {
           }
         }
       }
-      n2 = new Decimal(n2);   // Normalize representation.
+      // Count leading zeros.
+      hasLeadingZero = 0;
+      var done = false;
+      n2.split("").forEach(function (d) {
+        if (+d === 0 && !done) {
+          hasLeadingZero++;
+        } else {
+          done = true;
+        }
+      });
+      n2 = new BigDecimal(n2);   // Normalize representation.
       if (doScale) {
         let scale = option("decimalPlaces")
         if (!roundOnly || n2.scale() > scale) {
@@ -1069,14 +1076,14 @@ export let Model = (function () {
     // Prime the token stream.
     function start(options) {
       T0 = scan.start(options);
-      lexemeT0 = scan.lexeme();
+      lexemeT0 = scan.lexeme(options);
     }
     // Get the current token.
     function hd() {
       return T0;
     }
     // Get the current lexeme.
-    function lexeme() {
+    function lexeme(options) {
       assert(lexemeT0 !== undefined, "1000: Lexeme for token T0=" + T0 + " is missing.");
       return lexemeT0;
     }
@@ -1084,7 +1091,7 @@ export let Model = (function () {
     function next(options) {
       if (T1 === TK_NONE) {
         T0 = scan.start(options);
-        lexemeT0 = scan.lexeme();
+        lexemeT0 = scan.lexeme(options);
       } else {
         assert(lexemeT1 !== undefined, "1000: Lexeme for token=" + T1 + " is missing.");
         T0 = T1;
@@ -1095,7 +1102,7 @@ export let Model = (function () {
     function lookahead(options) {
       if (T1 === TK_NONE) {
         T1 = scan.start(options);
-        lexemeT1 = scan.lexeme();
+        lexemeT1 = scan.lexeme(options);
       }
       return T1;
     }
@@ -1164,7 +1171,7 @@ export let Model = (function () {
       switch ((tk = hd())) {
       case TK_CONST:
       case TK_VAR:
-        args = [lexeme()];
+        args = [lexeme(options)];
         next();
         // // Collect the subscript if there is one. Subscripts make multipart variable names.
         // if ((t=hd())===TK_UNDERSCORE) {
@@ -1181,7 +1188,7 @@ export let Model = (function () {
         }
         break;
       case TK_NUM:
-        node = numberNode(lexeme());
+        node = numberNode(lexeme(options));
         next();
         break;
       case TK_LEFTCMD:   // \left .. \right
@@ -1195,7 +1202,7 @@ export let Model = (function () {
         }
         break;
       case TK_TYPE:
-        node = newNode(Model.TYPE, [newNode(Model.VAR, [lexeme()])]);
+        node = newNode(Model.TYPE, [newNode(Model.VAR, [lexeme(options)])]);
         next();
         break;
       case TK_LEFTBRACKET:
@@ -1203,7 +1210,7 @@ export let Model = (function () {
         node = parenExpr(tk);
         break;
       case TK_RIGHTBRACKET:
-        if (Model.option("allowInterval") && !inParenExpr) {
+        if (Model.option(options, "allowInterval") && !inParenExpr) {
           // French style intervals: ][, ]].
           node = parenExpr(tk);
         } else {
@@ -1300,7 +1307,7 @@ export let Model = (function () {
         node = newNode(Model.VEC, [name]);
         break;
       case TK_OPERATORNAME:
-        let lex = lexeme();
+        let lex = lexeme(options);
         next();
         node = newNode(Model.OPERATORNAME, [newNode(Model.VAR, [lex]), primaryExpr()]);
         break;
@@ -1453,7 +1460,7 @@ export let Model = (function () {
       case TK_DELTA:
         next();
         if (hd() === TK_VAR) {
-          let name = lexeme();
+          let name = lexeme(options);
           next();
           return newNode(Model.VAR, ["delta_" + name]);
         }
@@ -1462,7 +1469,7 @@ export let Model = (function () {
         next();
         return nodeEmpty;
       default:
-        assert(!Model.option("strict"), message(1006, [tk]));
+        assert(!Model.option(options, "strict"), message(1006, [tk]));
         node = nodeEmpty;
         break;
       }
@@ -1582,7 +1589,7 @@ export let Model = (function () {
     let inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let allowInterval = Model.option("allowInterval");
+      let allowInterval = Model.option(options, "allowInterval");
       bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
@@ -1671,10 +1678,10 @@ export let Model = (function () {
           if (n.op === Model.VAR && n.args[0] === "\\circ") {
             // 90^{\circ} -> degree 90
             if (hd() === TK_VAR &&
-                lexeme() === "K" || lexeme() === "C" || lexeme() === "F") {
+                lexeme(options) === "K" || lexeme(options) === "C" || lexeme(options) === "F") {
               n = multiplyNode([
                 args.pop(),
-                unaryNode(Model.VAR, ["\\degree " + lexeme()])]);
+                unaryNode(Model.VAR, ["\\degree " + lexeme(options)])]);
               next();
             } else {
               n = multiplyNode([
@@ -1716,12 +1723,12 @@ export let Model = (function () {
         expr = newNode(Model.FACT, [expr]);
         break;
       default:
-        if (t === TK_VAR && lexeme() === "\\degree") {
+        if (t === TK_VAR && lexeme(options) === "\\degree") {
           next();
-          if (hd() === TK_VAR && (lexeme() === "K" || lexeme() === "C" || lexeme() === "F")) {
+          if (hd() === TK_VAR && (lexeme(options) === "K" || lexeme(options) === "C" || lexeme(options) === "F")) {
             expr = multiplyNode([
               expr,
-              unaryNode(Model.VAR, ["\\degree " + lexeme()])]);
+              unaryNode(Model.VAR, ["\\degree " + lexeme(options)])]);
             next();
           } else {
             expr = multiplyNode([
@@ -1811,7 +1818,7 @@ export let Model = (function () {
         expr = newNode(op, [expr]);
         break;
       default:
-        if (t === TK_VAR && lexeme() === "$") {
+        if (t === TK_VAR && lexeme(options) === "$") {
           next();
           if (!isEndOfMultiplicativeExpression(hd())) {
             // Give $1 a higher precedence than ordinary multiplication.
@@ -1960,7 +1967,7 @@ export let Model = (function () {
       }
       if (expr.op === Model.MUL &&
           !expr.isBinomial &&
-          !Model.option("compareGrouping") &&
+          !Model.option(options, "compareGrouping") &&
           expr.args[expr.args.length - 1].op !== Model.VAR &&
           expr.args[expr.args.length - 1].args[0] === "\\degree") {
         // FIXME binomials and all other significant syntax should not be desugared
@@ -2040,7 +2047,7 @@ export let Model = (function () {
             // Merge previous var with current ' and raise to the power.
             expr = newNode(Model.POW, [binaryNode(Model.POW, [args.pop(), expr.args[0]])].concat(expr.args.slice(1)));
             expr.isImplicit = expr.args[0].args[0].isImplicit;
-          } else if (Model.option("ignoreCoefficientOne") &&
+          } else if (Model.option(options, "ignoreCoefficientOne") &&
                      args.length === 1 && isOneOrMinusOne(args[0]) &&
                      isPolynomialTerm(args[0], expr)) {
             // 1x -> x
@@ -2299,7 +2306,7 @@ export let Model = (function () {
 
     function isENotation(args, expr, t) {
       let n;
-      let eulers = Model.option("allowEulersNumber");
+      let eulers = Model.option(options, "allowEulersNumber");
       if (args.length > 0 && isNumber(args[args.length-1]) &&
           expr.op === Model.VAR &&
           (expr.args[0] === "E" ||
@@ -2397,7 +2404,7 @@ export let Model = (function () {
           expr = binaryNode(Model.SUB, [expr, expr2]);
           break;
         default:
-          let flatten = !Model.option("compareGrouping");
+          let flatten = !Model.option(options, "compareGrouping");
           expr = binaryNode(Model.ADD, [expr, expr2], flatten);
           break;
         }
@@ -2426,6 +2433,12 @@ export let Model = (function () {
     // Parse '\int a + b dx'
     function hasDX(node) {
       let len = node.args.length;
+      if (node.op === Model.MUL && node.args[len - 1].op === Model.FRAC) {
+        node = node.args[len - 1].args[0];
+        len = node.args.length;
+      } else if (node.op === Model.FRAC) {
+        node = node.args[0];  // Numerator
+      }
       let dvar = node.args[len - 2];
       let ivar = node.args[len - 1];
       return (
@@ -2545,7 +2558,7 @@ export let Model = (function () {
         }
         args.push(expr);
         // Make a copy of the reused node.
-        expr = Model.create(expr2);
+        expr = Model.create(options, expr2);
       }
       if (args.length === 0) {
         return expr;
@@ -2570,7 +2583,7 @@ export let Model = (function () {
         expr = newNode(tokenToOperator[t], [expr, expr2]);
         args.push(expr);
         // Make a copy of the reused node.
-        expr = Model.create(expr2);
+        expr = Model.create(options, expr2);
       }
       if (args.length === 0) {
         return expr;
@@ -2624,7 +2637,7 @@ export let Model = (function () {
       let args = [];
       start();
       while (hd()) {
-        let lex = lexeme();
+        let lex = lexeme(options);
         args.push(newNode(hd(), lex ? [lex] : []));
         next();
       }
@@ -2632,11 +2645,15 @@ export let Model = (function () {
       return node;
     }
     function expr() {
-      start();
-      if (hd()) {
-        let n = commaExpr();
-        assert(!hd(), message(1003, [scan.pos(), scan.lexeme(), "'" + src.substring(scan.pos() - 1) + "'"]));
-        return n;
+      try {
+        start();
+        if (hd()) {
+          let n = commaExpr();
+          assert(!hd(), message(1003, [scan.pos(), scan.lexeme(options), "'" + src.substring(scan.pos() - 1) + "'"]));
+          return n;
+        }
+      } catch (x) {
+        console.log("SYNTAX ERROR " + x);
       }
       // No meaningful input. Return a dummy node to avoid choking.
       return nodeNone;
@@ -3039,6 +3056,14 @@ export let Model = (function () {
         0x22FF: null,
       };
       let identifiers = keys(env);
+      // Add keywords to the list of identifiers.
+      identifiers.push("to");
+      function isAlphaCharCode(c) {
+        return (
+          c >= 65 && c <= 90 ||
+          c >= 97 && c <= 122
+        );
+      }
       // Start scanning for one token.
       function start(options) {
         if (!options) {
@@ -3304,7 +3329,7 @@ export let Model = (function () {
           }
           lexeme = "";
           c = src.charCodeAt(curIndex++);
-          let keepTextWhitespace = Model.option("keepTextWhitespace");
+          let keepTextWhitespace = Model.option(options, "keepTextWhitespace");
           while (c && c !== CC_RIGHTBRACE) {
             let ch = String.fromCharCode(c);
             if (!keepTextWhitespace && ch === "&" && indexOf(src.substring(curIndex), "nbsp;") === 0) {
@@ -3319,7 +3344,7 @@ export let Model = (function () {
           }
           if (tk !== TK_TYPE) {
             // Not a type, so convert to a var.
-            if (!lexeme || Model.option("ignoreText")) {
+            if (!lexeme || Model.option(options, "ignoreText")) {
               tk = null;   // Treat as whitespace.
             } else {
               tk = TK_VAR; // Treat as variable.
