@@ -1014,7 +1014,7 @@ export let Model = (function () {
           done = true;
         }
       });
-      n2 = new BigDecimal(n2);   // Normalize representation.
+      n2 = new Decimal(n2);   // Normalize representation.
       if (doScale) {
         let scale = option("decimalPlaces")
         if (!roundOnly || n2.scale() > scale) {
