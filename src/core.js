@@ -38,7 +38,7 @@ import {rules} from "./rules.js";
   // The outer Visitor function provides a global scope for all visitors,
   // as well as dispatching to methods within a visitor.
   function Visitor(ast) {
-    function visit(node, visit, resume) {
+    function visit(options, node, visit, resume) {
       assert(node.op && node.args, "Visitor.visit() op=" + node.op + " args = " + node.args);
       switch (node.op) {
       case Model.NUM:
@@ -456,7 +456,7 @@ import {rules} from "./rules.js";
             assert(type instanceof Array);
             return type.some(function (pattern) {
               // FIXME pre-compile types.
-              let matches = match([normalizeLiteral(Model.create(pattern))], node);
+              let matches = match([normalizeLiteral(options, Model.create(options, pattern))], node);
               return matches.length > 0;
             });
           }
@@ -653,7 +653,7 @@ import {rules} from "./rules.js";
       return p1 < p0;
     }
 
-    function normalizeLiteral(root) {
+    function normalizeLiteral(options, root) {
       if (!root || !root.args) {
         assert(false, "Should not get here. Illformed node.");
         return 0;
@@ -662,7 +662,7 @@ import {rules} from "./rules.js";
       // if (root.normalizeLiteralNid === nid) {
       //   return root;
       // }
-      var node = visit(root, {
+      var node = visit(options, root, {
         name: "normalizeLiteral",
         numeric: function (node) {
           return node;
@@ -670,7 +670,7 @@ import {rules} from "./rules.js";
         binary: function (node) {
           var args = [];
           forEach(node.args, function (n) {
-            args.push(normalizeLiteral(n));
+            args.push(normalizeLiteral(options, n));
           });
           node.args = args;
           return node;
@@ -680,9 +680,9 @@ import {rules} from "./rules.js";
           var flatten = true;
           forEach(node.args, function (n) {
             if ((n.isPolynomialTerm || n.isImplicit) && args.length > 0) {
-              args.push(binaryNode(Model.MUL, [args.pop(), normalizeLiteral(n)], flatten));
+              args.push(binaryNode(Model.MUL, [args.pop(), normalizeLiteral(options, n)], flatten));
             } else {
-              args.push(normalizeLiteral(n));
+              args.push(normalizeLiteral(options, n));
             }
           });
           // Only have explicit mul left, so convert to times.
@@ -698,7 +698,7 @@ import {rules} from "./rules.js";
         unary: function(node) {
           var args = [];
           forEach(node.args, function (n) {
-            args.push(normalizeLiteral(n));
+            args.push(normalizeLiteral(options, n));
           });
           let n = newNode(node.op, args);
           n.isPolynomial = node.isPolynomial;
@@ -707,7 +707,7 @@ import {rules} from "./rules.js";
         exponential: function (node) {
           var args = [];
           forEach(node.args, function (n) {
-            args.push(normalizeLiteral(n));
+            args.push(normalizeLiteral(options, n));
           });
           node.args = args;
           return node;
@@ -718,7 +718,7 @@ import {rules} from "./rules.js";
         comma: function(node) {
           var args = [];
           forEach(node.args, function (n) {
-            args.push(normalizeLiteral(n));
+            args.push(normalizeLiteral(options, n));
           });
           let op = node.op === Model.LIST && Model.COMMA || node.op;  // Normalize LIST.
           return newNode(op, args);
@@ -726,7 +726,7 @@ import {rules} from "./rules.js";
         paren: function(node) {
           var args = [];
           forEach(node.args, function (n) {
-            args.push(normalizeLiteral(n));
+            args.push(normalizeLiteral(options, n));
           });
           node.args = args;
           return node;
@@ -734,7 +734,7 @@ import {rules} from "./rules.js";
         equals: function(node) {
           var args = [];
           forEach(node.args, function (n) {
-            args.push(normalizeLiteral(n));
+            args.push(normalizeLiteral(options, n));
           });
           if (option("ignoreOrder") &&
               (node.op === Model.GT ||
@@ -755,7 +755,7 @@ import {rules} from "./rules.js";
       // // If the node has changed, normalizeLiteral again
       // while (nid !== ast.intern(node)) {
       //   nid = ast.intern(node);
-      //   node = normalizeLiteral(node);
+      //   node = normalizeLiteral(options, node);
       // }
       // node.normalizeLiteralNid = nid;
       // node.normalizeLiteralNid = ast.intern(node);
@@ -807,7 +807,7 @@ import {rules} from "./rules.js";
       // });
       return node.args;
     }
-    function translate(root, rules) {
+    function translate(options, root, rules) {
       // Translate math from LaTeX to English.
       // rules = {ptrn: tmpl, ...};
       let globalRules;
@@ -829,7 +829,7 @@ import {rules} from "./rules.js";
         assert(false, "Should not get here. Illformed node.");
         return 0;
       }
-      return visit(root, {
+      return visit(options, root, {
         name: "translate",
         numeric: function(node) {
           let args = [{
@@ -860,7 +860,7 @@ import {rules} from "./rules.js";
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
           forEach(nodeArgs, function (n, i) {
-            args = args.concat(translate(n, [globalRules, argRules]));
+            args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
           return expand(template, args);
@@ -876,7 +876,7 @@ import {rules} from "./rules.js";
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
           forEach(nodeArgs, function (n, i) {
-            args = args.concat(translate(n, [globalRules, argRules]));
+            args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
           return expand(template, args);
@@ -892,7 +892,7 @@ import {rules} from "./rules.js";
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
           forEach(nodeArgs, function (n, i) {
-            args = args.concat(translate(n, [globalRules, argRules]));
+            args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
         },
@@ -907,7 +907,7 @@ import {rules} from "./rules.js";
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
           forEach(nodeArgs, function (n, i) {
-            args = args.concat(translate(n, [globalRules, argRules]));
+            args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
         },
@@ -918,7 +918,7 @@ import {rules} from "./rules.js";
           //   // as compound variables.
           //   if (i > 0) {
           //     str += " sub ";
-          //     let v = translate(n, rules);
+          //     let v = translate(options, n, rules);
           //     str += v.args[0];
           //     str += " baseline ";
           //   } else {
@@ -945,7 +945,7 @@ import {rules} from "./rules.js";
           args.push(newNode(Model.VAR, [lookup(nodeArgs.shift())]));
           forEach(nodeArgs, function (n, i) {
             // Now translate the subscripts.
-            args = args.concat(translate(n, [globalRules, argRules]));
+            args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
         },
@@ -982,7 +982,7 @@ import {rules} from "./rules.js";
             let argRules = getRulesForArgs(template, rules);
             let nodeArgs = getNodeArgsForTemplate(node, template);
             forEach(nodeArgs, function (n, i) {
-              args = args.concat(translate(n, [globalRules, argRules]));
+              args = args.concat(translate(options, n, [globalRules, argRules]));
               args[i].m = n.m;
               args[i].n = n.n;
             });
@@ -998,7 +998,7 @@ import {rules} from "./rules.js";
             let nodeArgs = getNodeArgsForTemplate(node, template);
             let args = [];
             forEach(nodeArgs, function (n, i) {
-              args = args.concat(translate(n, [globalRules, argRules]));
+              args = args.concat(translate(options, n, [globalRules, argRules]));
             });
             template.isBinary = true;
             return expand(template, args);
@@ -1015,7 +1015,7 @@ import {rules} from "./rules.js";
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
           forEach(nodeArgs, function (n, i) {
-            args = args.concat(translate(n, [globalRules, argRules]));
+            args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
           return expand(template, args, node);
@@ -1042,7 +1042,7 @@ import {rules} from "./rules.js";
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
           forEach(nodeArgs, function (n) {
-            args.push(translate(n, [globalRules, argRules]));
+            args.push(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
         }
@@ -1053,13 +1053,13 @@ import {rules} from "./rules.js";
     this.translate = translate;
   }
 
-  function normalizeLiteral(node) {
+  function normalizeLiteral(options, node) {
     let visitor = new Visitor(ast);
     var prevLocation = Assert.location;
     if (node.location) {
       Assert.setLocation(node.location);
     }
-    var result = visitor.normalizeLiteral(node);
+    var result = visitor.normalizeLiteral(options, node);
     Assert.setLocation(prevLocation);
     return result;
   }
@@ -1093,12 +1093,12 @@ import {rules} from "./rules.js";
     });
     return map;
   }
-  function compileTemplate(template) {
+  function compileTemplate(options, template) {
     let compiledTemplate;
     if (template instanceof Array) {
       compiledTemplate = [];
       template.forEach(function (t) {
-        compiledTemplate = compiledTemplate.concat(compileTemplate(t));
+        compiledTemplate = compiledTemplate.concat(compileTemplate(options, t));
       });
     } else {
       if (typeof template === "string") {
@@ -1117,7 +1117,7 @@ import {rules} from "./rules.js";
         } else {
           str = Object.keys(template)[0];
           assert(str !== "options");
-          rules = compileRules(template[str]);
+          rules = compileRules(options, template[str]);
         }
         compiledTemplate = [{
           context: context,
@@ -1128,23 +1128,23 @@ import {rules} from "./rules.js";
     }
     return compiledTemplate;
   }
-  function compileRules(rules) {
+  function compileRules(options, rules) {
     // { "ast as string": template, ... }
     let keys = Object.keys(rules);
     let compiledRules = {};
     keys.forEach(function (key) {
-      let pattern = JSON.stringify(normalizeLiteral(Model.create(key)));  // Parse and normalize.
-      let template = compileTemplate(rules[key]);
+      let pattern = JSON.stringify(normalizeLiteral(options, Model.create(options, key)));  // Parse and normalize.
+      let template = compileTemplate(options, rules[key]);
       if (!compiledRules[pattern]) {
         compiledRules[pattern] = template;
       }
     });
     return compiledRules;
   }
-  function translate(node, rules) {
+  function translate(options, node, rules) {
     let visitor = new Visitor(ast);
-    let compiledRules = compileRules(rules);
-    return visitor.translate(node, compiledRules);
+    let compiledRules = compileRules(options, rules);
+    return visitor.translate(options, node, compiledRules);
   }
   function trim(str) {
     let i = 0;
@@ -1175,17 +1175,17 @@ import {rules} from "./rules.js";
     }
     return out;
   }
-  Model.fn.translate = function (n1) {
+  Model.fn.translate = function (n1, options) {
     let rules = Model.option("rules");
-    let n = translate(normalizeLiteral(n1), rules);
+    let n = translate(options, normalizeLiteral(options, n1), rules);
     if (!n || n.op !== Model.VAR) {
       n = newNode(Model.VAR, [""]);
     }
     return trim(n.args[0]);
   }
 
-  let option = Model.option = function option(p, v) {
-    let options = Model.options;
+  let option = Model.option = function option(options, p, v) {
+    assert(options);
     let opt = options && options[p];
     if (v !== undefined) {
       // Set the option value.
@@ -1471,7 +1471,7 @@ export let Core = (function () {
       Assert.setLocation("spec");
       validateOptions(options);
       Model.pushEnv(env);
-      valueNode = value != undefined ? Model.create(value, "spec") : undefined;
+      valueNode = value != undefined ? Model.create(options, value, "spec") : undefined;
       Model.popEnv();
     } catch (e) {
       console.log("ERROR makeEvaluator() " + e.stack);
@@ -1496,13 +1496,13 @@ export let Core = (function () {
         Assert.setLocation("user");
         assert(solution != undefined, message(3002));
         Model.pushEnv(env);
-        let solutionNode = Model.create(solution, "user");
+        let solutionNode = Model.create(options, solution, "user");
         assert(solutionNode, message(3008, ["invalid input"]));
         Assert.setLocation("spec");
         let result;
         switch (method) {
         case "translate":
-          result = solutionNode.translate();
+          result = solutionNode.translate(options);
           break;
         default:
           assert(false, message(3004, [method]));

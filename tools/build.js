@@ -34,27 +34,26 @@ function exec(cmd, args) {
 
 function clean() {
   console.log("Cleaning...");
-  cldir("./build");
   cldir("./dist");
 }
 
 function rules() {
   console.log("Fetching rules " + id);
-  exec('curl -L "http://www.graffiticode.com/data?id=' + id + '" -o "./build/data.txt"');
-  var data = JSON.parse(fs.readFileSync("./build/data.txt", "utf8"));
+  exec('curl -L "http://www.graffiticode.com/data?id=' + id + '" -o "./data.txt"');
+  var data = JSON.parse(fs.readFileSync("./data.txt", "utf8"));
   fs.writeFileSync("src/rules.js", "export var rules=" + JSON.stringify(data.options), "utf8");
 }
 
 function compile() {
   console.log("Compiling...");
   let sha = exec("git rev-parse HEAD | cut -c 1-7").toString().replace("\n", "");
-  exec("tsc --build ./tools/config/tsconfig.json");
-  exec("cat ./tools/license.js | sed 's/{{sha}}/" + sha + "/' >> ./build/src/core.js");
+  // exec("tsc --build ./tools/config/tsconfig.json");
+  exec("webpack --config ./tools/config/webpack.config.js");
+  exec("cat ./tools/license.js | sed 's/{{sha}}/" + sha + "/' >> ./dist/translatex.js");
 }
 
 function bundle() {
   console.log("Bundling...");
-  exec("webpack --config ./tools/config/webpack.config.js");
 }
 
 function build() {
