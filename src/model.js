@@ -108,7 +108,7 @@ export let Model = (function () {
 
   // Create a model from a node object or expression string
   Model.create = Mp.create = function create(options, node, location) {
-    assert(node != undefined, message(1011));
+    assert(node != undefined, message(1000, ["Missing node."]));
     // If we already have a model, then just return it.
     if (node instanceof Model) {
       if (location) {
@@ -131,6 +131,7 @@ export let Model = (function () {
     model = create(options, this);
     model.location = location;
     if (typeof node === "string") {
+      console.log("create() node=" + node);
       // Got a string, so parse it into a node.
       let parser = parse(options, node, Model.env);
       node = parser.expr();
@@ -1589,7 +1590,7 @@ export let Model = (function () {
     let inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let allowInterval = Model.option(options, "allowInterval");
+      let allowInterval = true; //Model.option(options, "allowInterval");
       bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
@@ -2653,7 +2654,7 @@ export let Model = (function () {
           return n;
         }
       } catch (x) {
-        console.log("SYNTAX ERROR " + x);
+        console.log("SYNTAX ERROR " + x.stack);
       }
       // No meaningful input. Return a dummy node to avoid choking.
       return nodeNone;

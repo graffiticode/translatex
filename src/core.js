@@ -1176,7 +1176,7 @@ import {rules} from "./rules.js";
     return out;
   }
   Model.fn.translate = function (n1, options) {
-    let rules = Model.option("rules");
+    let rules = Model.option(options, "rules");
     let n = translate(options, normalizeLiteral(options, n1), rules);
     if (!n || n.op !== Model.VAR) {
       n = newNode(Model.VAR, [""]);
