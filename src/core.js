@@ -1436,7 +1436,7 @@ export let Core = (function () {
   }
   function validateOptions(options) {
     if (options) {
-      forEach(keys(options), function (option) {
+      forEach(Object.keys(options), function (option) {
         validateOption(option, options[option]);
       });
     }

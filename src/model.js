@@ -54,7 +54,6 @@
 
 */
 
-import {every, forEach, keys, some, indexOf} from "./backward.js";
 import {Assert, assert, message} from "./assert.js";
 import {Ast} from "./ast.js";
 import {Decimal} from "decimal.js";
@@ -108,7 +107,7 @@ export let Model = (function () {
 
   // Create a model from a node object or expression string
   Model.create = Mp.create = function create(options, node, location) {
-    assert(node != undefined, message(1000, ["Missing node."]));
+    assert(node != undefined, "1000: Internal error. Node undefined.");
     // If we already have a model, then just return it.
     if (node instanceof Model) {
       if (location) {
@@ -119,7 +118,7 @@ export let Model = (function () {
     let model;
     if (node instanceof Array) {
       model = [];
-      forEach(node, function (n) {
+      node.forEach(function (n) {
         model.push(create(options, n, location));
       });
       return model;
@@ -140,7 +139,7 @@ export let Model = (function () {
       node = JSON.parse(JSON.stringify(node));
     }
     // Add missing plugin functions to the Model prototype.
-    forEach(keys(Model.fn), function (v, i) {
+    Object.keys(Model.fn).forEach(function (v, i) {
       if (!Mp.hasOwnProperty(v)) {
         Mp[v] = function () {
           let fn = Model.fn[v];
@@ -158,7 +157,7 @@ export let Model = (function () {
       }
     });
     // Now copy the node's properties into the model object.
-    forEach(keys(node), function (v, i) {
+    Object.keys(node).forEach(function (v, i) {
       model[v] = node[v];
     });
     return model;
@@ -311,7 +310,7 @@ export let Model = (function () {
     NONE: "none",
   };
 
-  forEach(keys(OpStr), function (v, i) {
+  Object.keys(OpStr).forEach(function (v, i) {
     Model[v] = OpStr[v];
   });
 
@@ -363,7 +362,7 @@ export let Model = (function () {
 
   Model.fold = function fold(node, env) {
     let args = [], val;
-    forEach(node.args, function (n) {
+    node.args.forEach(function (n) {
       args.push(fold(n, env));
     });
     node.args = args;
@@ -550,7 +549,7 @@ export let Model = (function () {
         // If subexpr is lower precedence, wrap in parens.
         let prevTerm;
         text = "";
-        forEach(n.args, function (term, index) {
+        n.args.forEach(function (term, index) {
           if (term.args && (term.args.length >= 2)) {
             if (term.op===OpStr.ADD || term.op===OpStr.SUB) {
               args[index] = "(" + args[index] + ")";
@@ -583,7 +582,7 @@ export let Model = (function () {
         break;
       case OpStr.ADD:
       case OpStr.COMMA:
-        forEach(args, function (value, index) {
+        args.forEach(function (value, index) {
           if (index===0) {
             text = value;
           }
@@ -893,7 +892,7 @@ export let Model = (function () {
         } else {
           // If the character matches the last separator or, if not, last is undefiend
           // and character is in the provided list, return the character.
-          if (ch === last || !last && indexOf(separators, ch) >= 0) {
+          if (ch === last || !last && separators.indexOf(ch) >= 0) {
             return ch;
           } else {
             return "";
@@ -914,7 +913,7 @@ export let Model = (function () {
         assert(decimalSeparator.length === 1, message(1002));
         let separator = decimalSeparator;
         if (thousandsSeparators instanceof Array &&
-            indexOf(thousandsSeparators, separator) >= 0) {
+            thousandsSeparators.indexOf(separator) >= 0) {
           // There is a conflict between the decimal separator and the
           // thousands separator.
           assert(false, message(1008, [separator]));
@@ -923,17 +922,17 @@ export let Model = (function () {
       }
       if (decimalSeparator instanceof Array) {
         // Multiple separators.
-        forEach(decimalSeparator, function (separator) {
+        decimalSeparator.forEach(function (separator) {
           if (thousandsSeparators instanceof Array &&
-              indexOf(thousandsSeparators, separator) >= 0) {
+              thousandsSeparators.indexOf(separator) >= 0) {
             // There is a conflict between the decimal separator and the
             // thousands separator.
             assert(false, message(1008, [separator]));
           }
         });
-        return indexOf(decimalSeparator, ch) >= 0;
+        return decimalSeparator.indexOf(ch) >= 0;
       }
-      if (thousandsSeparators instanceof Array && indexOf(thousandsSeparators, '.') >= 0) {
+      if (thousandsSeparators instanceof Array && thousandsSeparators.indexOf('.') >= 0) {
         // Period is used as a thousands separator, so cannot be used as a
         // decimal separator.
         assert(false, message(1008));
@@ -1051,7 +1050,7 @@ export let Model = (function () {
         return args[0];
       }
       let aa = [];
-      forEach(args, function(n) {
+      args.forEach(function(n) {
         if (flatten && n.op === op) {
           aa = aa.concat(n.args);
         } else {
@@ -1228,14 +1227,14 @@ export let Model = (function () {
         next();
         let figure = braceExpr();
         if (figure.op === Model.VAR) {
-          if (indexOf(figure.args[0], "array") === 0) {
+          if (figure.args[0].indexOf("array") === 0) {
             if (hd() === TK_LEFTBRACE) {
               while (hd() !== TK_RIGHTBRACE) {
                 next();  // Eat column alignment header.
               }
               next();
             }
-          } else if (indexOf(figure.args[0], "matrix") >= 0) {
+          } else if (figure.args[0].indexOf("matrix") >= 0) {
             if (hd() === TK_LEFTBRACKET) {
               while (hd() !== TK_RIGHTBRACKET) {
                 next();  // Eat column alignment header.
@@ -1247,7 +1246,7 @@ export let Model = (function () {
         let tbl = matrixExpr();
         eat(TK_END);
         braceExpr();
-        if (indexOf(figure.args[0], "matrix") >= 0 || indexOf(figure.args[0], "array") === 0) {
+        if (figure.args[0].indexOf("matrix") >= 0 || figure.args[0].indexOf("array") === 0) {
           node = newNode(Model.MATRIX, [tbl]);
         } else {
           assert(false, "1000: Unrecognized LaTeX name");
@@ -1640,6 +1639,7 @@ export let Model = (function () {
       e.lbrk = tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
       e.rbrk = tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
+      console.log("parenExpr() allowInterval=" + allowInterval + " e=" + JSON.stringify(e));
       if (allowInterval && e.op === Model.COMMA && e.args.length === 2 &&
           (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
@@ -1699,7 +1699,7 @@ export let Model = (function () {
       }
       if (args.length > 1) {
         let expo = args.pop();
-        forEach(args.reverse(), function (base) {
+        args.reverse().forEach(function (base) {
           expo = newNode(Model.POW, [base, expo]);
         });
         expo.isPolynomial = isPolynomial(expo);
@@ -2287,8 +2287,8 @@ export let Model = (function () {
         }
         // n1 = numberNode("." + n1.args[0]);
         n1.isRepeating = true;
-        // if (indexOf(n0.args[0], ".") >= 0) {
-        //   let decimalPlaces = n0.args[0].length - indexOf(n0.args[0], ".")- 1;
+        // if (n0.args[0].indexOf(".") >= 0) {
+        //   let decimalPlaces = n0.args[0].length - n0.args[0].indexOf(".")- 1;
         //   n1 = multiplyNode([n1, binaryNode(Model.POW, [numberNode("10"), numberNode("-" + decimalPlaces)])]);
         // }
         // if (n0.op === Model.NUM && +n0.args[0] === 0) {
@@ -2324,7 +2324,7 @@ export let Model = (function () {
       if (args.length === 1) {
         // 1.2, 10^2
         if ((n = isNumber(args[0])) &&
-            (n.args[0].length === 1 || indexOf(n.args[0], ".") === 1)) {
+            (n.args[0].length === 1 || n.args[0].indexOf(".") === 1)) {
           return true;
         } else if (args[0].op === Model.POW &&
                    (n = isNumber(args[0].args[0])) && n.args[0] === "10" &&
@@ -2337,7 +2337,7 @@ export let Model = (function () {
         let a = args[0];
         let e = args[1];
         if ((n = isNumber(a)) &&
-            (n.args[0].length === 1 || indexOf(n.args[0], ".") === 1) &&
+            (n.args[0].length === 1 || n.args[0].indexOf(".") === 1) &&
             e.op === Model.POW &&
             (n = isNumber(e.args[0])) && n.args[0] === "10" &&
             isInteger(e.args[1])) {
@@ -2418,7 +2418,7 @@ export let Model = (function () {
       if (node.op === Model.NUM || node.op === Model.VAR) {
         return node;
       }
-      forEach(node.args, function (n) {
+      node.args.forEach(function (n) {
         n = flattenNestedNodes(n);
         if (n.op === node.op) {
           args = args.concat(n.args);
@@ -3056,7 +3056,7 @@ export let Model = (function () {
         0x22FE: null,
         0x22FF: null,
       };
-      let identifiers = keys(env);
+      let identifiers = Object.keys(env);
       // Add keywords to the list of identifiers.
       identifiers.push("to");
       function isAlphaCharCode(c) {
@@ -3083,7 +3083,7 @@ export let Model = (function () {
           case 0x200B: // zero width space
             continue;
           case 38:  // ampersand (new column or entity)
-            if (indexOf(src.substring(curIndex), "nbsp;") === 0) {
+            if (src.substring(curIndex).indexOf("nbsp;") === 0) {
               // Skip &nbsp;
               curIndex += 5;
               continue;
@@ -3219,8 +3219,8 @@ export let Model = (function () {
           }
         }
         if (lexeme === "." &&
-            (indexOf(src.substring(curIndex), "overline") === 0 ||
-             indexOf(src.substring(curIndex), "dot") === 0)) {
+            (src.substring(curIndex).indexOf("overline") === 0 ||
+             src.substring(curIndex).indexOf("dot") === 0)) {
           // .\overline --> 0.\overline
           // .\dot --> 0.\dot
           lexeme = "0.";
@@ -3249,10 +3249,10 @@ export let Model = (function () {
             break;
           }
           var ch = String.fromCharCode(c);
-          var match = some(identifiers, function (u) {
+          var match = identifiers.some(function (u) {
             var ident = identifier + ch;
             // Check of not an explicit variable and has a prefix that is a unit.
-            return indexOf(u, ident) === 0;
+            return u.indexOf(ident) === 0;
           });
           if (!match) {
             // No match, so we know it is not a unit, so bail.
@@ -3260,7 +3260,7 @@ export let Model = (function () {
           }
           identifier += ch;
         }
-        if (indexOf(identifiers, identifier) >= 0) {
+        if (identifiers.indexOf(identifier) >= 0) {
           // Found an identifier, so make it the lexeme.
           lexeme = identifier;
         } else {
@@ -3282,11 +3282,12 @@ export let Model = (function () {
           lexeme = String.fromCharCode(c);
         } else if (c === CC_PERCENT) {
           lexeme += String.fromCharCode(c);
-        } else if (indexOf([CC_SPACE,
-                            CC_COLON,
-                            CC_SEMICOLON,
-                            CC_COMMA,
-                            CC_BANG], c) >= 0) {
+        } else if ([
+          CC_SPACE,
+          CC_COLON,
+          CC_SEMICOLON,
+          CC_COMMA,
+          CC_BANG].indexOf(c) >= 0) {
           lexeme = "\\ ";
         } else {
           while (isAlphaCharCode(c)) {
@@ -3308,7 +3309,7 @@ export let Model = (function () {
           c = src.charCodeAt(curIndex++);
           while (c && c !== CC_RIGHTBRACE) {
             let ch = String.fromCharCode(c);
-            if (ch === "&" && indexOf(src.substring(curIndex), "nbsp;") === 0) {
+            if (ch === "&" && src.substring(curIndex).indexOf("nbsp;") === 0) {
               // Skip &nbsp;
               curIndex += 5;
             } else if (ch === " " || ch === "\t") {
@@ -3333,7 +3334,7 @@ export let Model = (function () {
           let keepTextWhitespace = Model.option(options, "keepTextWhitespace");
           while (c && c !== CC_RIGHTBRACE) {
             let ch = String.fromCharCode(c);
-            if (!keepTextWhitespace && ch === "&" && indexOf(src.substring(curIndex), "nbsp;") === 0) {
+            if (!keepTextWhitespace && ch === "&" && src.substring(curIndex).indexOf("nbsp;") === 0) {
               // Skip &nbsp;
               curIndex += 5;
             } else if (!keepTextWhitespace && (ch === " " || ch === "\t")) {
