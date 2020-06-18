@@ -130,7 +130,6 @@ export let Model = (function () {
     model = create(options, this);
     model.location = location;
     if (typeof node === "string") {
-      console.log("create() node=" + node);
       // Got a string, so parse it into a node.
       let parser = parse(options, node, Model.env);
       node = parser.expr();
@@ -303,7 +302,7 @@ export let Model = (function () {
     DEGREE: "degree",
     BACKSLASH: "backslash",
     MATHBF: "mathbf",
-    DOT: "dot",
+    CDOT: "cdot",
     MATHFIELD: "mathfield",
     DELTA: "delta",
     OPERATORNAME: "operatorname",
@@ -708,7 +707,7 @@ export let Model = (function () {
   const TK_NE = 0x12D;
   const TK_APPROX = 0x12E;
   const TK_ABS = 0x12F;
-  const TK_DOT = 0x130;
+  const TK_CDOT = 0x130;
   const TK_NGTR = 0x131;
   const TK_NLESS = 0x132;
   const TK_SINH = 0x133;
@@ -776,7 +775,7 @@ export let Model = (function () {
   tokenToOperator[TK_CARET] = OpStr.POW;
   tokenToOperator[TK_UNDERSCORE] = OpStr.SUBSCRIPT;
   tokenToOperator[TK_MUL] = OpStr.MUL;
-  tokenToOperator[TK_DOT] = OpStr.DOT;
+  tokenToOperator[TK_CDOT] = OpStr.CDOT;
   tokenToOperator[TK_DIV] = OpStr.DIV;
   tokenToOperator[TK_SIN] = OpStr.SIN;
   tokenToOperator[TK_COS] = OpStr.COS;
@@ -868,7 +867,7 @@ export let Model = (function () {
   tokenToOperator[TK_UNDERSET] = OpStr.UNDERSET;
   tokenToOperator[TK_BACKSLASH] = OpStr.BACKSLASH;
   tokenToOperator[TK_MATHBF] = OpStr.MATHBF;
-  tokenToOperator[TK_DOT] = OpStr.DOT;
+  tokenToOperator[TK_CDOT] = OpStr.CDOT;
   tokenToOperator[TK_MATHFIELD] = OpStr.MATHFIELD;
   tokenToOperator[TK_DELTA] = OpStr.DELTA;
 
@@ -1119,11 +1118,15 @@ export let Model = (function () {
     // Begin parsing functions.
     function isSimpleFraction(node) {
       if (node.op === Model.FRAC) {
-        let n0 = node.args[0];
-        let n1 = node.args[1];
+        let n0 =
+            node.args[0].op === Model.SUB && node.args[0].args.length === 1 && node.args[0].args[0] ||
+            node.args[0];
+        let n1 =
+            node.args[1].op === Model.SUB && node.args[1].args.length === 1 && node.args[1].args[0] ||
+            node.args[1];
         return (
           n0.op === Model.NUM && n0.numberFormat === "integer" &&
-          n1.op === Model.NUM && n1.numberFormat === "integer"
+            n1.op === Model.NUM && n1.numberFormat === "integer"
         );
       }
       return false;
@@ -1246,10 +1249,12 @@ export let Model = (function () {
         let tbl = matrixExpr();
         eat(TK_END);
         braceExpr();
-        if (figure.args[0].indexOf("matrix") >= 0 || figure.args[0].indexOf("array") === 0) {
-          node = newNode(Model.MATRIX, [tbl]);
-        } else {
-          assert(false, "1000: Unrecognized LaTeX name");
+        if (figure.op === Model.VAR) {
+          if (figure.args[0].indexOf("matrix") >= 0 || figure.args[0].indexOf("array") === 0) {
+            node = newNode(Model.MATRIX, [tbl]);
+          } else {
+            assert(false, "1000: Unrecognized LaTeX name");
+          }
         }
         break;
       case TK_VERTICALBAR:
@@ -1437,7 +1442,6 @@ export let Model = (function () {
       case TK_OVERLINE:
         next();
         return newNode(Model.OVERLINE, [braceExpr()]);
-      case TK_DOT:
       case TK_MATHFIELD:
         next();
         return newNode(tokenToOperator[tk], [braceExpr()]);
@@ -1639,7 +1643,6 @@ export let Model = (function () {
       e.lbrk = tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
       e.rbrk = tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
-      console.log("parenExpr() allowInterval=" + allowInterval + " e=" + JSON.stringify(e));
       if (allowInterval && e.op === Model.COMMA && e.args.length === 2 &&
           (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
@@ -1924,7 +1927,7 @@ export let Model = (function () {
       return t === TK_MUL ||
         t === TK_DIV ||
         t === TK_SLASH ||
-        t === TK_DOT;  // / is only multiplicative for parsing
+        t === TK_CDOT;  // / is only multiplicative for parsing
     }
     function isDerivative(n) {
       if (n.op !== Model.FRAC) {
@@ -2001,7 +2004,7 @@ export let Model = (function () {
         if (isDerivative(expr)) {
           expr = derivativeExpr(expr);
         }
-        if (t === TK_DIV || t === TK_DOT) {
+        if (t === TK_DIV || t === TK_CDOT) {
           expr = newNode(tokenToOperator[t], [args.pop(), expr]);
         }
         assert(explicitOperator ||
@@ -2244,7 +2247,7 @@ export let Model = (function () {
       //   console.log("isRepeating() n=" + JSON.stringify(n, null, 2));
       //   assert(n.op === Model.NUM || n.op === Model.VAR && n.args[0] === "?");
       //   let arg1;
-      //   if (args[1].op === Model.DOT) {
+      //   if (args[1].op === Model.CDOT) {
       //     assert(args[1].args[0].op === Model.NUM);
       //     arg1 = numberNode(n.args[0] + args[1].args[0].args[0]);
       //   } else {
@@ -2277,11 +2280,6 @@ export let Model = (function () {
           if (n1.args[0].op === Model.NUM) {
             n1.args[0].args[0] = n1.args[0].args[0].split("").join(" ");
           }
-        } else if (!args[1].lbrk && args[1].op === Model.DOT) {
-          // 3.\dot{1}\dot{2} --> 3.0+(0.12, repeating)
-          // 0.3\overline{12} --> 0.3+0.1*(.12, repeating)
-          n0 = args[0];
-          n1 = args[1];
         } else {
           return null;
         }
@@ -2671,7 +2669,7 @@ export let Model = (function () {
       let lexeme = "";
       let lexemeToToken = {
         "\\Delta": TK_DELTA,
-        "\\cdot": TK_DOT,
+        "\\cdot": TK_CDOT,
         "\\times": TK_MUL,
         "\\div": TK_DIV,
         "\\dfrac": TK_FRAC,
@@ -2791,7 +2789,7 @@ export let Model = (function () {
         "\\backslash": TK_BACKSLASH,
         "\\mathbf": TK_MATHBF,
         "\\abs": TK_ABS,
-        "\\dot": TK_DOT,
+        "\\cdot": TK_CDOT,
         "\\MathQuillMathField": TK_MATHFIELD,
         "\\ldots": TK_VAR,  // ... and var are close syntactic alternatives
         "\\vdots": TK_VAR,
