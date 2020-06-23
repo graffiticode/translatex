@@ -63,6 +63,7 @@ import {rules} from "./rules.js";
       case Model.MUL:
       case Model.TIMES:
       case Model.COEFF:
+      case Model.CDOT:
         node = visit.multiplicative(node, resume);
         break;
       case Model.POW:
@@ -189,16 +190,17 @@ import {rules} from "./rules.js";
         if (visit.name !== "normalizeLiteral" &&
             visit.name !== "sort") {
           node = newNode(Model.VAR, ["INTERNAL ERROR Should not get here. Unhandled node operator " + node.op]);
+          console.trace(JSON.stringify(node, null, 2));
         }
         break;
       }
       return node;
     }
-    function lookup(word) {
+    function lookup(options, word) {
       if (!word) {
         return "";
       }
-      let words = Model.option("words");
+      let words = Model.option(options, "words");
       let val;
       if (words) {
         val = words[word];
@@ -417,7 +419,7 @@ import {rules} from "./rules.js";
         return isSimpleExpression(n);
       });
     }
-    function matchType(pattern, node) {
+    function matchType(options, pattern, node) {
       if (pattern.op === Model.TYPE &&
           pattern.args[0].op === Model.VAR) {
         let name = pattern.args[0].args[0];
@@ -450,13 +452,13 @@ import {rules} from "./rules.js";
         case "polynomial":
           return checkPolynomialType(pattern.args[0].args[0], node);
         default:
-          let types = Model.option("types");
+          let types = Model.option(options, "types");
           let type = types[name];
           if (type) {
             assert(type instanceof Array);
             return type.some(function (pattern) {
               // FIXME pre-compile types.
-              let matches = match([normalizeLiteral(options, Model.create(options, pattern))], node);
+              let matches = match(options, [normalizeLiteral(options, Model.create(options, pattern))], node);
               return matches.length > 0;
             });
           }
@@ -482,7 +484,7 @@ import {rules} from "./rules.js";
     }
 
     // ["? + ?", "? - ?"], "1 + 2"
-    function match(patterns, node) {
+    function match(options, patterns, node) {
       if (patterns.size === 0 || node === undefined) {
         return false;
       }
@@ -491,7 +493,7 @@ import {rules} from "./rules.js";
           return false;
         }
         if (ast.intern(pattern) === ast.intern(node) ||
-            matchType(pattern, node)) {
+            matchType(options, pattern, node)) {
           return true;
         }
         if (pattern.op === node.op) {
@@ -504,7 +506,7 @@ import {rules} from "./rules.js";
                 }
                 return false;
               }
-              let result = match([arg], node.args[i]);
+              let result = match(options, [arg], node.args[i]);
               return result.length === 1;
             });
           } else if (pattern.args.length < node.args.length) {
@@ -513,8 +515,8 @@ import {rules} from "./rules.js";
             if (pattern.args.length === 2) {
               // Binary node pattern
               let result = (
-                match([pattern.args[0]], node.args[0]).length > 0 &&
-                match([pattern.args[1]], newNode(node.op, nargs)).length > 0
+                match(options, [pattern.args[0]], node.args[0]).length > 0 &&
+                match(options, [pattern.args[1]], newNode(node.op, nargs)).length > 0
                   // Match rest of the node against the second pattern argument.
               );
               return result;
@@ -736,7 +738,7 @@ import {rules} from "./rules.js";
           forEach(node.args, function (n) {
             args.push(normalizeLiteral(options, n));
           });
-          if (option("ignoreOrder") &&
+          if (option(options, "ignoreOrder") &&
               (node.op === Model.GT ||
                node.op === Model.GE)) {
             // Swap adjacent elements and reverse the operator.
@@ -770,8 +772,8 @@ import {rules} from "./rules.js";
       let matchedTemplates = [];
       templates.forEach(function (t) {
         if((!t.context ||
-            Model.option("NoParens") && t.context.indexOf("NoParens") > -1 ||
-            Model.option("EndRoot") && t.context.indexOf("EndRoot") > -1) &&
+            Model.option(options, "NoParens") && t.context.indexOf("NoParens") > -1 ||
+            Model.option(options, "EndRoot") && t.context.indexOf("EndRoot") > -1) &&
            arity >= paramCount(t)) {  // Some args might be elided.
           matchedTemplates.push(t);
         }
@@ -834,7 +836,7 @@ import {rules} from "./rules.js";
         numeric: function(node) {
           let args = [{
             op: Model.VAR,
-            args: [lookup(node.args[0])]
+            args: [lookup(options, node.args[0])]
           }];
           let env = {};
           if (node.numberFormat === "decimal") {
@@ -842,7 +844,7 @@ import {rules} from "./rules.js";
             env.ip = parts[0];
             env.fp = parts[1] || "0";  // 7.
           }
-          let matches = match(patterns, node);
+          let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
@@ -851,7 +853,7 @@ import {rules} from "./rules.js";
           return expand(template, args, env);
         },
         binary: function(node) {
-          let matches = match(patterns, node);
+          let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
@@ -866,7 +868,7 @@ import {rules} from "./rules.js";
           return expand(template, args);
         },
         multiplicative: function(node) {
-          let matches = match(patterns, node);
+          let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
@@ -882,7 +884,7 @@ import {rules} from "./rules.js";
           return expand(template, args);
         },
         unary: function(node) {
-          let matches = match(patterns, node);
+          let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
@@ -897,7 +899,7 @@ import {rules} from "./rules.js";
           return expand(template, args);
         },
         exponential: function(node) {
-          let matches = match(patterns, node);
+          let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
@@ -922,10 +924,10 @@ import {rules} from "./rules.js";
           //     str += v.args[0];
           //     str += " baseline ";
           //   } else {
-          //     str += lookup(n);
+          //     str += lookup(options, n);
           //   }
           // });
-          // let matches = match(patterns, node);
+          // let matches = match(options, patterns, node);
           // let args = [newNode(Model.VAR, [str])];
           // if (matches.length === 0) {
           //   return args[0];
@@ -933,7 +935,7 @@ import {rules} from "./rules.js";
           // // Use first match for now.
           // let template = matchedTemplate(rules, matches, 1);
           // return expand(template, args);
-          let matches = match(patterns, node);
+          let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
@@ -942,7 +944,7 @@ import {rules} from "./rules.js";
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          args.push(newNode(Model.VAR, [lookup(nodeArgs.shift())]));
+          args.push(newNode(Model.VAR, [lookup(options, nodeArgs.shift())]));
           forEach(nodeArgs, function (n, i) {
             // Now translate the subscripts.
             args = args.concat(translate(options, n, [globalRules, argRules]));
@@ -972,7 +974,7 @@ import {rules} from "./rules.js";
                 n.n = i + 1;
               });
             }
-            let matches = match(patterns, node);
+            let matches = match(options, patterns, node);
             if (matches.length === 0) {
               return node;
             }
@@ -988,7 +990,7 @@ import {rules} from "./rules.js";
             });
             return expand(template, args, env);
           } else {
-            let matches = match(patterns, node);
+            let matches = match(options, patterns, node);
             if (matches.length === 0) {
               return node;
             }
@@ -1005,7 +1007,7 @@ import {rules} from "./rules.js";
           }
         },
         equals: function(node) {
-          let matches = match(patterns, node);
+          let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
@@ -1022,7 +1024,7 @@ import {rules} from "./rules.js";
         },
         paren: function(node) {
           //assert (node.args.length === 1);
-          let matches = match(patterns, node);
+          let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           } else if (matches.length > 1) {
