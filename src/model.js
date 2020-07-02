@@ -2277,9 +2277,6 @@ export let Model = (function () {
           // 0.3\overline{12} --> 0.3+0.1*(.12, repeating)
           n0 = args[0];
           n1 = args[1];
-          if (n1.args[0].op === Model.NUM) {
-            n1.args[0].args[0] = n1.args[0].args[0].split("").join(" ");
-          }
         } else {
           return null;
         }
