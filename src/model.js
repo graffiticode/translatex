@@ -107,6 +107,9 @@ export let Model = (function () {
 
   // Create a model from a node object or expression string
   Model.create = Mp.create = function create(options, node, location) {
+    assert(node instanceof Array ||
+           typeof node === 'object' && (node.op || node instanceof Model) ||
+           typeof node === 'string', JSON.stringify(node));
     assert(node != undefined, "1000: Internal error. Node undefined.");
     // If we already have a model, then just return it.
     if (node instanceof Model) {
@@ -874,7 +877,13 @@ export let Model = (function () {
   let parse = function parse(options, src, env) {
     src = stripInvisible(src);
     function newNode(op, args) {
-      assert(op && op !== "arcbigcap");
+      // assert(!(op !== Model.POW && args.length > 0 && isMinusOne(args[args.length - 1])), 'newNode() op=' + op + ' args=' + JSON.stringify(args, null, 2));
+      // assert(!(op === Model.SUB && args[0].op === Model.POW), 'newNode() op=' + op + ' args=' + JSON.stringify(args, null, 2));
+      // args.forEach((arg, i) => {
+      //   if (i > 0) {
+      //     assert(op !== Model.MUL || !isMinusOne(arg), "Model: " + JSON.stringify(args, null, 2));
+      //   }
+      // });
       return {
         op: op,
         args: args
@@ -1013,16 +1022,20 @@ export let Model = (function () {
           done = true;
         }
       });
+      const hasTrailingDot = !hasTrailingZero && n2.indexOf('.') === n2.length - 1;
       n2 = new Decimal(n2);   // Normalize representation.
       if (doScale) {
         let scale = option("decimalPlaces")
         if (!roundOnly || n2.scale() > scale) {
           n2 = n2.setScale(scale, Decimal.ROUND_HALF_UP);
+          n2 = String(n2);
         }
+      } else {
+        n2 = String(n2) + (hasTrailingDot && '.' || '');
       }
       return {
         op: Model.NUM,
-        args: [String(n2)],
+        args: [n2],
         hasThousandsSeparator: separatorCount !== 0,
         numberFormat: numberFormat,
         hasLeadingZero: hasLeadingZero,
@@ -1060,7 +1073,7 @@ export let Model = (function () {
     }
 
     let nodeOne = numberNode("1");
-    let nodeMinusOne = unaryNode(Model.SUB, [numberNode("1")]);
+    let nodeMinusOne = numberNode("-1");
     let nodeNone = newNode(Model.NONE, [numberNode("0")]);
     let nodeEmpty = newNode(Model.VAR, ["0"]);
 
@@ -1337,6 +1350,7 @@ export let Model = (function () {
         if (args.length === 1 && isMinusOne(args[0])) {
           // Special case for sin^{-1} and friends.
           op = "arc" + tokenToOperator[tk];
+          args.pop();  // Erase ^{-1}.
         } else {
           op = tokenToOperator[tk];
         }
@@ -1593,7 +1607,7 @@ export let Model = (function () {
     let inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let allowInterval = true; //Model.option(options, "allowInterval");
+      let allowInterval = true; // Model.option(options, "allowInterval");
       bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
@@ -1640,8 +1654,8 @@ export let Model = (function () {
       }
       // Save the brackets as attributes on the node for later use. Normalize
       // French style brackets.
-      e.lbrk = tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
-      e.rbrk = tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
+      tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
+      tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
       if (allowInterval && e.op === Model.COMMA && e.args.length === 2 &&
           (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
@@ -1652,6 +1666,8 @@ export let Model = (function () {
             tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTBRACKET && Model.INTERVALLEFTOPEN ||
             tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTPAREN && Model.INTERVALRIGHTOPEN;
         e = newNode(op, [e]);
+        e.lbrk = tk1;
+        e.rbrk = tk2;
       } else if (e.lbrk === TK_PERIOD && e.rbrk === TK_VERTICALBAR) {
         e = newNode(Model.EVALAT, [e]);
       } else if (e.op === Model.COMMA || tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET) {
@@ -2054,10 +2070,11 @@ export let Model = (function () {
           } else if (Model.option(options, "ignoreCoefficientOne") &&
                      args.length === 1 && isOneOrMinusOne(args[0]) &&
                      isPolynomialTerm(args[0], expr)) {
-            // 1x -> x
+            // 1x => x, -1x => -x
             if (isOne(args[0])) {
               args.pop();
             } else {
+              args.pop();
               expr = negate(expr);
             }
           } else if (args.length > 0 &&
@@ -3221,9 +3238,9 @@ export let Model = (function () {
           lexeme = "0.";
         }
         curIndex--;
-        if (lexeme === ".") {
-          return TK_PERIOD;
-        }
+        // if (lexeme === ".") {
+        //   return TK_PERIOD;
+        // }
         return TK_NUM;
       }
       // Recognize x, cm, kg.
