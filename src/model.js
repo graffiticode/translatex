@@ -763,6 +763,7 @@ export let Model = (function () {
   const TK_RIGHTCMD = 0x172;
   const TK_LEFTBRACESET = 0x173;
   const TK_RIGHTBRACESET = 0x174;
+  const TK_TIMES = 0x175;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -779,6 +780,7 @@ export let Model = (function () {
   tokenToOperator[TK_UNDERSCORE] = OpStr.SUBSCRIPT;
   tokenToOperator[TK_MUL] = OpStr.MUL;
   tokenToOperator[TK_CDOT] = OpStr.CDOT;
+  tokenToOperator[TK_TIMES] = OpStr.TIMES;
   tokenToOperator[TK_DIV] = OpStr.DIV;
   tokenToOperator[TK_SIN] = OpStr.SIN;
   tokenToOperator[TK_COS] = OpStr.COS;
@@ -870,7 +872,6 @@ export let Model = (function () {
   tokenToOperator[TK_UNDERSET] = OpStr.UNDERSET;
   tokenToOperator[TK_BACKSLASH] = OpStr.BACKSLASH;
   tokenToOperator[TK_MATHBF] = OpStr.MATHBF;
-  tokenToOperator[TK_CDOT] = OpStr.CDOT;
   tokenToOperator[TK_MATHFIELD] = OpStr.MATHFIELD;
   tokenToOperator[TK_DELTA] = OpStr.DELTA;
 
@@ -961,7 +962,7 @@ export let Model = (function () {
       let lastSeparatorIndex, lastSignificantIndex;
       let separatorCount = 0;
       let numberFormat = "integer";
-      let hasLeadingZero, hasTrailingZero;
+      let hasLeadingZero = 0, hasTrailingZeros = 0;
       if (n0 === ".") {
         assert(false, message(1004, [n0, n0.charCodeAt(0)]));
       }
@@ -992,6 +993,12 @@ export let Model = (function () {
               lastSignificantIndex = n2.length;
             }
           }
+          if (n2.indexOf('0') === 0 && numberFormat !== 'decimal') {
+            hasLeadingZero++;
+            if (ch !== '.') {
+              n2 = '';
+            }
+          }
           n2 += ch;
         }
       }
@@ -1001,19 +1008,17 @@ export let Model = (function () {
         assert(false, message(1005));
       }
       if (lastSignificantIndex !== undefined) {
-        if (lastSignificantIndex + 1 < n2.length) {
-          hasTrailingZero = true;
-        }
         if (ignoreTrailingZeros) {
           n2 = n2.substring(0, lastSignificantIndex + 1);
           if (n2 === ".") {
             // ".0" -> "." -> "0"
             n2 = "0";
           }
+        } else if (lastSignificantIndex < n2.length - 1) {
+          hasTrailingZeros = n2.length - lastSignificantIndex - 1;
         }
       }
       // Count leading zeros.
-      hasLeadingZero = 0;
       var done = false;
       n2.split("").forEach(function (d) {
         if (+d === 0 && !done) {
@@ -1022,7 +1027,7 @@ export let Model = (function () {
           done = true;
         }
       });
-      const hasTrailingDot = !hasTrailingZero && n2.indexOf('.') === n2.length - 1;
+      const hasTrailingDot = !hasTrailingZeros && n2.indexOf('.') === n2.length - 1;
       n2 = new Decimal(n2);   // Normalize representation.
       if (doScale) {
         let scale = option("decimalPlaces")
@@ -1039,7 +1044,7 @@ export let Model = (function () {
         hasThousandsSeparator: separatorCount !== 0,
         numberFormat: numberFormat,
         hasLeadingZero: hasLeadingZero,
-        hasTrailingZero: hasTrailingZero
+        hasTrailingZeros: hasTrailingZeros,
       }
     }
     function multiplyNode(args, flatten) {
@@ -1932,7 +1937,8 @@ export let Model = (function () {
       return isOne(node) || isMinusOne(node);
     }
     function isOne(node) {
-      return node.op === Model.NUM && node.args[0] === "1"
+      return node.op === Model.NUM &&
+        (node.args[0] === "1" || node.args[0] === '1.');
     }
     function isMinusOne(node) {
       return node.op === Model.SUB && node.args.length === 1 && isOne(node.args[0]);
@@ -1941,6 +1947,7 @@ export let Model = (function () {
       return t === TK_MUL ||
         t === TK_DIV ||
         t === TK_SLASH ||
+        t === TK_TIMES ||
         t === TK_CDOT;  // / is only multiplicative for parsing
     }
     function isDerivative(n) {
@@ -2018,7 +2025,7 @@ export let Model = (function () {
         if (isDerivative(expr)) {
           expr = derivativeExpr(expr);
         }
-        if (t === TK_DIV || t === TK_CDOT) {
+        if (t === TK_DIV || t === TK_CDOT || t === TK_TIMES) {
           expr = newNode(tokenToOperator[t], [args.pop(), expr]);
         }
         assert(explicitOperator ||
@@ -2064,7 +2071,6 @@ export let Model = (function () {
                      expr.args[0].args[0].indexOf("'") === 0) {
             // Merge previous var with current ' and raise to the power.
             expr = newNode(Model.POW, [binaryNode(Model.POW, [args.pop(), expr.args[0]])].concat(expr.args.slice(1)));
-            expr.isImplicit = expr.args[0].args[0].isImplicit;
           } else if (Model.option(options, "ignoreCoefficientOne") &&
                      args.length === 1 && isOneOrMinusOne(args[0]) &&
                      isPolynomialTerm(args[0], expr)) {
@@ -2083,7 +2089,7 @@ export let Model = (function () {
             // 1E2, 1E-2, 1e2
             let tmp = args.pop();
             expr = binaryNode(Model.POW, [numberNode("10"), unaryExpr()]);
-            expr = binaryNode(Model.MUL, [tmp, expr]);
+            expr = binaryNode(Model.TIMES, [tmp, expr]);
             expr.isScientific = true;
           } else if (!isChemCore() && isPolynomialTerm(args[args.length-1], expr)) {
             // 2x, -3y but not CH (in chem)
@@ -2091,21 +2097,16 @@ export let Model = (function () {
             let t = args.pop();
             if (!t.isPolynomialTerm) {
               if (t.op === Model.MUL && t.args[t.args.length-1].isPolynomialTerm) {
-                // FIXME group vars so ignoreOrder works.
                 assert(t.args.length === 2);
                 let prefix = t.args[0];
                 let suffix = t.args[1];
                 expr.isPolynomialTerm = suffix.isPolynomialTerm = false;
-                expr.isImplicit = true;
                 expr = binaryNode(Model.MUL, [prefix, binaryNode(Model.MUL, [suffix, expr], true)]);
                 expr.args[1].isPolynomialTerm = true;
-                expr.args[1].isImplicit = true;
                 // ...
               } else {
                 expr = binaryNode(Model.MUL, [t, expr]);
               }
-              expr.isImplicit = t.isImplicit;
-              t.isImplicit = undefined;
             }
           } else if (args[args.length - 1].op === Model.DERIV) {
             // Fold expr into derivative expr.
@@ -2113,31 +2114,12 @@ export let Model = (function () {
             let e = arg.args[0];
             e = isOne(e) && expr || multiplyNode([e, expr]);
             expr = newNode(Model.DERIV, [e].concat(arg.args.slice(1)));
-          } else {
-            // 2(x), (y+1)z
-            expr.isImplicit = true;
           }
-        } else if (t === TK_MUL && args.length > 0 &&
-                   isScientific([args[args.length-1], expr])) {
+        } else if (t === TK_TIMES && isScientific(expr.args)) {
           // 1.2 \times 10 ^ {-3}
-          t = args.pop();
-          if (isNeg(t)) {
-            expr = binaryNode(Model.MUL, [nodeMinusOne, expr]);
-          }
-          expr = binaryNode(Model.MUL, [t, expr]);
           expr.isScientific = true;
         }
-        if (expr.op === Model.MUL &&
-            !expr.isScientific &&
-            !expr.isBinomial && args.length &&
-            !args[args.length-1].isImplicit &&
-            !args[args.length-1].isPolynomialTerm &&
-            expr.isImplicit &&
-            expr.isPolynomialTerm) {
-          args = args.concat(expr.args);
-        } else {
-          args.push(expr);
-        }
+        args.push(expr);
         assert(loopCount++ < 1000, "1000: Stuck in loop in multiplicativeExpr()");
       }
       if (args.length > 1) {
@@ -2183,18 +2165,24 @@ export let Model = (function () {
       return false;
     }
 
+    function isPolynomialPart(n) {
+      return (
+        n.op === Model.NUM ||
+        isVar(n) ||
+        n.op === Model.FORMAT &&
+        n.args[0].op === Model.VAR &&
+        ['\\integer', '\\decimal', '\\number', '\\variable'].includes(n.args[0].args[0])
+      );
+    }
+
     function isPolynomialTerm(n0, n1) {
       // 3x but not 3(x)
       if (n0.op === Model.SUB && n0.args.length === 1) {
         n0 = n0.args[0];
       }
       if (!n0.lbrk && !n1.lbrk &&
-          (n0.op === Model.NUM && isVar(n1) ||
-           isVar(n0) && n1.op === Model.NUM ||
-           n0.op === Model.NUM && n1.op === Model.NUM ||
-           isVar(n0) && isVar(n1) ||
-           n0.op === Model.MUL && n0.args[n0.args.length-1].isPolynomialTerm &&
-           (isVar(n1) || n1.op === Model.NUM))) {
+          (isPolynomialPart(n0) && isPolynomialPart(n1) ||
+           n0.op === Model.MUL && n0.args[n0.args.length-1].isPolynomialTerm && isPolynomialPart(n1))) {
         return true;
       }
       return false;
@@ -2251,32 +2239,13 @@ export let Model = (function () {
     }
     function isRepeatingDecimal(args) {
       // "3." "\overline{..}"
-      // "3." "(..)"
       // "3." "\dot{..}"
+      let prefix;
+      if (args[0].op === Model.MUL && args[0].args[args[0].args.length - 1].numberFormat === "decimal") {
+        prefix = args[0].args.slice(0, args[0].args.length - 1);
+        args = args[0].args.slice(args[0].args.length - 1).concat(args[1]);
+      }
       let expr, n0, n1;
-      // if (args[0].isRepeating) {
-      //   // We already have a repeating decimal so append additional digits to it.
-      //   let n = args[0].op === Model.ADD && args[0].args[1].op === Model.NUM
-      //     ? args[0].args[1]
-      //     : args[0];
-      //   console.log("isRepeating() n=" + JSON.stringify(n, null, 2));
-      //   assert(n.op === Model.NUM || n.op === Model.VAR && n.args[0] === "?");
-      //   let arg1;
-      //   if (args[1].op === Model.CDOT) {
-      //     assert(args[1].args[0].op === Model.NUM);
-      //     arg1 = numberNode(n.args[0] + args[1].args[0].args[0]);
-      //   } else {
-      //     assert(args[1].op === Model.NUM);
-      //     arg1 = numberNode(n.args[0] + args[1].args[0]);
-      //   }
-      //   arg1.isRepeating = true;
-      //   if (args[0].op === Model.ADD) {
-      //     args[0].args[1] = arg1;
-      //     expr = args[0];
-      //   } else {
-      //     expr = arg1;
-      //   }
-      // } else
       if (!args[0].lbrk &&
           (args[0].op === Model.NUM && args[0].numberFormat === "decimal" ||
            args[0].op === Model.VAR && args[0].args[0] === "?" ||
@@ -2285,30 +2254,26 @@ export let Model = (function () {
         if (args[1].lbrk === 40 &&
             (isInteger(args[1]) ||
              args[1].op === Model.TYPE && args[1].args[0].op === Model.VAR && args[1].args[0].args[0] === "integer")) {
+          // 0.(06) => 0. +(0.06, repeating)
           n0 = args[0];
           n1 = args[1];
         } else if (!args[1].lbrk && args[1].op === Model.OVERLINE) {
           // 3.\overline{12} --> 3.0+(0.12, repeating)
           // 0.3\overline{12} --> 0.3+0.1*(.12, repeating)
           n0 = args[0];
-          n1 = args[1];
+          n1 = args[1].args[0];
         } else {
           return null;
         }
-        // n1 = numberNode("." + n1.args[0]);
-        n1.isRepeating = true;
-        // if (n0.args[0].indexOf(".") >= 0) {
-        //   let decimalPlaces = n0.args[0].length - n0.args[0].indexOf(".")- 1;
-        //   n1 = multiplyNode([n1, binaryNode(Model.POW, [numberNode("10"), numberNode("-" + decimalPlaces)])]);
-        // }
-        // if (n0.op === Model.NUM && +n0.args[0] === 0) {
-        //   // 0.\overline{..} or 0.00\overline{..}. Leading zero, so don't add it.
-        //   expr = n1;
-        // } else {
-          expr = binaryNode(Model.ADD, [n0, n1]);
-        // }
+        let zeros = new Array(n1.hasLeadingZero).fill(0).join('');
+        n1 = newNode(Model.NUM, [zeros + new Decimal(n1.args[0]).toFixed()]);  // Don't use numberNode because it will format the arg.
+        n1.isRepeating = args[1].op;
+        expr = binaryNode(Model.ADD, [n0, n1]);
         expr.numberFormat = "decimal";
-        expr.isRepeating = true;
+        expr.isRepeating = args[1].op;
+        if (prefix) {
+          expr = multiplyNode(prefix.concat(expr));
+        }
       } else {
         expr = null;
       }
@@ -2682,7 +2647,7 @@ export let Model = (function () {
       let lexemeToToken = {
         "\\Delta": TK_DELTA,
         "\\cdot": TK_CDOT,
-        "\\times": TK_MUL,
+        "\\times": TK_TIMES,
         "\\div": TK_DIV,
         "\\dfrac": TK_FRAC,
         "\\frac": TK_FRAC,
@@ -2801,7 +2766,6 @@ export let Model = (function () {
         "\\backslash": TK_BACKSLASH,
         "\\mathbf": TK_MATHBF,
         "\\abs": TK_ABS,
-        "\\cdot": TK_CDOT,
         "\\MathQuillMathField": TK_MATHFIELD,
         "\\ldots": TK_VAR,  // ... and var are close syntactic alternatives
         "\\vdots": TK_VAR,
@@ -3127,7 +3091,7 @@ export let Model = (function () {
               curIndex++;
               return TK_CARET;
             }
-            return TK_MUL;
+            return TK_TIMES;
           case 45:  // dash
           case 0x2212:  // unicode minus
             if (src.charCodeAt(curIndex) === 62) {
@@ -3236,9 +3200,6 @@ export let Model = (function () {
           lexeme = "0.";
         }
         curIndex--;
-        // if (lexeme === ".") {
-        //   return TK_PERIOD;
-        // }
         return TK_NUM;
       }
       // Recognize x, cm, kg.
