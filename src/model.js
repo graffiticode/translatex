@@ -1129,7 +1129,7 @@ export let Model = (function () {
       if (tk !== tc) {
         let expected = String.fromCharCode(tc);
         let found = tk ? String.fromCharCode(tk) : "EOS";
-        assert(false, message(1001, [expected, found]));
+        assert(false, message(1001, [expected + "[" + tc + "]", found + "[" + tk + "]"]));
       }
       next(options);
     }
@@ -1513,7 +1513,7 @@ export let Model = (function () {
     function rowExpr( ) {
       let args = [];
       let t;
-      args.push(equalExpr());
+      args.push(commaExpr());
       while ((t = hd()) === TK_NEWCOL) {
         next();
         args.push(equalExpr());
@@ -1612,7 +1612,7 @@ export let Model = (function () {
     let inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let allowInterval = true; // Model.option(options, "allowInterval");
+      let allowInterval = Model.option(options, "allowInterval");
       bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
@@ -2552,7 +2552,8 @@ export let Model = (function () {
       let expr = relationalExpr();
       let t;
       let args = [];
-      while (isEquality(t = hd()) || t === TK_RIGHTARROW) {
+      while (isEquality(t = hd()) ||
+             t === TK_RIGHTARROW) {
         // x = y = z -> [x = y, y = z]
         next();
         let expr2 = additiveExpr();
