@@ -1612,7 +1612,7 @@ export let Model = (function () {
     let inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let allowInterval = Model.option(options, "allowInterval");
+      let allowInterval = true; // Model.option(options, "allowInterval");
       bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
