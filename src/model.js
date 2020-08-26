@@ -1895,7 +1895,8 @@ export let Model = (function () {
           frac.isImplicit = true;
         }
       }
-      while ((t=hd())===TK_SLASH || t === TK_COLON) {
+      while ((t === undefined || t === hd()) &&
+             ((t = hd()) === TK_SLASH || t === TK_COLON || t === TK_DIV)) {
         next();
         node = newNode(tokenToOperator[t], [node, subscriptExpr()]);
         node.isFraction = isSimpleFraction(node);
@@ -2025,7 +2026,7 @@ export let Model = (function () {
         if (isDerivative(expr)) {
           expr = derivativeExpr(expr);
         }
-        if (t === TK_DIV || t === TK_CDOT || t === TK_TIMES) {
+        if (t === TK_CDOT || t === TK_TIMES) {
           expr = newNode(tokenToOperator[t], [args.pop(), expr]);
         }
         assert(explicitOperator ||
