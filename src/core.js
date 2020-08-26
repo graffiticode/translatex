@@ -180,6 +180,8 @@ import {rules} from "./rules.js";
         node = visit.equals(node, resume);
         break;
       case Model.PAREN:
+      case Model.BRACKET:
+      case Model.BRACE:
       case Model.INTERVAL:
       case Model.INTERVALOPEN:
       case Model.INTERVALLEFTOPEN:

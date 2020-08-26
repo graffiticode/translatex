@@ -228,6 +228,8 @@ export let Model = (function () {
     SUBSCRIPT: "_",
     ABS: "abs",
     PAREN: "()",
+    BRACE: "{}",
+    BRACKET: "[]",
     HIGHLIGHT: "hi",
     LT: "lt",
     LE: "le",
@@ -1677,7 +1679,8 @@ export let Model = (function () {
         assert(tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN ||
                tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET ||
                tk1 === tk2, message(1011, ["tk1=" + tk1 + " tk2=" + tk2]));
-        e = newNode(Model.PAREN, [e]);
+        let op = tk1 === TK_LEFTBRACKET && Model.BRACKET || Model.PAREN;
+        e = newNode(op, [e]);
       }
       bracketTokenCount--;
       inParenExpr = false;
