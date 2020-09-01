@@ -1070,7 +1070,8 @@ export let Model = (function () {
       }
       let aa = [];
       args.forEach(function(n) {
-        if (flatten && n.op === op) {
+        if (flatten && n.op === op && n.args.length > 1) {
+          // Flatten binary nodes of the same operator, not unaries.
           aa = aa.concat(n.args);
         } else {
           aa.push(n);
@@ -1614,7 +1615,7 @@ export let Model = (function () {
     let inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let allowInterval = true; // Model.option(options, "allowInterval");
+      let allowInterval = true;
       bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
@@ -1899,7 +1900,7 @@ export let Model = (function () {
         }
       }
       while ((t === undefined || t === hd()) &&
-             ((t = hd()) === TK_SLASH || t === TK_COLON || t === TK_DIV)) {
+             ((t = hd()) === TK_SLASH || t === TK_COLON)) {
         next();
         node = newNode(tokenToOperator[t], [node, subscriptExpr()]);
         node.isFraction = isSimpleFraction(node);
@@ -2029,7 +2030,7 @@ export let Model = (function () {
         if (isDerivative(expr)) {
           expr = derivativeExpr(expr);
         }
-        if (t === TK_CDOT || t === TK_TIMES) {
+        if (t === TK_CDOT || t === TK_TIMES || t === TK_DIV) {
           expr = newNode(tokenToOperator[t], [args.pop(), expr]);
         }
         assert(explicitOperator ||
