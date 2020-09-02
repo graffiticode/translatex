@@ -768,8 +768,9 @@ export let Model = (function () {
   const TK_LEFTBRACESET = 0x173;
   const TK_RIGHTBRACESET = 0x174;
   const TK_TIMES = 0x175;
-  const TK_LANGLE = 0x176;
-  const TK_RANGLE = 0x177;
+  const TK_INFTY = 0x176;
+  const TK_LANGLE = 0x177;
+  const TK_RANGLE = 0x178;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -957,8 +958,12 @@ export let Model = (function () {
       return ch === ".";
     }
 
+    const nodePositiveInfinity = newNode(Model.NUM, ["Infinity"]);
     // Construct a number node.
-    function numberNode(n0, doScale, roundOnly) {
+    function numberNode(options, n0, doScale, roundOnly) {
+      if (n0 === '\\infty') {
+        return nodePositiveInfinity;
+      }
       // doScale - scale n if true
       // roundOnly - only scale if rounding
       let ignoreTrailingZeros = Model.option(options, "ignoreTrailingZeros");
@@ -1036,7 +1041,7 @@ export let Model = (function () {
       const hasTrailingDot = !hasTrailingZeros && n2.indexOf('.') === n2.length - 1;
       n2 = new Decimal(n2);   // Normalize representation.
       if (doScale) {
-        let scale = option("decimalPlaces")
+        let scale = option(options, "decimalPlaces");
         if (!roundOnly || n2.scale() > scale) {
           n2 = n2.setScale(scale, Decimal.ROUND_HALF_UP);
           n2 = String(n2);
@@ -1051,7 +1056,7 @@ export let Model = (function () {
         numberFormat: numberFormat,
         hasLeadingZero: hasLeadingZero,
         hasTrailingZeros: hasTrailingZeros,
-      }
+      };
     }
     function multiplyNode(args, flatten) {
       if (args.length === 0) {
@@ -1084,9 +1089,9 @@ export let Model = (function () {
       return newNode(op, aa);
     }
 
-    let nodeOne = numberNode("1");
-    let nodeMinusOne = numberNode("-1");
-    let nodeNone = newNode(Model.NONE, [numberNode("0")]);
+    let nodeOne = numberNode(options, "1");
+    let nodeMinusOne = numberNode(options, "-1");
+    let nodeNone = newNode(Model.NONE, [numberNode(options, "0")]);
     let nodeEmpty = newNode(Model.VAR, ["0"]);
 
     //
@@ -1216,7 +1221,7 @@ export let Model = (function () {
         }
         break;
       case TK_NUM:
-        node = numberNode(lexeme(options));
+        node = numberNode(options, lexeme(options));
         next();
         break;
       case TK_LEFTCMD:   // \left .. \right
@@ -2094,7 +2099,7 @@ export let Model = (function () {
           } else if (isENotation(args, expr)) {
             // 1E2, 1E-2, 1e2
             let tmp = args.pop();
-            expr = binaryNode(Model.POW, [numberNode("10"), unaryExpr()]);
+            expr = binaryNode(Model.POW, [numberNode(options, "10"), unaryExpr()]);
             expr = binaryNode(Model.TIMES, [tmp, expr]);
             expr.isScientific = true;
           } else if (!isChemCore() && isPolynomialTerm(args[args.length-1], expr)) {
@@ -2704,6 +2709,7 @@ export let Model = (function () {
         "\\ ": null,
         "\\quad": null,
         "\\qquad": null,
+        "\\text": TK_INFTY,
         "\\text": TK_TEXT,
         "\\textrm": TK_TEXT,
         "\\textit": TK_TEXT,
@@ -2777,6 +2783,7 @@ export let Model = (function () {
         "\\ldots": TK_VAR,  // ... and var are close syntactic alternatives
         "\\vdots": TK_VAR,
         "\\ddots": TK_VAR,
+        "\\infty": TK_INFTY,
         "\\langle": TK_LANGLE,
         "\\rangle": TK_RANGLE,
       };
@@ -3277,6 +3284,7 @@ export let Model = (function () {
           curIndex--;
         }
         let tk = lexemeToToken[lexeme];
+        console.log("latex() TK_NUM=" + TK_NUM + " tk=" + tk + " lexeme=" + lexeme);
         if (tk === void 0) {
           tk = TK_VAR;   // e.g. \\theta
         } else if (tk === TK_OPERATORNAME) {
@@ -3332,6 +3340,8 @@ export let Model = (function () {
               tk = TK_VAR; // Treat as variable.
             }
           }
+        } else if (tk === TK_INFTY) {
+          tk = TK_NUM;
         }
         return tk;
       }
