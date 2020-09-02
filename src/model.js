@@ -3284,7 +3284,6 @@ export let Model = (function () {
           curIndex--;
         }
         let tk = lexemeToToken[lexeme];
-        console.log("latex() TK_NUM=" + TK_NUM + " tk=" + tk + " lexeme=" + lexeme);
         if (tk === void 0) {
           tk = TK_VAR;   // e.g. \\theta
         } else if (tk === TK_OPERATORNAME) {
