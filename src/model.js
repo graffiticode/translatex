@@ -133,6 +133,7 @@ export let Model = (function () {
     model = create(options, this);
     model.location = location;
     if (typeof node === "string") {
+      // console.log("mathcore/create() node=" + node);
       // Got a string, so parse it into a node.
       let parser = parse(options, node, Model.env);
       node = parser.expr();
@@ -393,6 +394,7 @@ export let Model = (function () {
       tk === TK_RIGHTPAREN ||
         tk === TK_RIGHTBRACE ||
         tk === TK_RIGHTBRACKET ||
+        tk === TK_RANGLE ||
         tk === TK_NEWROW ||
         tk === TK_NEWCOL ||
         tk === TK_END ||
@@ -766,6 +768,8 @@ export let Model = (function () {
   const TK_LEFTBRACESET = 0x173;
   const TK_RIGHTBRACESET = 0x174;
   const TK_TIMES = 0x175;
+  const TK_LANGLE = 0x176;
+  const TK_RANGLE = 0x177;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -1231,10 +1235,11 @@ export let Model = (function () {
         break;
       case TK_LEFTBRACKET:
       case TK_LEFTPAREN:
+      case TK_LANGLE:
         node = parenExpr(tk);
         break;
       case TK_RIGHTBRACKET:
-        if (Model.option(options, "allowInterval") && !inParenExpr) {
+        if (!inParenExpr) {
           // French style intervals: ][, ]].
           node = parenExpr(tk);
         } else {
@@ -1615,7 +1620,6 @@ export let Model = (function () {
     let inParenExpr;
     function parenExpr(tk) {
       // Handle grouping and intervals.
-      let allowInterval = true;
       bracketTokenCount++;
       eat(tk);
       let tk1, tk2;
@@ -1628,36 +1632,30 @@ export let Model = (function () {
       if (hd() === TK_RIGHTCMD || hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
         eat((tk2 = hd()));
         if (tk2 === TK_RIGHTCMD) {
-          eat((tk2 = tk1 === TK_LEFTPAREN && TK_RIGHTPAREN || TK_RIGHTBRACKET));
+          eat((tk2 =
+               tk1 === TK_LEFTPAREN && TK_RIGHTPAREN ||
+               tk1 === TK_LEFTBRACKET && TK_RIGHTBRACKET ||
+               tk1 === TK_LANGLE && TK_RANGLE));
         }
         // We have an empty list.
         e = newNode(Model.COMMA, []);
       } else {
         inParenExpr = true;
-        let allowSemicolon = allowInterval; // Allow semis if in an interval.
+        let allowSemicolon = true; // Allow semis if in an interval.
         e = commaExpr(allowSemicolon);
-        if (allowInterval) {
-          // (..], [..], [..), (..), ]..], ]..[, [..[
-          eat((tk2 = hd() === TK_RIGHTPAREN && TK_RIGHTPAREN ||
-                     tk === TK_LEFTCMD && TK_RIGHTCMD ||
-                     hd() === TK_LEFTBRACKET && TK_LEFTBRACKET ||
-                     TK_RIGHTBRACKET));
-          if (tk2 === TK_RIGHTCMD) {
-            eat((tk2 = hd() === TK_RIGHTPAREN && TK_RIGHTPAREN ||
-                       hd() === TK_LEFTBRACKET && TK_LEFTBRACKET ||
-                       TK_RIGHTBRACKET)); // Capture right token.
-          }
-        } else {
-          // (..), [..], \left .. \right
-          eat((tk2 = tk === TK_LEFTPAREN && TK_RIGHTPAREN ||
-                     tk === TK_LEFTCMD && TK_RIGHTCMD ||
-                     TK_RIGHTBRACKET));
-          if (tk2 === TK_RIGHTCMD) {
-            eat((tk2 = tk1 === TK_LEFTPAREN && TK_RIGHTPAREN ||
-                       tk1 === TK_PERIOD && TK_VERTICALBAR ||
-                       tk1 === TK_LEFTBRACKET && TK_RIGHTBRACKET ||
-                       hd())); // Capture right token.
-          }
+        // (..], [..], [..), (..), ]..], ]..[, [..[
+        eat((tk2 =
+             hd() === TK_RIGHTPAREN && TK_RIGHTPAREN ||
+             hd() === TK_RANGLE && TK_RANGLE ||
+             tk === TK_LEFTCMD && TK_RIGHTCMD ||
+             hd() === TK_LEFTBRACKET && TK_LEFTBRACKET ||
+             TK_RIGHTBRACKET));
+        if (tk2 === TK_RIGHTCMD) {
+          eat((tk2 =
+               hd() === TK_RIGHTPAREN && TK_RIGHTPAREN ||
+               hd() === TK_RANGLE && TK_RANGLE ||
+               hd() === TK_LEFTBRACKET && TK_LEFTBRACKET ||
+               TK_RIGHTBRACKET)); // Capture right token.
         }
       }
       // Save the brackets as attributes on the node for later use. Normalize
@@ -1665,7 +1663,8 @@ export let Model = (function () {
       tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
       tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
-      if (allowInterval && e.op === Model.COMMA && e.args.length === 2 &&
+//      console.log("parenExpr() tk1=" + tk1 + " tk2=" + tk2 + " e=" + JSON.stringify(e, null, 2));
+      if (e.op === Model.COMMA && e.args.length === 2 &&
           (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
         let op =
@@ -1678,6 +1677,7 @@ export let Model = (function () {
         e = newNode(Model.EVALAT, [e]);
       } else if (e.op === Model.COMMA || tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET) {
         assert(tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN ||
+               tk1 === TK_LANGLE && tk2 === TK_RANGLE ||
                tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET ||
                tk1 === tk2, message(1011, ["tk1=" + tk1 + " tk2=" + tk2]));
         let op = tk1 === TK_LEFTBRACKET && Model.BRACKET || Model.PAREN;
@@ -1786,6 +1786,7 @@ export let Model = (function () {
         tk === TK_RIGHTBRACE ||
         tk === TK_RIGHTPAREN ||
         tk === TK_RIGHTBRACKET ||
+        tk === TK_RANGLE ||
         tk === TK_RIGHTCMD ||
         tk === TK_NONE;
     }
@@ -2012,7 +2013,7 @@ export let Model = (function () {
       while((t = hd()) && !isAdditive(t) && !isRelational(t) && !isImplies(t) &&
             t !== TK_COMMA && t !== TK_SEMICOLON && !isEquality(t) &&
             t !== TK_RIGHTBRACE && t !== TK_RIGHTBRACESET && t !== TK_RIGHTPAREN &&
-            t !== TK_RIGHTCMD &&
+            t !== TK_RIGHTCMD && t !== TK_RANGLE &&
             !((t === TK_LEFTBRACKET || t === TK_RIGHTBRACKET) && bracketTokenCount > 0) &&
             t !== TK_RIGHTARROW && t !== TK_CAPRIGHTARROW && t !== TK_LT &&
             !(t === TK_VERTICALBAR && pipeTokenCount > 0) &&
@@ -2776,6 +2777,8 @@ export let Model = (function () {
         "\\ldots": TK_VAR,  // ... and var are close syntactic alternatives
         "\\vdots": TK_VAR,
         "\\ddots": TK_VAR,
+        "\\langle": TK_LANGLE,
+        "\\rangle": TK_RANGLE,
       };
       let unicodeToLaTeX = {
         0x00B0: "\\degree",
