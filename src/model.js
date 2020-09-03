@@ -882,22 +882,23 @@ export let Model = (function () {
   tokenToOperator[TK_MATHFIELD] = OpStr.MATHFIELD;
   tokenToOperator[TK_DELTA] = OpStr.DELTA;
 
+  function newNode(op, args) {
+    return {
+      op: op,
+      args: args
+    };
+  }
+
+  let noneNodeTicket = 0;
+  function noneNode() {
+    // None nodes are unique so they don't compare equivalent.
+    noneNodeTicket++;
+    return newNode(Model.NONE, [newNode(Model.NUM, [String(noneNodeTicket)])]);
+  }
+  let nodeEmpty = noneNode();
+
   let parse = function parse(options, src, env) {
     src = stripInvisible(src);
-    function newNode(op, args) {
-      // assert(!(op !== Model.POW && args.length > 0 && isMinusOne(args[args.length - 1])), 'newNode() op=' + op + ' args=' + JSON.stringify(args, null, 2));
-      // assert(!(op === Model.SUB && args[0].op === Model.POW), 'newNode() op=' + op + ' args=' + JSON.stringify(args, null, 2));
-      // args.forEach((arg, i) => {
-      //   if (i > 0) {
-      //     assert(op !== Model.MUL || !isMinusOne(arg), "Model: " + JSON.stringify(args, null, 2));
-      //   }
-      // });
-      return {
-        op: op,
-        args: args
-      };
-    }
-
     function matchThousandsSeparator(ch, last) {
       // Check separator and return if there is a match.
       if (Model.option(options, "allowThousandsSeparator") || Model.option(options, "setThousandsSeparator")) {
@@ -1091,8 +1092,6 @@ export let Model = (function () {
 
     let nodeOne = numberNode(options, "1");
     let nodeMinusOne = numberNode(options, "-1");
-    let nodeNone = newNode(Model.NONE, [numberNode(options, "0")]);
-    let nodeEmpty = newNode(Model.VAR, ["0"]);
 
     //
     // PARSER
@@ -1299,8 +1298,8 @@ export let Model = (function () {
         next();
         expr1 = braceExpr();
         expr2 = braceExpr();
-        expr1 = expr1.args.length === 0 ? newNode(Model.COMMA, [nodeNone]) : expr1;
-        expr2 = expr1.args.length === 0 ? newNode(Model.COMMA, [nodeNone]) : expr2;
+        expr1 = expr1.args.length === 0 ? newNode(Model.COMMA, [noneNode()]) : expr1;
+        expr2 = expr1.args.length === 0 ? newNode(Model.COMMA, [noneNode()]) : expr2;
         node = newNode(Model.FRAC, [expr1, expr2]);
         node.isFraction = isSimpleFraction(node);
         break;
@@ -1496,11 +1495,12 @@ export let Model = (function () {
       case TK_DELTA:
         next();
         if (hd() === TK_VAR) {
-          let name = lexeme(options);
+          name = lexeme(options);
           next();
-          return newNode(Model.VAR, ["delta_" + name]);
+        } else {
+          name = "";
         }
-        break;
+        return newNode(Model.VAR, ["Delta_" + name]);
       case TK_PERIOD:
         next();
         return nodeEmpty;
@@ -2642,9 +2642,10 @@ export let Model = (function () {
         }
       } catch (x) {
         console.log("SYNTAX ERROR " + x.stack);
+        return noneNode();
       }
       // No meaningful input. Return a dummy node to avoid choking.
-      return nodeNone;
+      return nodeEmpty;
     }
     // Return a parser object.
     return {
