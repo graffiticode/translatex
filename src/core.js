@@ -528,8 +528,8 @@ import {rules} from "./rules.js";
         return false;
       });
       // if (matches.length > 0) {
-      //   console.log("node: " + JSON.stringify(node, null, 2));
-      //   console.log("matches: " + JSON.stringify(matches, null, 2));
+      //   console.log("match() node: " + JSON.stringify(node, null, 2));
+      //   console.log("match() matches: " + JSON.stringify(matches, null, 2));
       // }
       return matches;
     }
@@ -590,8 +590,8 @@ import {rules} from "./rules.js";
         if (template.isBinary && args.length > 2) {
           str = expandBinary(str, args);
         } else {
-          forEach(args, function (arg, i) {
-            str = str.replace(new RegExp("%" + (i + 1), "g"), arg.args[0]);
+          args.forEach(function (arg, i) {
+            str = str.replace(new RegExp("%" + (i + 1), "g"), !arg ? '' : arg.args[0]);
           });
         }
         return {
@@ -599,7 +599,6 @@ import {rules} from "./rules.js";
           args: [str],
         };
       }
-//      assert(args.length === 1 && isEmpty(args[0]));
       return args[0];
     }
     function isEmpty(node) {
