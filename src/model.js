@@ -2585,8 +2585,7 @@ export let Model = (function () {
       return t === TK_IMPLIES || t === TK_RIGHTARROW || t === TK_CAPRIGHTARROW ||
              t === TK_LEFTARROW || t === TK_LONGRIGHTARROW || t === TK_LONGLEFTARROW ||
              t === TK_OVERRIGHTARROW || t === TK_OVERLEFTARROW || t === TK_CAPLEFTRIGHTARROW ||
-             t === TK_LEFTRIGHTARROW || t === TK_LONGLEFTRIGHTARROW || t === TK_OVERLEFTRIGHTARROW ||
-             t === TK_VERTICALBAR;
+             t === TK_LEFTRIGHTARROW || t === TK_LONGLEFTRIGHTARROW || t === TK_OVERLEFTRIGHTARROW;
     }
     function impliesExpr() {
       let expr = equalExpr();
