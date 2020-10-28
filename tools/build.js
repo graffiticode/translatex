@@ -46,8 +46,7 @@ function rules() {
 
 function compile() {
   console.log("Compiling...");
-  let sha = exec("git rev-parse HEAD | cut -c 1-7").toString().replace("\n", "");
-  // exec("tsc --build ./tools/config/tsconfig.json");
+  const sha = exec("git rev-parse HEAD | cut -c 1-7").toString().replace("\n", "");
   exec("webpack --config ./tools/config/webpack.config.js");
   exec("cat ./tools/license.js | sed 's/{{sha}}/" + sha + "/' >> ./dist/translatex.js");
 }
