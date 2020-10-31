@@ -2292,11 +2292,9 @@ export let Model = (function () {
 
     function isENotation(args, expr, t) {
       let n;
-      let eulers = Model.option(options, "allowEulersNumber");
       if (args.length > 0 && isNumber(args[args.length-1]) &&
-          expr.op === Model.VAR &&
-          (expr.args[0] === "E" ||
-           expr.args[0] === "e" && !eulers) &&
+          expr.op === Model.TEXT &&
+          (expr.args[0] === "E" || expr.args[0] === "e") &&
           (hd() === TK_NUM || (hd() === 45 || hd() === 43) && lookahead() === TK_NUM)) {
         // 1E-2, 1E2
         return true;
