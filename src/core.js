@@ -69,7 +69,6 @@ import {rules} from "./rules.js";
       case Model.POW:
         node = visit.exponential(node, resume);
         break;
-      case Model.TEXT:
       case Model.VAR:
         node = visit.variable(node, resume);
         break;
@@ -124,6 +123,7 @@ import {rules} from "./rules.js";
       case Model.OVERSET:
       case Model.UNDERSET:
       case Model.MATHBF:
+      case Model.TEXT:
       case Model.NONE:
       case Model.DEGREE:
       case Model.DOT:

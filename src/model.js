@@ -1226,7 +1226,7 @@ export let Model = (function () {
       case TK_TEXT:
         args = [lexeme(options)];
         next();
-        node = newNode(Model.TEXT, args);
+        node = newNode(Model.TEXT, [newNode(Model.VAR, args)]);
         break;
       case TK_NUM:
         node = numberNode(options, lexeme(options));
@@ -2294,7 +2294,7 @@ export let Model = (function () {
       let n;
       if (args.length > 0 && isNumber(args[args.length-1]) &&
           expr.op === Model.TEXT &&
-          (expr.args[0] === "E" || expr.args[0] === "e") &&
+          (expr.args[0].args[0] === "E" || expr.args[0].args[0] === "e") &&
           (hd() === TK_NUM || (hd() === 45 || hd() === 43) && lookahead() === TK_NUM)) {
         // 1E-2, 1E2
         return true;
