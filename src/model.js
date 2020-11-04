@@ -222,6 +222,7 @@ export let Model = (function () {
     LN: "ln",
     LG: "lg",
     VAR: "var",
+    TEXT: "text",
     NUM: "num",
     CST: "cst",
     COMMA: ",",
@@ -472,6 +473,9 @@ export let Model = (function () {
         text = "(" + n.args[0] + ")";
         break;
       case OpStr.VAR:
+      case OpStr.TEXT:
+        text = "\\text{" + args[0] + "}";
+        break;
       case OpStr.CST:
         text = " " + n.args[0] + " ";
         break;
@@ -1218,6 +1222,11 @@ export let Model = (function () {
             eat(TK_RIGHTBRACE);
           }
         }
+        break;
+      case TK_TEXT:
+        args = [lexeme(options)];
+        next();
+        node = newNode(Model.TEXT, [newNode(Model.VAR, args)]);
         break;
       case TK_NUM:
         node = numberNode(options, lexeme(options));
@@ -2082,16 +2091,6 @@ export let Model = (function () {
                      expr.args[0].args[0].indexOf("'") === 0) {
             // Merge previous var with current ' and raise to the power.
             expr = newNode(Model.POW, [binaryNode(Model.POW, [args.pop(), expr.args[0]])].concat(expr.args.slice(1)));
-          } else if (Model.option(options, "ignoreCoefficientOne") &&
-                     args.length === 1 && isOneOrMinusOne(args[0]) &&
-                     isPolynomialTerm(args[0], expr)) {
-            // 1x => x, -1x => -x
-            if (isOne(args[0])) {
-              args.pop();
-            } else {
-              args.pop();
-              expr = negate(expr);
-            }
           } else if (args.length > 0 &&
                      (n0 = isRepeatingDecimal([args[args.length-1], expr]))) {
             args.pop();
@@ -2293,11 +2292,9 @@ export let Model = (function () {
 
     function isENotation(args, expr, t) {
       let n;
-      let eulers = Model.option(options, "allowEulersNumber");
       if (args.length > 0 && isNumber(args[args.length-1]) &&
-          expr.op === Model.VAR &&
-          (expr.args[0] === "E" ||
-           expr.args[0] === "e" && !eulers) &&
+          expr.op === Model.TEXT &&
+          (expr.args[0].args[0] === "E" || expr.args[0].args[0] === "e") &&
           (hd() === TK_NUM || (hd() === 45 || hd() === 43) && lookahead() === TK_NUM)) {
         // 1E-2, 1E2
         return true;
@@ -3332,11 +3329,10 @@ export let Model = (function () {
             c = src.charCodeAt(curIndex++);
           }
           if (tk !== TK_TYPE) {
-            // Not a type, so convert to a var.
             if (!lexeme || Model.option(options, "ignoreText")) {
               tk = null;   // Treat as whitespace.
             } else {
-              tk = TK_VAR; // Treat as variable.
+              tk = TK_TEXT;
             }
           }
         } else if (tk === TK_INFTY) {

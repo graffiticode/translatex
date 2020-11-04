@@ -123,6 +123,7 @@ import {rules} from "./rules.js";
       case Model.OVERSET:
       case Model.UNDERSET:
       case Model.MATHBF:
+      case Model.TEXT:
       case Model.NONE:
       case Model.DEGREE:
       case Model.DOT:
@@ -1255,59 +1256,6 @@ export let Core = (function () {
   let mu = Math.pow(10, -6); // micro, \\mu
   let n = Math.pow(10, -9);
   let env = {
-    "g": { type: "unit", value: u, base: "g" },
-    "s": { type: "unit", value: u, base: "s" },
-    "m": { type: "unit", value: u, base: "m" },
-    "L": { type: "unit", value: u, base: "L" },
-    "kg": { type: "unit", value: k, base: "g" },
-    "km": { type: "unit", value: k, base: "m" },
-    "ks": { type: "unit", value: k, base: "s" },
-    "kL": { type: "unit", value: k, base: "L" },
-    "cg": { type: "unit", value: c, base: "g" },
-    "cm": { type: "unit", value: c, base: "m" },
-    "cs": { type: "unit", value: c, base: "s" },
-    "cL": { type: "unit", value: c, base: "L" },
-    "mg": { type: "unit", value: m, base: "g" },
-    "mm": { type: "unit", value: m, base: "m" },
-    "ms": { type: "unit", value: m, base: "s" },
-    "mL": { type: "unit", value: m, base: "L" },
-    "\\mug": { type: "unit", value: mu, base: "g" },
-    "\\mus": { type: "unit", value: mu, base: "s" },
-    "\\mum": { type: "unit", value: mu, base: "m" },
-    "\\muL": { type: "unit", value: mu, base: "L" },
-    "ng": { type: "unit", value: n, base: "g" },
-    "nm": { type: "unit", value: n, base: "m" },
-    "ns": { type: "unit", value: n, base: "s" },
-    "nL": { type: "unit", value: n, base: "L" },
-    "in": { type: "unit", value: 1 / 12, base: "ft" },
-    "ft": { type: "unit", value: u, base: "ft" },
-    "yd": { type: "unit", value: 3, base: "ft" },
-    "mi": { type: "unit", value: 5280, base: "ft" },
-    "fl": { type: "unit", value: 1, base: "fl" },  // fluid ounce
-    "cup": { type: "unit", value: 8, base: "fl" },
-    "pt": { type: "unit", value: 16, base: "fl" },
-    "qt": { type: "unit", value: 32, base: "fl" },
-    "gal": { type: "unit", value: 128, base: "fl" },
-    "oz": { type: "unit", value: 1 / 16, base: "lb" },
-    "lb": { type: "unit", value: 1, base: "lb" },
-    "st": { type: "unit", value: 1 / 1614, base: "lb" },
-    "qtr": { type: "unit", value: 28, base: "lb" },
-    "cwt": { type: "unit", value: 112, base: "lb" },
-    "t": { type: "unit", value: 2240, base: "lb" },
-    "$": { type: "unit", value: u, base: "$" },
-    "i": { type: "unit", value: null, base: "i" },
-    "min": { type: "unit", value: 60, base: "s" },
-    "hr": { type: "unit", value: 3600, base: "s" },
-    "day": { type: "unit", value: 24*3600, base: "s" },
-    "\\radian": { type: "unit", value: u, base: "radian" },
-    "'": { type: "unit", value: 1, base: "prime" },
-    "''": { type: "unit", value: 1, base: "doubleprime" },
-    "'''": { type: "unit", value: 1, base: "tripleprime" },
-    "\\degree": { type: "unit", value: Math.PI / 180, base: "radian" },
-    "\\degree K": { type: "unit", value: u, base: "\\degree K" },
-    "\\degree C": { type: "unit", value: u, base: "\\degree C" },
-    "\\degree F": { type: "unit", value: u, base: "\\degree F" },
-    "R": { name: "reals" },   // special math symbol for real space
     "matrix": {},
     "pmatrix": {},
     "bmatrix": {},
