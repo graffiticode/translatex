@@ -2247,11 +2247,15 @@ export let Model = (function () {
       }
       return degree;
     }
+    function isMultiplicativeNode(node) {
+      return node.op === Model.MUL || node.op === Model.TIMES || node.op === Model.CDOT;
+    }
     function isRepeatingDecimal(args) {
       // "3." "\overline{..}"
       // "3." "\dot{..}"
+      // "10\times3." "\overline{..}", prefix=10
       let prefix;
-      if (args[0].op === Model.MUL && args[0].args[args[0].args.length - 1].numberFormat === "decimal") {
+      if (isMultiplicativeNode(args[0]) && args[0].args[args[0].args.length - 1].numberFormat === "decimal") {
         prefix = args[0].args.slice(0, args[0].args.length - 1);
         args = args[0].args.slice(args[0].args.length - 1).concat(args[1]);
       }
@@ -2261,13 +2265,7 @@ export let Model = (function () {
            args[0].op === Model.VAR && args[0].args[0] === "?" ||
            args[0].op === Model.TYPE && args[0].args[0].op === Model.VAR && args[0].args[0].args[0] === "decimal")) {
         // No lbrk so we are in the same number literal.
-        if (args[1].lbrk === 40 &&
-            (isInteger(args[1]) ||
-             args[1].op === Model.TYPE && args[1].args[0].op === Model.VAR && args[1].args[0].args[0] === "integer")) {
-          // 0.(06) => 0. +(0.06, repeating)
-          n0 = args[0];
-          n1 = args[1];
-        } else if (!args[1].lbrk && args[1].op === Model.OVERLINE) {
+        if (!args[1].lbrk && args[1].op === Model.OVERLINE) {
           // 3.\overline{12} --> 3.0+(0.12, repeating)
           // 0.3\overline{12} --> 0.3+0.1*(.12, repeating)
           n0 = args[0];
