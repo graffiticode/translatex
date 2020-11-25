@@ -971,19 +971,16 @@ export let Model = (function () {
       }
       // doScale - scale n if true
       // roundOnly - only scale if rounding
-      let ignoreTrailingZeros = Model.option(options, "ignoreTrailingZeros");
-      let n1 = n0.toString();
       let n2 = "";
       let i, ch;
       let lastSeparatorIndex, lastSignificantIndex;
       let separatorCount = 0;
       let numberFormat = "integer";
-      let hasLeadingZero = 0, hasTrailingZeros = 0;
       if (n0 === ".") {
         assert(false, message(1004, [n0, n0.charCodeAt(0)]));
       }
-      for (i = 0; i < n1.length; i++) {
-        if (matchThousandsSeparator(ch = n1.charAt(i))) {
+      for (i = 0; i < n0.length; i++) {
+        if (matchThousandsSeparator(ch = n0.charAt(i))) {
           if (separatorCount && lastSeparatorIndex !== i - 4 ||
               !separatorCount && i > 4) {
             assert(false, message(1005));
@@ -1009,12 +1006,6 @@ export let Model = (function () {
               lastSignificantIndex = n2.length;
             }
           }
-          if (n2.indexOf('0') === 0 && numberFormat !== 'decimal') {
-            hasLeadingZero++;
-            if (ch !== '.') {
-              n2 = '';
-            }
-          }
           n2 += ch;
         }
       }
@@ -1023,28 +1014,6 @@ export let Model = (function () {
         // separator is in the right place.
         assert(false, message(1005));
       }
-      if (lastSignificantIndex !== undefined) {
-        if (ignoreTrailingZeros) {
-          n2 = n2.substring(0, lastSignificantIndex + 1);
-          if (n2 === ".") {
-            // ".0" -> "." -> "0"
-            n2 = "0";
-          }
-        } else if (lastSignificantIndex < n2.length - 1) {
-          hasTrailingZeros = n2.length - lastSignificantIndex - 1;
-        }
-      }
-      // Count leading zeros.
-      var done = false;
-      n2.split("").forEach(function (d) {
-        if (+d === 0 && !done) {
-          hasLeadingZero++;
-        } else {
-          done = true;
-        }
-      });
-      const hasTrailingDot = !hasTrailingZeros && n2.indexOf('.') === n2.length - 1;
-      n2 = new Decimal(n2);   // Normalize representation.
       if (doScale) {
         let scale = option(options, "decimalPlaces");
         if (!roundOnly || n2.scale() > scale) {
@@ -1052,15 +1021,14 @@ export let Model = (function () {
           n2 = String(n2);
         }
       } else {
-        n2 = String(n2) + (hasTrailingDot && '.' || '');
+        n2 = String(n2);
       }
+      var arg = Model.option(options, "strict") && n0 || n2;
       return {
         op: Model.NUM,
-        args: [n2],
+        args: [arg],
         hasThousandsSeparator: separatorCount !== 0,
         numberFormat: numberFormat,
-        hasLeadingZero: hasLeadingZero,
-        hasTrailingZeros: hasTrailingZeros,
       };
     }
     function multiplyNode(args, flatten) {
@@ -2252,7 +2220,6 @@ export let Model = (function () {
     }
     function isRepeatingDecimal(args) {
       // "3." "\overline{..}"
-      // "3." "\dot{..}"
       // "10\times3." "\overline{..}", prefix=10
       let prefix;
       if (isMultiplicativeNode(args[0]) && args[0].args[args[0].args.length - 1].numberFormat === "decimal") {
@@ -2266,19 +2233,18 @@ export let Model = (function () {
            args[0].op === Model.TYPE && args[0].args[0].op === Model.VAR && args[0].args[0].args[0] === "decimal")) {
         // No lbrk so we are in the same number literal.
         if (!args[1].lbrk && args[1].op === Model.OVERLINE) {
-          // 3.\overline{12} --> 3.0+(0.12, repeating)
-          // 0.3\overline{12} --> 0.3+0.1*(.12, repeating)
+          // 3.\overline{12} --> 3.+(12, repeating)
+          // 0.3\overline{12} --> 0.3+(12, repeating)
           n0 = args[0];
           n1 = args[1].args[0];
         } else {
           return null;
         }
-        let zeros = new Array(n1.hasLeadingZero).fill(0).join('');
-        n1 = newNode(Model.NUM, [zeros + new Decimal(n1.args[0]).toFixed()]);  // Don't use numberNode because it will format the arg.
-        n1.isRepeating = args[1].op;
+        n0.isRepeating = true;
+        n1.isRepeating = true;
         expr = binaryNode(Model.ADD, [n0, n1]);
         expr.numberFormat = "decimal";
-        expr.isRepeating = args[1].op;
+        expr.isRepeating = true;
         if (prefix) {
           expr = multiplyNode(prefix.concat(expr));
         }
