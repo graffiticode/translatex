@@ -1348,7 +1348,11 @@ export let Model = (function () {
         } else {
           op = tokenToOperator[tk];
         }
-        args.unshift(newNode(op, [postfixExpr()]));
+        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+          args.unshift(newNode(op, [parenExpr(t)]));
+        } else {
+          args.unshift(newNode(op, [multiplicativeExpr(true)]));
+        }
         if (args.length > 1) {
           return newNode(Model.POW, args);
         } else {
@@ -1373,7 +1377,11 @@ export let Model = (function () {
           next({oneCharToken: true});
           args.push(unaryExpr());
         }
-        args.unshift(newNode(tokenToOperator[tk], [primaryExpr()]));
+        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+          args.unshift(newNode(tokenToOperator[tk], [parenExpr(t)]));
+        } else {
+          args.unshift(newNode(tokenToOperator[tk], [multiplicativeExpr(true)]));
+        }
         if (args.length > 1) {
           return newNode(Model.POW, args);
         } else {
@@ -1382,10 +1390,18 @@ export let Model = (function () {
         break;
       case TK_LN:
         next();
-        return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), primaryExpr()]);
+        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+          return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), parenExpr(t)]);
+        } else {
+          return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), multiplicativeExpr(true)]);
+        }
       case TK_LG:
         next();
-        return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), primaryExpr()]);
+        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+          return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), parenExpr(t)]);
+        } else {
+          return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), multiplicativeExpr(true)]);
+        }
       case TK_LOG:
         next();
         // Collect the subscript if there is one
@@ -1395,7 +1411,11 @@ export let Model = (function () {
         } else {
           args.push(newNode(Model.NUM, ["10"]));    // Default to base 10.
         }
-        args.push(primaryExpr());
+        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+          args.push(parenExpr(t));
+        } else {
+          args.push(multiplicativeExpr(true));
+        }
         // Finish the log function.
         return newNode(Model.LOG, args);
         break;
@@ -1938,6 +1958,35 @@ export let Model = (function () {
         t === TK_TIMES ||
         t === TK_CDOT;  // / is only multiplicative for parsing
     }
+    function isFunction(t) {
+      return t === TK_SIN ||
+        t === TK_COS ||
+        t === TK_TAN ||
+        t === TK_SEC ||
+        t === TK_COT ||
+        t === TK_CSC ||
+        t === TK_SINH ||
+        t === TK_COSH ||
+        t === TK_TANH ||
+        t === TK_SECH ||
+        t === TK_COTH ||
+        t === TK_CSCH ||
+        t === TK_ARCSIN ||
+        t === TK_ARCCOS ||
+        t === TK_ARCTAN ||
+        t === TK_ARCSEC ||
+        t === TK_ARCCOT ||
+        t === TK_ARCCSC ||
+        t === TK_ARCSINH ||
+        t === TK_ARCCOSH ||
+        t === TK_ARCTANH ||
+        t === TK_ARCSECH ||
+        t === TK_ARCCOTH ||
+        t === TK_ARCCSCH ||
+        t === TK_LN ||
+        t === TK_LOG ||
+        t === TK_LG;
+    }
     function isDerivative(n) {
       if (n.op !== Model.FRAC) {
         return false;
@@ -1971,7 +2020,7 @@ export let Model = (function () {
       let order = arg.op === Model.POW && arg.args[1] || nodeOne;
       return newNode(Model.DERIV, [n, sym, order]);
     }
-    function multiplicativeExpr() {
+    function multiplicativeExpr(implicitOnly=false) {
       let t, expr, explicitOperator = false, prevExplicitOperator, isFraction, args = [];
       let n0;
       expr = fractionExpr();
@@ -2002,6 +2051,11 @@ export let Model = (function () {
             t !== TK_NEWROW && t !== TK_NEWCOL && t !== TK_END) {
         if (isDerivative(expr)) {
           expr.isDerivative = true;
+        }
+        if (implicitOnly &&
+            (isMultiplicative(t) || isFunction(t) ||
+             t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET)) {
+          break; // Stop parsing
         }
         prevExplicitOperator = explicitOperator;  // In case we need to backup one operator.
         explicitOperator = false;
@@ -2360,6 +2414,35 @@ export let Model = (function () {
       expr.isPolynomial = isPolynomial(expr);
       return expr;
     }
+    function isFunctionNode(node) {
+      return node.op === Model.SIN ||
+        node.op === Model.COS ||
+        node.op === Model.TAN ||
+        node.op === Model.SEC ||
+        node.op === Model.COT ||
+        node.op === Model.CSC ||
+        node.op === Model.SINH ||
+        node.op === Model.COSH ||
+        node.op === Model.TANH ||
+        node.op === Model.SECH ||
+        node.op === Model.COTH ||
+        node.op === Model.CSCH ||
+        node.op === Model.ARCSIN ||
+        node.op === Model.ARCCOS ||
+        node.op === Model.ARCTAN ||
+        node.op === Model.ARCSEC ||
+        node.op === Model.ARCCOT ||
+        node.op === Model.ARCCSC ||
+        node.op === Model.ARCSINH ||
+        node.op === Model.ARCCOSH ||
+        node.op === Model.ARCTANH ||
+        node.op === Model.ARCSECH ||
+        node.op === Model.ARCCOTH ||
+        node.op === Model.ARCCSCH ||
+        node.op === Model.LN ||
+        node.op === Model.LOG ||
+        node.op === Model.LG;
+    }
     function flattenNestedNodes(node) {
       let args = [];
       if (node.op === Model.NUM || node.op === Model.VAR) {
@@ -2382,10 +2465,13 @@ export let Model = (function () {
     function hasDX(node) {
       let len = node.args.length;
       if (node.op === Model.MUL && node.args[len - 1].op === Model.FRAC) {
-        node = node.args[len - 1].args[0];
-        len = node.args.length;
+        return hasDX(node.args[len - 1]);
+      } else if (isMultiplicativeNode(node) && isFunctionNode(node.args[len - 1])) {
+        return hasDX(node.args[len - 1]);
       } else if (node.op === Model.FRAC) {
-        node = node.args[0];  // Numerator
+        return hasDX(node.args[0]);  // Numerator
+      } else if (isFunctionNode(node)) {
+        return hasDX(node.args[len - 1]); // Function arg
       }
       let dvar = node.args[len - 2];
       let ivar = node.args[len - 1];
@@ -2396,22 +2482,26 @@ export let Model = (function () {
       );
     }
     function stripDX(node) {
-      assert(node.op === Model.MUL || node.op === Model.FRAC);
+      assert(isMultiplicativeNode(node) || node.op === Model.FRAC || isFunctionNode(node));
       // Strip off last two args ('dx')
       let nodeLast = node.args[node.args.length - 1];
       if (node.op === Model.MUL && nodeLast.op === Model.FRAC) {
         // 2\frac{dx}{x}
-        nodeLast = fractionNode(
-          multiplyNode(nodeLast.args.slice(0, nodeLast.args[0].args.length - 2)),
-          nodeLast.args[1]
-        );
+        nodeLast = stripDX(nodeLast);
         node = multiplyNode(node.args.slice(0, node.args.length - 1).concat(nodeLast));
+      } else if (isMultiplicativeNode(node) && isFunctionNode(nodeLast)) {
+        // 2 \ln(x dx)
+        nodeLast = stripDX(nodeLast);
+        node = newNode(node.op, node.args.slice(0, node.args.length - 1).concat(nodeLast));
       } else if (node.op === Model.FRAC) {
         // \frac{dx}{x}
-        node = fractionNode(
-          multiplyNode(node.args.slice(0, node.args[0].args.length - 2)),
+        node = newNode(Model.FRAC, [
+          stripDX(node.args[0]),
           node.args[1]
-        );
+        ]);
+      } else if (isFunctionNode(node)) {
+        // \ln(x dx)
+        node = newNode(node.op, [stripDX(node.args[node.args.length-1])]);
       } else {
         node = multiplyNode(node.args.slice(0, node.args.length - 2));
       }
