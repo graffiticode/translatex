@@ -1211,6 +1211,7 @@ import {rules} from "./rules.js";
       case "dontFactorTerms":
       case "dontConvertDecimalToFraction":
       case "strict":
+      case "antiderivative":
         opt = undefined;
         break;
       case "types":
@@ -1329,6 +1330,13 @@ export let Core = (function () {
       }
       assert(false, message(3007, [p, v]));
       break;
+    case "antiderivative":
+      if (typeof v === "undefined" ||
+          typeof v === "string" && v.length === 1) {
+        break;
+      }
+      assert(false, message(3007, [p, v]));
+      break;
     case "NoParens":
     case "EndRoot":
     case "allowDecimal":
@@ -1347,6 +1355,7 @@ export let Core = (function () {
     case "compareSides":
     case "ignoreCoefficientOne":
     case "strict":
+    case "integrationConstant":
       if (typeof v === "undefined" || typeof v === "boolean") {
         break;
       }
