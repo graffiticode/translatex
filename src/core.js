@@ -1356,6 +1356,7 @@ export let Core = (function () {
     case "ignoreCoefficientOne":
     case "strict":
     case "integrationConstant":
+    case "absoluteValue":
       if (typeof v === "undefined" || typeof v === "boolean") {
         break;
       }
