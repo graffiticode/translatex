@@ -1332,7 +1332,7 @@ export let Core = (function () {
       break;
     case "antiderivative":
       if (typeof v === "undefined" ||
-          typeof v === "string" && v.length === 1) {
+          typeof v === "string") {
         break;
       }
       assert(false, message(3007, [p, v]));
