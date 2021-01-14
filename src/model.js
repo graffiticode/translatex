@@ -1171,7 +1171,7 @@ export let Model = (function () {
       );
     }
     function primaryExpr() {
-      let t, node, tk, op, base, args = [], expr1, expr2;
+      let t, node, tk, op, base, args = [], expr, expr1, expr2, foundDX;
       switch ((tk = hd())) {
       case TK_CONST:
       case TK_VAR:
@@ -1201,9 +1201,10 @@ export let Model = (function () {
         next();
         break;
       case TK_LEFTCMD:   // \left .. \right
-        if (lookahead() === TK_LEFTBRACE ||
-            lookahead() === TK_LEFTBRACESET) {
-          node = braceExpr(tk, true);
+        if (lookahead() === TK_LEFTBRACE) {
+          node = braceExpr(tk);
+        } else if (lookahead() === TK_LEFTBRACESET) {
+          node = braceExpr(tk);
         } else if (lookahead() === TK_VERTICALBAR) {
           node = absExpr(tk);
         } else {
@@ -1228,10 +1229,8 @@ export let Model = (function () {
         }
         break;
       case TK_LEFTBRACE:
-        node = braceExpr(tk, true);
-        break;
       case TK_LEFTBRACESET:
-        node = braceExpr(tk, true);
+        node = braceExpr(tk);
         break;
       case TK_BEGIN:
         next();
@@ -1351,13 +1350,20 @@ export let Model = (function () {
         if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
           args.unshift(newNode(op, [parenExpr(t)]));
         } else {
-          args.unshift(newNode(op, [multiplicativeExpr(true)]));
+          expr = flattenNestedNodes(multiplicativeExpr(true));
+          foundDX = hasDX(expr);
+          expr = foundDX && stripDX(expr) || expr;
+          args.unshift(newNode(op, [expr]));
         }
         if (args.length > 1) {
-          return newNode(Model.POW, args);
+          node = newNode(Model.POW, args);
         } else {
-          return args[0];
+          node = args[0];
         }
+        if (foundDX) {
+          node = multiplyNode([node, newNode(Model.VAR, ["d"]), foundDX]);
+        }
+        return node;
         break;
       case TK_ARCSIN:
       case TK_ARCCOS:
@@ -1380,27 +1386,48 @@ export let Model = (function () {
         if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
           args.unshift(newNode(tokenToOperator[tk], [parenExpr(t)]));
         } else {
-          args.unshift(newNode(tokenToOperator[tk], [multiplicativeExpr(true)]));
+          expr = flattenNestedNodes(multiplicativeExpr(true));
+          foundDX = hasDX(expr);
+          expr = foundDX && stripDX(expr) || expr;
+          args.unshift(newNode(tokenToOperator[tk], [expr]));
         }
         if (args.length > 1) {
-          return newNode(Model.POW, args);
+          node = newNode(Model.POW, args);
         } else {
-          return args[0];
+          node = args[0];
         }
+        if (foundDX) {
+          node = multiplyNode([node, newNode(Model.VAR, ["d"]), foundDX]);
+        }
+        return node;
         break;
       case TK_LN:
         next();
         if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
           return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), parenExpr(t)]);
         } else {
-          return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), multiplicativeExpr(true)]);
+          expr = flattenNestedNodes(multiplicativeExpr(true));
+          foundDX = hasDX(expr);
+          expr = foundDX && stripDX(expr) || expr;
+          node = newNode(Model.LOG, [newNode(Model.VAR, ["e"]), expr]);
+          if (foundDX) {
+            node = multiplyNode([node, newNode(Model.VAR, ["d"]), foundDX]);
+          }
+          return node;
         }
       case TK_LG:
         next();
         if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
           return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), parenExpr(t)]);
         } else {
-          return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), multiplicativeExpr(true)]);
+          expr = flattenNestedNodes(multiplicativeExpr(true));
+          foundDX = hasDX(expr);
+          expr = foundDX && stripDX(expr) || expr;
+          node = newNode(Model.LOG, [newNode(Model.NUM, ["10"]), expr]);
+          if (foundDX) {
+            node = multiplyNode([node, newNode(Model.VAR, ["d"]), foundDX]);
+          }
+          return node;
         }
       case TK_LOG:
         next();
@@ -1414,10 +1441,17 @@ export let Model = (function () {
         if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
           args.push(parenExpr(t));
         } else {
-          args.push(multiplicativeExpr(true));
+          expr = flattenNestedNodes(multiplicativeExpr(true));
+          foundDX = hasDX(expr);
+          expr = foundDX && stripDX(expr) || expr;
+          args.push(expr);
         }
         // Finish the log function.
-        return newNode(Model.LOG, args);
+        node = newNode(Model.LOG, args);
+        if (foundDX) {
+          node = multiplyNode([node, newNode(Model.VAR, ["d"]), foundDX]);
+        }
+        return node;
         break;
       case TK_LIM:
         return limitExpr();
@@ -1551,19 +1585,15 @@ export let Model = (function () {
       return unaryNode(Model.ABS, [e]);
     }
     // Parse '{ expr }'
-    function braceExpr(tk, allowSet) {
+    function braceExpr(tk) {
       tk = tk || TK_LEFTBRACE;
       eat(tk);
       let tk1, tk2;
-      let isSet = false;
       let op;
       if (tk === TK_LEFTCMD) {
         eat((tk1 = hd() === TK_LEFTBRACESET && TK_LEFTBRACESET || TK_LEFTBRACE));
       } else {
         tk1 = tk;
-      }
-      if (tk1 === TK_LEFTBRACESET && allowSet) {
-        isSet = true;
       }
       let e;
       if (hd() === TK_RIGHTCMD || hd() === TK_RIGHTBRACE || hd() === TK_RIGHTBRACESET) {
@@ -1591,9 +1621,6 @@ export let Model = (function () {
       }
       e.lbrk = tk1;
       e.rbrk = tk2;
-      if (isSet) {
-        e = newNode(Model.SET, [e]);
-      }
       return e;
     }
     // Parse '[ expr ]'
@@ -2389,12 +2416,12 @@ export let Model = (function () {
         case TK_BACKSLASH:
         case TK_CUP:
         case TK_CAP:
-          if (expr.lbrk === TK_LEFTBRACE &&
-              expr.rbrk === TK_RIGHTBRACE) {
+          if (expr.lbrk === TK_LEFTBRACESET &&
+              expr.rbrk === TK_RIGHTBRACESET) {
             expr = newNode(Model.SET, [expr]);
           }
-          if (expr2.lbrk === TK_LEFTBRACE &&
-              expr2.rbrk === TK_RIGHTBRACE) {
+          if (expr2.lbrk === TK_LEFTBRACESET &&
+              expr2.rbrk === TK_RIGHTBRACESET) {
             expr2 = newNode(Model.SET, [expr2]);
           }
           expr = binaryNode(tokenToOperator[t], [expr, expr2]);
@@ -2447,6 +2474,9 @@ export let Model = (function () {
       let args = [];
       if (node.op === Model.NUM || node.op === Model.VAR) {
         return node;
+      }
+      if (node.op === Model.CDOT || node.op === Model.TIMES) {
+        node.op = Model.MUL;
       }
       node.args.forEach(function (n) {
         n = flattenNestedNodes(n);
@@ -2688,6 +2718,9 @@ export let Model = (function () {
         if (hd()) {
           let n = commaExpr();
           assert(!hd(), message(1003, [scan.pos(), scan.lexeme(options), "'" + src.substring(scan.pos() - 1) + "'"]));
+          if (n.lbrk === TK_LEFTBRACESET) {
+            n = newNode(Model.SET, [n]);
+          }
           return n;
         }
       } catch (x) {
