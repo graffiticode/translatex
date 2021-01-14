@@ -461,7 +461,7 @@ import {rules} from "./rules.js";
             assert(type instanceof Array);
             return type.some(function (pattern) {
               // FIXME pre-compile types.
-              let matches = match(options, [normalizeLiteral(options, Model.create(options, pattern))], node);
+              let matches = match(options, [Model.create(options, pattern)], node);
               return matches.length > 0;
             });
           }
@@ -667,7 +667,6 @@ import {rules} from "./rules.js";
       //   return root;
       // }
       var node = visit(options, root, {
-        name: "normalizeLiteral",
         numeric: function (node) {
           return node;
         },
@@ -1137,7 +1136,7 @@ import {rules} from "./rules.js";
     let keys = Object.keys(rules);
     let compiledRules = {};
     keys.forEach(function (key) {
-      let pattern = JSON.stringify(normalizeLiteral(options, Model.create(options, key)));  // Parse and normalize.
+      let pattern = JSON.stringify(Model.create(options, key));  // Parse and normalize.
       let template = compileTemplate(options, rules[key]);
       if (!compiledRules[pattern]) {
         compiledRules[pattern] = template;
@@ -1181,7 +1180,7 @@ import {rules} from "./rules.js";
   }
   Model.fn.translate = function (n1, options) {
     let rules = Model.option(options, "rules");
-    let n = translate(options, normalizeLiteral(options, n1), rules);
+    let n = translate(options, n1, rules);
     if (!n || n.op !== Model.VAR) {
       n = newNode(Model.VAR, [""]);
     }
