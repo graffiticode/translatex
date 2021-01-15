@@ -1347,7 +1347,14 @@ export let Model = (function () {
         } else {
           op = tokenToOperator[tk];
         }
-        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+        if (t === TK_LEFTCMD) {
+          if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
+            node = braceExpr(t);
+          } else {
+            node = parenExpr(t);
+          }
+          args.unshift(newNode(op, [node]));
+        } else if (t === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.unshift(newNode(op, [parenExpr(t)]));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
