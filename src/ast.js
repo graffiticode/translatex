@@ -41,24 +41,25 @@ export let Ast = (function () {
     this.nodeMap = {};
   }
 
-  // Create a node for operation 'op'
+  // Create a node for operation 'op'.
   Ast.prototype.create = function create(op, args) {
-    // Create a node that inherits from Ast
-    let node = create(this);
-    if (typeof op === "string") {
-      node.op = op;
-      if (args instanceof Array) {
-        node.args = args;
-      } else {
-        node.args = [];
-      }
-    } else if (op !== null && typeof op === "object") {
-      let obj = op;
-      forEach(keys(obj), function (v, i) {
-        node[v] = obj[v];
-      });
-    }
-    return node;
+    assert(false, "Should not get here");
+    // // Create a node that inherits from Ast
+    // let node = create(this);
+    // if (typeof op === "string") {
+    //   node.op = op;
+    //   if (args instanceof Array) {
+    //     node.args = args;
+    //   } else {
+    //     node.args = [];
+    //   }
+    // } else if (op !== null && typeof op === "object") {
+    //   let obj = op;
+    //   forEach(keys(obj), function (v, i) {
+    //     node[v] = obj[v];
+    //   });
+    // }
+    // return node;
   }
 
   // Append node to this node's args.
@@ -125,7 +126,9 @@ export let Ast = (function () {
         args += args_nids[i] = this.intern(node.args[i]);
       }
     }
-    if (node.lbrk && node.lbrk !== "{".charCodeAt(0)) {
+    const TK_LEFTBRACE = 0x7B;
+    const TK_LEFTBRACESET = 0x173;
+    if (node.lbrk && node.lbrk !== TK_LEFTBRACE && node.lbrk !== TK_LEFTBRACESET) {
       // Make brackets part of the key.
       args += String.fromCharCode(node.lbrk);
       args += String.fromCharCode(node.rbrk);
