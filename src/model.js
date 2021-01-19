@@ -1336,7 +1336,7 @@ export let Model = (function () {
       case TK_CSCH:
         next();
         // Collect exponents if there are any
-        while ((t=hd())===TK_CARET) {
+        while (hd() === TK_CARET) {
           next({oneCharToken: true});
           args.push(unaryExpr());
         }
@@ -1347,14 +1347,16 @@ export let Model = (function () {
         } else {
           op = tokenToOperator[tk];
         }
-        if (t === TK_LEFTCMD) {
+        if ((t = hd()) === TK_LEFTCMD) {
           if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
             node = braceExpr(t);
+          } else if (lookahead() === TK_VERTICALBAR) {
+            node = absExpr(t);
           } else {
             node = parenExpr(t);
           }
           args.unshift(newNode(op, [node]));
-        } else if (t === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.unshift(newNode(op, [parenExpr(t)]));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1390,7 +1392,16 @@ export let Model = (function () {
           next({oneCharToken: true});
           args.push(unaryExpr());
         }
-        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+        if ((t = hd()) === TK_LEFTCMD) {
+          if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
+            node = braceExpr(t);
+          } else if (lookahead() === TK_VERTICALBAR) {
+            node = absExpr(t);
+          } else {
+            node = parenExpr(t);
+          }
+          args.unshift(newNode(tokenToOperator[tk], [node]));
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.unshift(newNode(tokenToOperator[tk], [parenExpr(t)]));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1410,7 +1421,16 @@ export let Model = (function () {
         break;
       case TK_LN:
         next();
-        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+        if ((t = hd()) === TK_LEFTCMD) {
+          if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
+            node = braceExpr(t);
+          } else if (lookahead() === TK_VERTICALBAR) {
+            node = absExpr(t);
+          } else {
+            node = parenExpr(t);
+          }
+          args.unshift(newNode(tokenToOperator[tk], [node]));
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), parenExpr(t)]);
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1424,7 +1444,16 @@ export let Model = (function () {
         }
       case TK_LG:
         next();
-        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+        if ((t = hd()) === TK_LEFTCMD) {
+          if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
+            node = braceExpr(t);
+          } else if (lookahead() === TK_VERTICALBAR) {
+            node = absExpr(t);
+          } else {
+            node = parenExpr(t);
+          }
+          args.unshift(newNode(tokenToOperator[tk], [node]));
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), parenExpr(t)]);
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1439,13 +1468,22 @@ export let Model = (function () {
       case TK_LOG:
         next();
         // Collect the subscript if there is one
-        if ((t=hd())===TK_UNDERSCORE) {
+        if ((t = hd()) === TK_UNDERSCORE) {
           next({oneCharToken:true});
           args.push(primaryExpr());
         } else {
           args.push(newNode(Model.NUM, ["10"]));    // Default to base 10.
         }
-        if (t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET) {
+        if ((t = hd()) === TK_LEFTCMD) {
+          if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
+            node = braceExpr(t);
+          } else if (lookahead() === TK_VERTICALBAR) {
+            node = absExpr(t);
+          } else {
+            node = parenExpr(t);
+          }
+          args.unshift(newNode(tokenToOperator[tk], [node]));
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.push(parenExpr(t));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1459,7 +1497,6 @@ export let Model = (function () {
           node = multiplyNode([node, newNode(Model.VAR, ["d"]), foundDX]);
         }
         return node;
-        break;
       case TK_LIM:
         return limitExpr();
       case TK_INT:
@@ -1699,7 +1736,6 @@ export let Model = (function () {
       tk1 = tk1 === TK_RIGHTBRACKET ? TK_LEFTPAREN : tk1;
       tk2 = tk2 === TK_LEFTBRACKET ? TK_RIGHTPAREN : tk2;
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
-//      console.log("parenExpr() tk1=" + tk1 + " tk2=" + tk2 + " e=" + JSON.stringify(e, null, 2));
       if (e.op === Model.COMMA && e.args.length === 2 &&
           (tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
