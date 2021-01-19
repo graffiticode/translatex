@@ -1336,7 +1336,7 @@ export let Model = (function () {
       case TK_CSCH:
         next();
         // Collect exponents if there are any
-        while ((t=hd())===TK_CARET) {
+        while (hd() === TK_CARET) {
           next({oneCharToken: true});
           args.push(unaryExpr());
         }
@@ -1347,7 +1347,7 @@ export let Model = (function () {
         } else {
           op = tokenToOperator[tk];
         }
-        if (t === TK_LEFTCMD) {
+        if ((t = hd()) === TK_LEFTCMD) {
           if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
             node = braceExpr(t);
           } else if (lookahead() === TK_VERTICALBAR) {
@@ -1356,7 +1356,7 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.unshift(newNode(op, [node]));
-        } else if (t === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.unshift(newNode(op, [parenExpr(t)]));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1392,7 +1392,7 @@ export let Model = (function () {
           next({oneCharToken: true});
           args.push(unaryExpr());
         }
-        if (t === TK_LEFTCMD) {
+        if ((t = hd()) === TK_LEFTCMD) {
           if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
             node = braceExpr(t);
           } else if (lookahead() === TK_VERTICALBAR) {
@@ -1401,7 +1401,7 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.unshift(newNode(tokenToOperator[tk], [node]));
-        } else if (t === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.unshift(newNode(tokenToOperator[tk], [parenExpr(t)]));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1421,7 +1421,7 @@ export let Model = (function () {
         break;
       case TK_LN:
         next();
-        if (t === TK_LEFTCMD) {
+        if ((t = hd()) === TK_LEFTCMD) {
           if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
             node = braceExpr(t);
           } else if (lookahead() === TK_VERTICALBAR) {
@@ -1430,7 +1430,7 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.unshift(newNode(tokenToOperator[tk], [node]));
-        } else if (t === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           return newNode(Model.LOG, [newNode(Model.VAR, ["e"]), parenExpr(t)]);
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1444,7 +1444,7 @@ export let Model = (function () {
         }
       case TK_LG:
         next();
-        if (t === TK_LEFTCMD) {
+        if ((t = hd()) === TK_LEFTCMD) {
           if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
             node = braceExpr(t);
           } else if (lookahead() === TK_VERTICALBAR) {
@@ -1453,7 +1453,7 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.unshift(newNode(tokenToOperator[tk], [node]));
-        } else if (t === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           return newNode(Model.LOG, [newNode(Model.NUM, ["10"]), parenExpr(t)]);
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
@@ -1468,13 +1468,13 @@ export let Model = (function () {
       case TK_LOG:
         next();
         // Collect the subscript if there is one
-        if (hd() ===TK_UNDERSCORE) {
+        if ((t = hd()) === TK_UNDERSCORE) {
           next({oneCharToken:true});
           args.push(primaryExpr());
         } else {
           args.push(newNode(Model.NUM, ["10"]));    // Default to base 10.
         }
-        if (t === TK_LEFTCMD) {
+        if ((t = hd()) === TK_LEFTCMD) {
           if (lookahead() === TK_LEFTBRACE || lookahead() === TK_LEFTBRACESET) {
             node = braceExpr(t);
           } else if (lookahead() === TK_VERTICALBAR) {
@@ -1483,7 +1483,7 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.unshift(newNode(tokenToOperator[tk], [node]));
-        } else if (t === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
+        } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.push(parenExpr(t));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
