@@ -1028,16 +1028,6 @@ import {rules} from "./rules.js";
           let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
-          } else if (matches.length > 1) {
-            // Have more than one match, so compare brackets
-            var t = matches;
-            matches = matches.filter((n) => {
-              return n.lbrk === node.lbrk && n.rbrk === node.rbrk;
-            });
-            if (matches.length === 0) {
-              // Restore original matches.
-              matches = t;
-            }
           }
           // Use first match for now.
           let template = matchedTemplate(rules, matches, 1);
