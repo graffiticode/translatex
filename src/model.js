@@ -482,8 +482,7 @@ export let Model = (function () {
       case OpStr.SUB:
         if (n.args.length===1) {
           text = OpToLaTeX[n.op] + " " + args[0];
-        }
-        else {
+        } else {
           text = args[0] + " " + OpToLaTeX[n.op] + " " + args[1];
         }
         break;
@@ -556,6 +555,7 @@ export let Model = (function () {
         text = "\\vec{" + args[0] + "}";
         break;
       case OpStr.MUL:
+      case OpStr.TIMES:
         // If subexpr is lower precedence, wrap in parens.
         let prevTerm;
         text = "";
