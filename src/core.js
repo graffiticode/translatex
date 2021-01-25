@@ -739,7 +739,7 @@ import {rules} from "./rules.js";
           forEach(node.args, function (n) {
             args.push(normalizeLiteral(options, n));
           });
-          if (option(options, "ignoreOrder") &&
+          if (Model.option(options, "ignoreOrder") &&
               (node.op === Model.GT ||
                node.op === Model.GE)) {
             // Swap adjacent elements and reverse the operator.
@@ -765,21 +765,20 @@ import {rules} from "./rules.js";
       return node;
     }
 
-    function matchedTemplate(rules, matches, arity) {
+    function matchedTemplate(options, rules, matches, arity) {
       let templates = [];
       matches.forEach(function (m) {
         templates = templates.concat(rules[JSON.stringify(m)]);
       });
       let matchedTemplates = [];
-      templates.forEach(function (t) {
-        if((!t.context ||
-            Model.option(options, "NoParens") && t.context.indexOf("NoParens") > -1 ||
-            Model.option(options, "EndRoot") && t.context.indexOf("EndRoot") > -1) &&
-           arity >= paramCount(t)) {  // Some args might be elided.
-          matchedTemplates.push(t);
+      templates.forEach(function (template) {
+        if((!template.context ||
+            Model.option(options, "NoParens") && template.context.indexOf("NoParens") > -1 ||
+            Model.option(options, "EndRoot") && template.context.indexOf("EndRoot") > -1) &&
+           arity >= paramCount(template)) {  // Some args might be elided.
+          matchedTemplates.push(template);
         }
       });
-      //assert(matchedTemplates.length > 0);
       if (matchedTemplates.length === 0) {
         // Make one up.
         matchedTemplates.push({str: ""});
@@ -791,7 +790,7 @@ import {rules} from "./rules.js";
         assert(typeof template.str === "string");
         let a = template.str.split("%");
         let nn = a.filter(n => {
-          return !isNaN(+n[0])
+          return !isNaN(+n[0]);
         });
         return nn.length === 0 ? 0 : +nn.sort()[nn.length-1][0];
       }
@@ -850,7 +849,7 @@ import {rules} from "./rules.js";
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(rules, matches, 1);
+          let template = matchedTemplate(options, rules, matches, 1);
           return expand(template, args, env);
         },
         binary: function(node) {
@@ -858,7 +857,7 @@ import {rules} from "./rules.js";
           if (matches.length === 0) {
             return node;
           }
-          let template = matchedTemplate(rules, matches, node.args.length);
+          let template = matchedTemplate(options, rules, matches, node.args.length);
           let argRules = getRulesForArgs(template);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
@@ -874,7 +873,7 @@ import {rules} from "./rules.js";
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(rules, matches, node.args.length);
+          let template = matchedTemplate(options, rules, matches, node.args.length);
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
@@ -890,7 +889,7 @@ import {rules} from "./rules.js";
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(rules, matches, node.args.length);
+          let template = matchedTemplate(options, rules, matches, node.args.length);
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
@@ -905,7 +904,7 @@ import {rules} from "./rules.js";
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(rules, matches, node.args.length);
+          let template = matchedTemplate(options, rules, matches, node.args.length);
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
@@ -934,14 +933,14 @@ import {rules} from "./rules.js";
           //   return args[0];
           // }
           // // Use first match for now.
-          // let template = matchedTemplate(rules, matches, 1);
+          // let template = matchedTemplate(options, rules, matches, 1);
           // return expand(template, args);
           let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(rules, matches, node.args.length);
+          let template = matchedTemplate(options, rules, matches, node.args.length);
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
@@ -980,7 +979,7 @@ import {rules} from "./rules.js";
               return node;
             }
             // Use first match for now.
-            let template = matchedTemplate(rules, matches, node.args.length);
+            let template = matchedTemplate(options, rules, matches, node.args.length);
             let args = [];
             let argRules = getRulesForArgs(template, rules);
             let nodeArgs = getNodeArgsForTemplate(node, template);
@@ -996,7 +995,7 @@ import {rules} from "./rules.js";
               return node;
             }
             // Use first match for now.
-            let template = matchedTemplate(rules, matches, node.args.length);
+            let template = matchedTemplate(options, rules, matches, node.args.length);
             let argRules = getRulesForArgs(template, rules);
             let nodeArgs = getNodeArgsForTemplate(node, template);
             let args = [];
@@ -1013,7 +1012,7 @@ import {rules} from "./rules.js";
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(rules, matches, node.args.length);
+          let template = matchedTemplate(options, rules, matches, node.args.length);
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
@@ -1024,13 +1023,12 @@ import {rules} from "./rules.js";
           return expand(template, args, node);
         },
         paren: function(node) {
-          //assert (node.args.length === 1);
           let matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(rules, matches, 1);
+          let template = matchedTemplate(options, rules, matches, 1);
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
