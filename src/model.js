@@ -1747,10 +1747,10 @@ export let Model = (function () {
       if ((tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
         let op =
-            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET && Model.INTERVAL ||
-            tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN && Model.INTERVALOPEN ||
+            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET && Model.BRACKET ||
             tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTBRACKET && Model.INTERVALLEFTOPEN ||
-            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTPAREN && Model.INTERVALRIGHTOPEN;
+            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTPAREN && Model.INTERVALRIGHTOPEN ||
+            Model.PAREN;
         e = newNode(op, [e]);
       } else if (e.lbrk === TK_PERIOD && e.rbrk === TK_VERTICALBAR) {
         e = newNode(Model.EVALAT, [e]);
@@ -1759,13 +1759,16 @@ export let Model = (function () {
                tk1 === TK_LANGLE && tk2 === TK_RANGLE ||
                tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET ||
                tk1 === tk2, message(1011, ["tk1=" + tk1 + " tk2=" + tk2]));
-        let op = tk1 === TK_LEFTBRACKET && Model.BRACKET || Model.PAREN;
+        let op =
+            tk1 === TK_LEFTBRACKET && Model.BRACKET ||
+            Model.PAREN;
         e = newNode(op, [e]);
       }
       bracketTokenCount--;
       inParenExpr = false;
       e.lbrk = tk1;
       e.rbrk = tk2;
+      console.log("parenExpr() e=" + JSON.stringify(e, null, 2));
       return e;
     }
     // Parse 'x^2'

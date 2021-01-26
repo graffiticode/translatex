@@ -528,10 +528,10 @@ import {rules} from "./rules.js";
         }
         return false;
       });
-      // if (matches.length > 0) {
-      //   console.log("match() node: " + JSON.stringify(node, null, 2));
-      //   console.log("match() matches: " + JSON.stringify(matches, null, 2));
-      // }
+      if (matches.length > 0) {
+        console.log("match() node: " + JSON.stringify(node, null, 2));
+        console.log("match() matches: " + JSON.stringify(matches, null, 2));
+      }
       return matches;
     }
     function expandBinary(str, args) {
@@ -772,6 +772,7 @@ import {rules} from "./rules.js";
       });
       let matchedTemplates = [];
       templates.forEach(function (template) {
+        console.log("matchedTemplate() template=" + JSON.stringify(template));
         if((!template.context ||
             Model.option(options, "NoParens") && template.context.indexOf("NoParens") > -1 ||
             Model.option(options, "EndRoot") && template.context.indexOf("EndRoot") > -1) &&
@@ -784,6 +785,7 @@ import {rules} from "./rules.js";
         matchedTemplates.push({str: ""});
       }
       // Use first match.
+      console.log("matchedTemplate() matchedTemplates=" + JSON.stringify(matchedTemplates));
       return matchedTemplates[0];
       function paramCount(template) {
         // Parse out the number of params in the template.
@@ -1035,6 +1037,8 @@ import {rules} from "./rules.js";
           forEach(nodeArgs, function (n) {
             args.push(translate(options, n, [globalRules, argRules]));
           });
+          console.log("translate() paren template=" + JSON.stringify(template));
+          console.log("translate() paren args=" + JSON.stringify(args));
           return expand(template, args);
         }
       });
