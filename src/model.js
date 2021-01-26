@@ -1746,11 +1746,15 @@ export let Model = (function () {
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
       if ((tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
-        let op =
-            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET && Model.BRACKET ||
-            tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTBRACKET && Model.INTERVALLEFTOPEN ||
-            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTPAREN && Model.INTERVALRIGHTOPEN ||
-            Model.PAREN;
+        let op = (
+          e.op === Model.COMMA && e.args.length === 2 && (
+            tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN && Model.INTERVALOPEN ||
+            tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET && Model.INTERVAL
+          )) ||
+          tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN && Model.PAREN ||
+          tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET && Model.BRACKET ||
+          tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTBRACKET && Model.INTERVALLEFTOPEN ||
+          tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTPAREN && Model.INTERVALRIGHTOPEN;
         e = newNode(op, [e]);
       } else if (e.lbrk === TK_PERIOD && e.rbrk === TK_VERTICALBAR) {
         e = newNode(Model.EVALAT, [e]);
@@ -1768,7 +1772,6 @@ export let Model = (function () {
       inParenExpr = false;
       e.lbrk = tk1;
       e.rbrk = tk2;
-      console.log("parenExpr() e=" + JSON.stringify(e, null, 2));
       return e;
     }
     // Parse 'x^2'
