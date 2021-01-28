@@ -1356,6 +1356,8 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.unshift(newNode(op, [node]));
+        } else if ((t = hd()) === TK_LEFTBRACE || t === TK_LEFTBRACESET) {
+          args.unshift(newNode(op, [braceExpr(t)]));
         } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.unshift(newNode(op, [parenExpr(t)]));
         } else {
@@ -1401,10 +1403,12 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.unshift(newNode(tokenToOperator[tk], [node]));
+        } else if ((t = hd()) === TK_LEFTBRACE || t === TK_LEFTBRACESET) {
+          args.unshift(newNode(tokenToOperator[tk], [braceExpr(t)]));
         } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.unshift(newNode(tokenToOperator[tk], [parenExpr(t)]));
         } else if ((t = hd()) === TK_VERTICALBAR) {
-          node = absExpr(t);
+          args.unshift(newNode(tokenToOperator[tk], [absExpr(t)]));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
           foundDX = hasDX(expr);
@@ -1431,6 +1435,8 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.push(node);
+        } else if ((t = hd()) === TK_LEFTBRACE || t === TK_LEFTBRACESET) {
+          args.push(braceExpr(t));
         } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.push(parenExpr(t));
         } else if ((t = hd()) === TK_VERTICALBAR) {
@@ -1457,6 +1463,8 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.push(node);
+        } else if ((t = hd()) === TK_LEFTBRACE || t === TK_LEFTBRACESET) {
+          args.push(braceExpr(t));
         } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.push(parenExpr(t));
         } else if ((t = hd()) === TK_VERTICALBAR) {
@@ -1490,6 +1498,8 @@ export let Model = (function () {
             node = parenExpr(t);
           }
           args.push(node);
+        } else if ((t = hd()) === TK_LEFTBRACE || t === TK_LEFTBRACESET) {
+          args.push(braceExpr(t));
         } else if ((t = hd()) === TK_LEFTPAREN || t === TK_LEFTBRACKET) {
           args.push(parenExpr(t));
         } else if ((t = hd()) === TK_VERTICALBAR) {
