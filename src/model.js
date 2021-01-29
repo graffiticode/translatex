@@ -470,7 +470,7 @@ export let Model = (function () {
       // Render operator.
       switch (n.op) {
       case OpStr.NUM:
-        text = "(" + n.args[0] + ")";
+        text = n.args[0];
         break;
       case OpStr.VAR:
       case OpStr.TEXT:
