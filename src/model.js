@@ -595,8 +595,7 @@ export let Model = (function () {
         args.forEach(function (value, index) {
           if (index===0) {
             text = value;
-          }
-          else {
+          } else {
             text = text + " "+ OpToLaTeX[n.op] + " " + value;
           }
         });
@@ -613,7 +612,7 @@ export let Model = (function () {
       assert(false, "1000: Invalid expression type");
     }
     return text;
-  }
+  };
 
   // Character defines.
   const CC_SPACE = 0x20;
@@ -2499,7 +2498,9 @@ export let Model = (function () {
           expr = binaryNode(Model.SUB, [expr, expr2]);
           break;
         default:
-          let flatten = !Model.option(options, "compareGrouping");
+          let flatten =
+            !Model.option(options, "compareGrouping") &&
+            !(expr.isMixedNumber || expr2.isMixedNumber);
           expr = binaryNode(Model.ADD, [expr, expr2], flatten);
           break;
         }
