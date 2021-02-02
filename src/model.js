@@ -481,7 +481,7 @@ export let Model = (function () {
         break;
       case OpStr.SUB:
         if (n.args.length===1) {
-          text = OpToLaTeX[n.op] + " " + args[0];
+          text = OpToLaTeX[n.op] + "" + args[0];
         } else {
           text = args[0] + " " + OpToLaTeX[n.op] + " " + args[1];
         }
