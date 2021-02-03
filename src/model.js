@@ -1980,15 +1980,20 @@ export let Model = (function () {
     // Parse '1/2/3/4', '1 1/2', '1\frac{1}{2}'
     function fractionExpr() {
       let t, node = subscriptExpr();
-      if (isNumber(node) && (hd() === TK_FRAC ||
-                             hd() === TK_NUM && lookahead() === TK_SLASH)) {
+      if (isNumber(node) &&
+          (hd() === TK_FRAC || hd() === TK_NUM && lookahead() === TK_SLASH)) {
         let frac = fractionExpr();
         if (isMixedNumber(node, frac)) {
+          let neg;
           if (isNeg(node)) {
-            frac = binaryNode(Model.MUL, [nodeMinusOne, frac]);
+            neg = true;
+            node = negate(node);
           }
           node = binaryNode(Model.ADD, [node, frac]);
           node.isMixedNumber = true;
+          if (neg) {
+            node = negate(node);
+          }
         } else {
           node = binaryNode(Model.MUL, [node, frac]);
           frac.isImplicit = true;
@@ -2456,6 +2461,8 @@ export let Model = (function () {
     function negate(n) {
       if (typeof n === "number") {
         return -n;
+      } else if (n.op === Model.SUB && n.args.length === 1) {
+        return n.args[0];
       } else if (n.op === Model.MUL) {
         let args = n.args.slice(0); // Copy.
         return multiplyNode([negate(args.shift())].concat(args));
