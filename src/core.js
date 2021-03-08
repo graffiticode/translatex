@@ -1192,6 +1192,7 @@ import {rules} from "./rules.js";
         opt = 10;
         break;
       case "absoluteError":
+      case "percentError":
       case "setThousandsSeparator":
       case "setDecimalSeparator":
       case "dontExpandPowers":
@@ -1319,6 +1320,12 @@ export let Core = (function () {
       assert(false, message(3007, [p, v]));
       break;
     case "absoluteError":
+      if (v === void 0 || +v >= 0) {
+        break;
+      }
+      assert(false, message(3007, [p, v]));
+      break;
+    case "percentError":
       if (v === void 0 || +v >= 0) {
         break;
       }
