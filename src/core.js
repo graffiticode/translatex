@@ -1191,8 +1191,8 @@ import {rules} from "./rules.js";
       case "decimalPlaces":
         opt = 10;
         break;
-      case "absoluteError":
-      case "percentError":
+      case "toleranceAbsolute":
+      case "tolerancePercent":
       case "setThousandsSeparator":
       case "setDecimalSeparator":
       case "dontExpandPowers":
@@ -1319,13 +1319,13 @@ export let Core = (function () {
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "absoluteError":
+    case "toleranceAbsolute":
       if (v === void 0 || +v >= 0) {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "percentError":
+    case "tolerancePercent":
       if (v === void 0 || +v >= 0) {
         break;
       }
