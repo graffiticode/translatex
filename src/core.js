@@ -1193,6 +1193,7 @@ import {rules} from "./rules.js";
         break;
       case "toleranceAbsolute":
       case "tolerancePercent":
+      case "toleranceRange":
       case "setThousandsSeparator":
       case "setDecimalSeparator":
       case "dontExpandPowers":
@@ -1327,6 +1328,13 @@ export let Core = (function () {
       break;
     case "tolerancePercent":
       if (v === void 0 || +v >= 0) {
+        break;
+      }
+      assert(false, message(3007, [p, v]));
+      break;
+    case "toleranceRange":
+      if (typeof v === "undefined" ||
+          v instanceof Array && v.length === 2) {
         break;
       }
       assert(false, message(3007, [p, v]));
