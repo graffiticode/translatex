@@ -1321,19 +1321,20 @@ export let Core = (function () {
       assert(false, message(3007, [p, v]));
       break;
     case "toleranceAbsolute":
-      if (v === void 0 || +v >= 0) {
+      if (v === undefined || +v >= 0 ||
+          typeof v === "string") {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
     case "tolerancePercent":
-      if (v === void 0 || +v >= 0) {
+      if (v === undefined || +v >= 0) {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
     case "toleranceRange":
-      if (typeof v === "undefined" ||
+      if (v === undefined ||
           v instanceof Array && v.length === 2) {
         break;
       }
