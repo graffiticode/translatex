@@ -905,8 +905,8 @@ export let Model = (function () {
     function matchThousandsSeparator(ch, last) {
       // Check separator and return if there is a match.
       if (Model.option(options, "allowThousandsSeparator") || Model.option(options, "setThousandsSeparator")) {
-        let separators = Model.option(options, "setThousandsSeparator");
-        if (!separators) {
+        const separators = Model.option(options, "setThousandsSeparator");
+        if (separators === undefined) {
           // Use defaults.
           return ch === ',' ? ch : '';
         } else {
