@@ -2244,7 +2244,7 @@ export let Model = (function () {
             e = isOne(e) && expr || multiplyNode([e, expr]);
             expr = newNode(Model.DERIV, [e].concat(arg.args.slice(1)));
           }
-        } else if (t === TK_TIMES && isScientific(expr.args)) {
+        } else if ((t === TK_TIMES || t === TK_CDOT) && isScientific(expr.args)) {
           // 1.2 \times 10 ^ {-3}
           expr.isScientific = true;
         }
