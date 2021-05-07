@@ -139,6 +139,7 @@ import {rules} from "./rules.js";
       case Model.ROW:
       case Model.COL:
       case Model.LIST:
+      case Model.ANGLEBRACKET:
         node = visit.comma(node, resume);
         break;
       case Model.EQL:
