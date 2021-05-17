@@ -2332,7 +2332,7 @@ export let Model = (function () {
           isInteger(mv)) {
         return true;
       } else if (node instanceof Decimal) {
-        return node.modulo(bigOne).comparedTo(bigZero) === 0;
+        return node.modulo(bigOne).cmp(bigZero) === 0;
       }
       return false;
     }
@@ -3205,6 +3205,56 @@ export let Model = (function () {
         0x22FD: null,
         0x22FE: null,
         0x22FF: null,
+        0x03B1: "\\alpha",
+        0x03B2: "\\beta",
+        0x03B3: "\\gamma",
+        0x03B4: "\\delta",
+        0x03B5: "\\epsilon",
+        0x03B6: "\\zeta",
+        0x03B7: "\\eta",
+        0x03B8: "\\theta",
+        0x03B9: "\\iota",
+        0x03BA: "\\kappa",
+        0x03BB: "\\lambda",
+        0x03BC: "\\mu",
+        0x03BD: "\\nu",
+        0x03BE: "\\xi",
+        0x03BF: "o",
+        0x03C0: "\\pi",
+        0x03C1: "\\rho",
+        0x03C2: null,
+        0x03C3: "\\sigma",
+        0x03C4: "\\tau",
+        0x03C5: "\\upsilon",
+        0x03C6: "\\phi",
+        0x03C7: "\\chi",
+        0x03C8: "\\psi",
+        0x03C9: "\\omega",
+        0x0391: "A",
+        0x0392: "B",
+        0x0393: "\\Gamma",
+        0x0394: "\\Delta",
+        0x0395: "E",
+        0x0396: "Z",
+        0x0397: "H",
+        0x0398: "\\Theta",
+        0x0399: "I",
+        0x039A: "K",
+        0x039B: "\\Lambda",
+        0x039C: "M",
+        0x039D: "N",
+        0x039E: "\\Xi",
+        0x039F: "O",
+        0x03A0: "\\Pi",
+        0x03A1: "P",
+        0x03A2: null,
+        0x03A3: "\\Sigma",
+        0x03A4: "T",
+        0x03A5: "\\Upsilon",
+        0x03A6: "\\Phi",
+        0x03A7: "X",
+        0x03A8: "\\Psi",
+        0x03A9: "\\Omega",
       };
       let identifiers = Object.keys(env);
       // Add keywords to the list of identifiers.
