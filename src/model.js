@@ -2153,7 +2153,8 @@ export let Model = (function () {
         }
         if (implicitOnly &&
             (isMultiplicative(t) || isFunction(t) ||
-             t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET)) {
+             t === TK_LEFTPAREN || t === TK_LEFTCMD || t === TK_LEFTBRACKET ||
+             t === TK_LANGLE || t === TK_MATHBF)) {
           break; // Stop parsing
         }
         prevExplicitOperator = explicitOperator;  // In case we need to backup one operator.
