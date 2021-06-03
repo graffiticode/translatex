@@ -1898,7 +1898,7 @@ export let Model = (function () {
         break;
       case TK_PM:
         next();
-        expr = unaryExpr();
+        expr = multiplicativeExpr(true);
         expr = newNode(tokenToOperator[t], [expr]);
         break;
       case TK_UNDERSCORE:
