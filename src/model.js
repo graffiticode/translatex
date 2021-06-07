@@ -2376,6 +2376,11 @@ export let Model = (function () {
       // "3." "\overline{..}"
       // "10\times3." "\overline{..}", prefix=10
       let prefix;
+      var isNeg = false;
+      if (args[0].op === Model.SUB && args[0].args[0].op === Model.NUM) {
+        args[0] = args[0].args[0];
+        isNeg = true;
+      }
       if (isMultiplicativeNode(args[0]) && args[0].args[args[0].args.length - 1].numberFormat === "decimal") {
         prefix = args[0].args.slice(0, args[0].args.length - 1);
         args = args[0].args.slice(args[0].args.length - 1).concat(args[1]);
@@ -2405,6 +2410,7 @@ export let Model = (function () {
       } else {
         expr = null;
       }
+      expr = expr !== null && isNeg && unaryNode(Model.SUB, [expr]) || expr;
       return expr;
     }
 
