@@ -1713,15 +1713,16 @@ export let Model = (function () {
       // Handle grouping and intervals.
       bracketTokenCount++;
       eat(tk);
-      let tk1, tk2;
+      let tk1, tk2, leftCmdFound;
       if (tk === TK_LEFTCMD) {
         eat((tk1 = hd())); // Capture left token.
+        leftCmdFound = true;
       } else {
         tk1 = tk;
       }
       let e;
       if (hd() === TK_RIGHTCMD || hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
-        eat((tk2 = hd()));
+        eat((tk2 = leftCmdFound && TK_RIGHTCMD || hd()));
         if (tk2 === TK_RIGHTCMD) {
           eat((tk2 =
                tk1 === TK_LEFTPAREN && TK_RIGHTPAREN ||
@@ -1736,6 +1737,7 @@ export let Model = (function () {
         e = commaExpr(allowSemicolon);
         // (..], [..], [..), (..), ]..], ]..[, [..[
         eat((tk2 =
+             leftCmdFound && TK_RIGHTCMD ||
              hd() === TK_RIGHTPAREN && TK_RIGHTPAREN ||
              hd() === TK_RANGLE && TK_RANGLE ||
              tk === TK_LEFTCMD && TK_RIGHTCMD ||
