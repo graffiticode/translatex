@@ -1713,15 +1713,16 @@ export let Model = (function () {
       // Handle grouping and intervals.
       bracketTokenCount++;
       eat(tk);
-      let tk1, tk2;
+      let tk1, tk2, leftCmdFound;
       if (tk === TK_LEFTCMD) {
         eat((tk1 = hd())); // Capture left token.
+        leftCmdFound = true;
       } else {
         tk1 = tk;
       }
       let e;
       if (hd() === TK_RIGHTCMD || hd() === TK_RIGHTPAREN || hd() === TK_RIGHTBRACKET) {
-        eat((tk2 = hd()));
+        eat((tk2 = leftCmdFound && TK_RIGHTCMD || hd()));
         if (tk2 === TK_RIGHTCMD) {
           eat((tk2 =
                tk1 === TK_LEFTPAREN && TK_RIGHTPAREN ||
@@ -1736,6 +1737,7 @@ export let Model = (function () {
         e = commaExpr(allowSemicolon);
         // (..], [..], [..), (..), ]..], ]..[, [..[
         eat((tk2 =
+             leftCmdFound && TK_RIGHTCMD ||
              hd() === TK_RIGHTPAREN && TK_RIGHTPAREN ||
              hd() === TK_RANGLE && TK_RANGLE ||
              tk === TK_LEFTCMD && TK_RIGHTCMD ||
@@ -2376,6 +2378,11 @@ export let Model = (function () {
       // "3." "\overline{..}"
       // "10\times3." "\overline{..}", prefix=10
       let prefix;
+      var isNeg = false;
+      if (args[0].op === Model.SUB && args[0].args[0].op === Model.NUM) {
+        args[0] = args[0].args[0];
+        isNeg = true;
+      }
       if (isMultiplicativeNode(args[0]) && args[0].args[args[0].args.length - 1].numberFormat === "decimal") {
         prefix = args[0].args.slice(0, args[0].args.length - 1);
         args = args[0].args.slice(args[0].args.length - 1).concat(args[1]);
@@ -2405,6 +2412,7 @@ export let Model = (function () {
       } else {
         expr = null;
       }
+      expr = expr !== null && isNeg && unaryNode(Model.SUB, [expr]) || expr;
       return expr;
     }
 
