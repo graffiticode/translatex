@@ -2809,7 +2809,7 @@ export let Model = (function () {
           return n;
         }
       } catch (x) {
-        console.log("SYNTAX ERROR " + x.stack);
+        console.log("SYNTAX ERROR in: " + src + "\n" + x.stack);
         throw x;
       }
       // No meaningful input. Return a dummy node to avoid choking.
