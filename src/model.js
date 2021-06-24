@@ -2003,8 +2003,7 @@ export let Model = (function () {
           frac.isImplicit = true;
         }
       }
-      while ((t === undefined || t === hd()) &&
-             ((t = hd()) === TK_SLASH || t === TK_COLON)) {
+      while ((t === undefined || t === hd()) && (t = hd()) === TK_SLASH) {
         next();
         node = newNode(tokenToOperator[t], [node, subscriptExpr()]);
         node.isFraction = isSimpleFraction(node);
@@ -2692,9 +2691,6 @@ export let Model = (function () {
       let args = [];
       let isNot = false;
       while (isRelational(t = hd())) {
-        if (t === TK_TO) {
-          t = TK_COLON;
-        }
         // x < y < z -> [x < y, y < z]
         next();
         if (t === TK_NOT) {
