@@ -314,6 +314,7 @@ export let Model = (function () {
     MATHFIELD: "mathfield",
     DELTA: "delta",
     OPERATORNAME: "operatorname",
+    DOT: "dot",
     NONE: "none",
   };
 
@@ -775,6 +776,7 @@ export let Model = (function () {
   const TK_INFTY = 0x176;
   const TK_LANGLE = 0x177;
   const TK_RANGLE = 0x178;
+  const TK_DOT = 0x179;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -879,6 +881,7 @@ export let Model = (function () {
   tokenToOperator[TK_SEMICOLON] = OpStr.SEMICOLON;
   tokenToOperator[TK_TYPE] = OpStr.TYPE;
   tokenToOperator[TK_OVERLINE] = OpStr.OVERLINE;
+  tokenToOperator[TK_DOT] = OpStr.DOT;
   tokenToOperator[TK_OVERSET] = OpStr.OVERSET;
   tokenToOperator[TK_UNDERSET] = OpStr.UNDERSET;
   tokenToOperator[TK_BACKSLASH] = OpStr.BACKSLASH;
@@ -1566,6 +1569,28 @@ export let Model = (function () {
       case TK_OVERLINE:
         next();
         return newNode(Model.OVERLINE, [braceExpr()]);
+      case TK_DOT:
+        // 0.\dot{1}234\dot{5}
+        next();
+        {
+          let n, arg = "";
+          n = braceExpr();
+          assert(n.op === Model.NUM);
+          arg += n.args[0];
+          if (hd() === TK_NUM && lookahead() === TK_DOT) {
+            n = primaryExpr();
+            assert(n.op === Model.NUM);
+            arg += n.args[0];
+          }
+          if (hd() === TK_DOT) {
+            next();
+            n = braceExpr();
+            assert(n.op === Model.NUM);
+            arg += n.args[0];
+          }
+          expr = newNode(Model.OVERLINE, [numberNode(options, arg)]);
+        }
+        return expr;
       case TK_MATHFIELD:
         next();
         return newNode(tokenToOperator[tk], [braceExpr()]);
@@ -2939,6 +2964,7 @@ export let Model = (function () {
         "\\type": TK_TYPE,
         "\\format": TK_FORMAT,
         "\\overline": TK_OVERLINE,
+        "\\dot": TK_DOT,
         "\\overset": TK_OVERSET,
         "\\underset": TK_UNDERSET,
         "\\backslash": TK_BACKSLASH,
