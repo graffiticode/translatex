@@ -2196,6 +2196,21 @@ export let Model = (function () {
         if (t === TK_CDOT || t === TK_TIMES || t === TK_DIV) {
           expr = newNode(tokenToOperator[t], [args.pop(), expr]);
         }
+        if (!(explicitOperator ||
+              args.length === 0 ||
+              expr.lbrk ||
+              args[args.length-1].op !== Model.NUM ||
+              args[args.length-1].numberFormat !== 'decimal' ||
+              //args[args.length-1].args[0].indexOf('.') >= 0 ||  // Doesn't have a decimal point. Trailing dots are removed.
+              // matchDecimalSeparator(args[args.length-1].args[0].charAt(args[args.length-1].args.length - 1)) || // Doesn't have a decimal separator. Trailing seapartors are removed.
+
+              args[args.length-1].lbrk ||
+              isRepeatingDecimal([args[args.length-1], expr]) ||
+              expr.op !== Model.NUM)) {
+          // We have two adjacent numbers so merge them into one.
+          var n = args.pop();
+          expr = newNode(Model.NUM, [n.args[0] + expr.args[0]]);  // Don't use numberNode() to avoid separator checks.
+        }
         assert(explicitOperator ||
                args.length === 0 ||
                expr.lbrk ||
@@ -2207,7 +2222,7 @@ export let Model = (function () {
           // M(x) -> \M(x)
           args.pop();
           expr = unaryNode(Model.M, [expr]);
-        } else if (!explicitOperator) {
+        } else if (!explicitOperator && args.length > 0) {
           // Attempt to make units bind harder than multiplication. Reverted
           // because of usability and compatibility issues.
           if (args.length > 0 &&
