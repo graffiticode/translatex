@@ -137,6 +137,7 @@ export let Model = (function () {
       // Got a string, so parse it into a node.
       let parser = parse(options, node, Model.env);
       node = parser.expr();
+      // console.log("create() node=" + JSON.stringify(node, null, 2));
     } else {
       // Make a deep copy of the node.
       node = JSON.parse(JSON.stringify(node));
@@ -1986,10 +1987,11 @@ export let Model = (function () {
       }
       return expr;
     }
-    // Parse 'x_2'
+    // Parse 'x_2', where x might be a exponential.
+    // x^2_1 => x_1^2
     function subscriptExpr() {
       let t, args = [unaryExpr()];
-      if ((t=hd())===TK_UNDERSCORE) {
+      while ((t=hd())===TK_UNDERSCORE) {
         next({oneCharToken: true});
         args.push(exponentialExpr());
         if (isChemCore()) {
@@ -2000,10 +2002,33 @@ export let Model = (function () {
           }
         }
       }
-      if (args.length > 1) {
-        return newNode(Model.SUBSCRIPT, args);
+      let expr;
+      if (args.length === 1) {
+        expr = args[0];
       } else {
-        return args[0];
+        expr = foldSubs(args);
+      }
+      return expr;
+      function foldSubs(args) {
+        let str = '';
+        let expo;
+        args.forEach((arg, i) => {
+          if (i > 0) {
+            str += '_';
+          }
+          if (arg.op === Model.SUBSCRIPT) {
+            arg = foldSubs(arg.args);
+          }
+          if (arg.op === Model.POW) {
+            str += arg.args[0].args[0];
+            expo = arg.args[1];
+          } else {
+            str += arg.args[0];
+          }
+        });
+        let base = newNode(Model.VAR, [str]);
+        let expr = expo && binaryNode(Model.POW, [base, expo]) || base;
+        return expr;
       }
     }
     // Parse '1/2/3/4', '1 1/2', '1\frac{1}{2}'
@@ -2131,7 +2156,7 @@ export let Model = (function () {
     }
     function derivativeExpr(node) {
       if (node.op !== Model.FRAC) {
-        return;
+        return null;
       }
       let numer = node.args[0];
       let denom = node.args[1];
