@@ -103,6 +103,7 @@ export let Model = (function () {
   Assert.messages[1009] = "Missing argument for '%1' command.";
   Assert.messages[1010] = "Expecting an operator between numbers.";
   Assert.messages[1011] = "Invalid grouping bracket. %1";
+  Assert.messages[1012] = "Misplaced subscript in '%1'";
   let message = Assert.message;
 
   // Create a model from a node object or expression string
@@ -2005,6 +2006,7 @@ export let Model = (function () {
       let expr;
       if (args.length === 1) {
         expr = args[0];
+        assert(expr.op !== Model.SUBSCRIPT, message(1012, [src]));
       } else {
         expr = foldSubs(args);
       }
