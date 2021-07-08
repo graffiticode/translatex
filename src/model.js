@@ -2012,25 +2012,45 @@ export let Model = (function () {
       }
       return expr;
       function foldSubs(args) {
-        let str = '';
         let expo;
+        let expr, base;
         args.forEach((arg, i) => {
-          if (i > 0) {
-            str += '_';
-          }
           if (arg.op === Model.SUBSCRIPT) {
             arg = foldSubs(arg.args);
           }
+          let baseArgs, argArgs;
           if (arg.op === Model.POW) {
-            str += arg.args[0].args[0];
             expo = arg.args[1];
+            baseArgs =
+                base && base.op === Model.SUBSCRIPT && base.args ||
+                base && [base] ||
+                [];
+            argArgs =
+                arg.args[0].op === Model.SUBSCRIPT && arg.args[0].args ||
+                [arg.args[0]];
+          } else if (base && base.op === Model.POW) {
+            expo = base.args[1];
+            baseArgs =
+                base.args[0].op === Model.SUBSCRIPT && base.args[0].args ||
+                [base.args[0]] ||
+                [];
+            argArgs =
+                arg.op === Model.SUBSCRIPT && arg.args ||
+                [arg];
+            let args = baseArgs.concat(argArgs);
           } else {
-            str += arg.args[0];
+            baseArgs =
+                base && base.op === Model.SUBSCRIPT && base.args ||
+                base && [base] ||
+                [];
+            argArgs =
+                arg.op === Model.SUBSCRIPT && arg.args ||
+                [arg];
           }
+          const args = baseArgs.concat(argArgs);
+          base = args.length > 1 && newNode(Model.SUBSCRIPT, args) || args[0];
         });
-        let base = newNode(Model.VAR, [str]);
-        let expr = expo && binaryNode(Model.POW, [base, expo]) || base;
-        return expr;
+        return expo && binaryNode(Model.POW, [base, expo]) || base;
       }
     }
     // Parse '1/2/3/4', '1 1/2', '1\frac{1}{2}'
