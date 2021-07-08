@@ -2019,7 +2019,7 @@ export let Model = (function () {
             arg = foldSubs(arg.args);
           }
           let baseArgs, argArgs;
-          if (arg.op === Model.POW) {
+          if (arg.op === Model.POW && !arg.lbrk) {
             expo = arg.args[1];
             baseArgs =
                 base && base.op === Model.SUBSCRIPT && base.args ||
@@ -2050,7 +2050,8 @@ export let Model = (function () {
           const args = baseArgs.concat(argArgs);
           base = args.length > 1 && newNode(Model.SUBSCRIPT, args) || args[0];
         });
-        return expo && binaryNode(Model.POW, [base, expo]) || base;
+        expr = expo && binaryNode(Model.POW, [base, expo]) || base;
+        return expr;
       }
     }
     // Parse '1/2/3/4', '1 1/2', '1\frac{1}{2}'
