@@ -2006,7 +2006,7 @@ export let Model = (function () {
       let expr;
       if (args.length === 1) {
         expr = args[0];
-        assert(expr.op !== Model.SUBSCRIPT, message(1012, [src]));
+        assert(expr.op !== Model.SUBSCRIPT || expr.args.length !== 1, message(1012, [src]));
       } else {
         expr = foldSubs(args);
       }
