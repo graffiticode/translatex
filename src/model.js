@@ -390,7 +390,7 @@ export let Model = (function () {
   };
   function isControlCharCode(c) {
     return (
-      c >= 0x0001 && c <= 0x001F ||
+      c >= 0x0001 && c <= 0x001F && c !== 0x0009 ||
         c >= 0x007F && c <= 0x009F
     );
   }
@@ -424,12 +424,6 @@ export let Model = (function () {
         out += String.fromCharCode(c);
         if (curIndex < src.length) {
           // Keep next character if not out of chars.
-          c = src.charCodeAt(curIndex++);
-        }
-      } else if (c === 9) {
-        // Got an invisible character, check if separating numbers.
-        if (isNumberCharCode(out.charCodeAt(out.length - 1)) && isNumberCharCode(src.charCodeAt(curIndex))) {
-          // Erase the space.
           c = src.charCodeAt(curIndex++);
         }
       }
@@ -916,9 +910,9 @@ export let Model = (function () {
           // Use defaults.
           return ch === ',' ? ch : '';
         } else {
-          // If the character matches the last separator or, if not, last is undefiend
+          // If the character matches the last separator or, if not, last is undefined
           // and character is in the provided list, return the character.
-          if (ch === last || !last && separators.indexOf(ch) >= 0) {
+          if (ch === last || last === undefined && separators.indexOf(ch) >= 0 || separators === ch) {
             return ch;
           } else {
             return "";
@@ -1032,7 +1026,8 @@ export let Model = (function () {
       return {
         op: Model.NUM,
         args: [arg],
-        hasThousandsSeparator: separatorCount !== 0,
+        separatorCount: separatorCount,
+        lastSeparatorIndex: lastSeparatorIndex,
         numberFormat: numberFormat,
       };
     }
@@ -2248,10 +2243,8 @@ export let Model = (function () {
               args.length === 0 ||
               expr.lbrk ||
               args[args.length-1].op !== Model.NUM ||
-              args[args.length-1].numberFormat !== 'decimal' ||
-              //args[args.length-1].args[0].indexOf('.') >= 0 ||  // Doesn't have a decimal point. Trailing dots are removed.
-              // matchDecimalSeparator(args[args.length-1].args[0].charAt(args[args.length-1].args.length - 1)) || // Doesn't have a decimal separator. Trailing seapartors are removed.
-
+              !(args[args.length-1].numberFormat === 'decimal' && args[args.length-1].lastSeparatorIndex === args[args.length-1].args[0].length - 1) ||
+              args[args.length-1].lastSeparatorIndex === args[args.length-1].args[0].length ||
               args[args.length-1].lbrk ||
               isRepeatingDecimal([args[args.length-1], expr]) ||
               expr.op !== Model.NUM)) {
@@ -3473,7 +3466,7 @@ export let Model = (function () {
             if (isAlphaCharCode(c) ||
                 c === CC_SINGLEQUOTE) {
               return variable(c);
-            } else if (t=unicodeToLaTeX[c]) {
+            } else if ((t=unicodeToLaTeX[c])) {
               lexeme = t;
               let tk = lexemeToToken[lexeme];
               if (tk === void 0) {
@@ -3500,13 +3493,28 @@ export let Model = (function () {
       function number(c) {
         while (isNumberCharCode(c) ||
                matchDecimalSeparator(String.fromCharCode(c)) ||
-               (lastSeparator = matchThousandsSeparator(String.fromCharCode(c), lastSeparator)) &&
-               isNumberCharCode(src.charCodeAt(curIndex))) {
-          // Make sure the next char is a num.
+               (lastSeparator = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
+          // While the next char is a num.
           lexeme += String.fromCharCode(c);
           c = src.charCodeAt(curIndex++);
           if (c === 92 && src.charCodeAt(curIndex) === 32) {
-            // We have a space as a decimal separator.
+            // We have an explicit space. Remember it in case it is a decimal separator.
+            // Convert '\ ' to ' '.
+            c = 32;
+            curIndex++;
+          }
+          if (matchDecimalSeparator(String.fromCharCode(c)) ||
+              (lastSeparator = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
+            // Only erase whitespace after punctuation.
+            lexeme += String.fromCharCode(c);
+            c = src.charCodeAt(curIndex++);
+            while (isWhitespaceCharCode(c)) {
+              // Eat all the whitespace until the next non-whitespace character.
+              c = src.charCodeAt(curIndex++);
+            }
+          }
+          if (c === 92 && src.charCodeAt(curIndex) === 32) {
+            // We have an explicit space. Remember it in case it is a decimal separator.
             // Convert '\ ' to ' '.
             c = 32;
             curIndex++;
