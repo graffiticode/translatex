@@ -3511,7 +3511,7 @@ export let Model = (function () {
             // Only erase whitespace after punctuation.
             lexeme += String.fromCharCode(c);
             c = src.charCodeAt(curIndex++);
-            while (c === 92 && (c = src.charCodeAt(curIndex + 1)) === 32 && curIndex++ ||
+            while (c === 92 && (c = src.charCodeAt(curIndex)) === 32 && curIndex++ ||
                    isWhitespaceCharCode(c)) {
               // Eat all the whitespace until the next non-whitespace character.
               c = src.charCodeAt(curIndex++);
