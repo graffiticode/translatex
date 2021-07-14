@@ -2879,7 +2879,10 @@ export let Model = (function () {
         start();
         if (hd()) {
           let n = commaExpr();
-          assert(!hd(), message(1003, [scan.pos(), scan.lexeme(options), "'" + src.substring(scan.pos() - 1) + "'"]));
+          assert(!hd(), message(1003, [
+            scan.pos(),
+            scan.lexeme(options), "'" + src.substring(scan.pos() - 1) + "'"
+          ]));
           if (n.lbrk === TK_LEFTBRACESET) {
             n = newNode(Model.SET, [n]);
           }
@@ -3508,7 +3511,8 @@ export let Model = (function () {
             // Only erase whitespace after punctuation.
             lexeme += String.fromCharCode(c);
             c = src.charCodeAt(curIndex++);
-            while (isWhitespaceCharCode(c)) {
+            while (c === 92 && (c = src.charCodeAt(curIndex + 1)) === 32 && curIndex++ ||
+                   isWhitespaceCharCode(c)) {
               // Eat all the whitespace until the next non-whitespace character.
               c = src.charCodeAt(curIndex++);
             }
