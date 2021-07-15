@@ -103,6 +103,7 @@ export let Model = (function () {
   Assert.messages[1009] = "Missing argument for '%1' command.";
   Assert.messages[1010] = "Expecting an operator between numbers.";
   Assert.messages[1011] = "Invalid grouping bracket. %1";
+  Assert.messages[1012] = "Misplaced subscript in '%1'";
   let message = Assert.message;
 
   // Create a model from a node object or expression string
@@ -137,6 +138,7 @@ export let Model = (function () {
       // Got a string, so parse it into a node.
       let parser = parse(options, node, Model.env);
       node = parser.expr();
+      // console.log("create() node=" + JSON.stringify(node, null, 2));
     } else {
       // Make a deep copy of the node.
       node = JSON.parse(JSON.stringify(node));
@@ -314,6 +316,7 @@ export let Model = (function () {
     MATHFIELD: "mathfield",
     DELTA: "delta",
     OPERATORNAME: "operatorname",
+    DOT: "dot",
     NONE: "none",
   };
 
@@ -387,7 +390,7 @@ export let Model = (function () {
   };
   function isControlCharCode(c) {
     return (
-      c >= 0x0001 && c <= 0x001F ||
+      c >= 0x0001 && c <= 0x001F && c !== 0x0009 ||
         c >= 0x007F && c <= 0x009F
     );
   }
@@ -421,12 +424,6 @@ export let Model = (function () {
         out += String.fromCharCode(c);
         if (curIndex < src.length) {
           // Keep next character if not out of chars.
-          c = src.charCodeAt(curIndex++);
-        }
-      } else if (c === 9) {
-        // Got an invisible character, check if separating numbers.
-        if (isNumberCharCode(out.charCodeAt(out.length - 1)) && isNumberCharCode(src.charCodeAt(curIndex))) {
-          // Erase the space.
           c = src.charCodeAt(curIndex++);
         }
       }
@@ -775,6 +772,7 @@ export let Model = (function () {
   const TK_INFTY = 0x176;
   const TK_LANGLE = 0x177;
   const TK_RANGLE = 0x178;
+  const TK_DOT = 0x179;
   let T0 = TK_NONE, T1 = TK_NONE;
 
   // Define mapping from token to operator
@@ -879,6 +877,7 @@ export let Model = (function () {
   tokenToOperator[TK_SEMICOLON] = OpStr.SEMICOLON;
   tokenToOperator[TK_TYPE] = OpStr.TYPE;
   tokenToOperator[TK_OVERLINE] = OpStr.OVERLINE;
+  tokenToOperator[TK_DOT] = OpStr.DOT;
   tokenToOperator[TK_OVERSET] = OpStr.OVERSET;
   tokenToOperator[TK_UNDERSET] = OpStr.UNDERSET;
   tokenToOperator[TK_BACKSLASH] = OpStr.BACKSLASH;
@@ -893,13 +892,7 @@ export let Model = (function () {
     };
   }
 
-  let noneNodeTicket = 0;
-  function noneNode() {
-    // None nodes are unique so they don't compare equivalent.
-    noneNodeTicket++;
-    return newNode(Model.NONE, [newNode(Model.NUM, [String(noneNodeTicket)])]);
-  }
-  let nodeEmpty = noneNode();
+  const nodeEmpty = newNode(Model.NONE, [newNode(Model.VAR, ["None"])]);
 
   let parse = function parse(options, src, env) {
     src = stripInvisible(src);
@@ -911,9 +904,9 @@ export let Model = (function () {
           // Use defaults.
           return ch === ',' ? ch : '';
         } else {
-          // If the character matches the last separator or, if not, last is undefiend
+          // If the character matches the last separator or, if not, last is undefined
           // and character is in the provided list, return the character.
-          if (ch === last || !last && separators.indexOf(ch) >= 0) {
+          if (ch === last || last === undefined && separators.indexOf(ch) >= 0 || separators === ch) {
             return ch;
           } else {
             return "";
@@ -1027,7 +1020,8 @@ export let Model = (function () {
       return {
         op: Model.NUM,
         args: [arg],
-        hasThousandsSeparator: separatorCount !== 0,
+        separatorCount: separatorCount,
+        lastSeparatorIndex: lastSeparatorIndex,
         numberFormat: numberFormat,
       };
     }
@@ -1274,8 +1268,8 @@ export let Model = (function () {
         next();
         expr1 = braceExpr();
         expr2 = braceExpr();
-        expr1 = expr1.args.length === 0 ? newNode(Model.COMMA, [noneNode()]) : expr1;
-        expr2 = expr1.args.length === 0 ? newNode(Model.COMMA, [noneNode()]) : expr2;
+        expr1 = expr1.args.length === 0 ? newNode(Model.COMMA, [nodeEmpty]) : expr1;
+        expr2 = expr1.args.length === 0 ? newNode(Model.COMMA, [nodeEmpty]) : expr2;
         node = newNode(Model.FRAC, [expr1, expr2]);
         node.isFraction = isSimpleFraction(node);
         break;
@@ -1566,6 +1560,28 @@ export let Model = (function () {
       case TK_OVERLINE:
         next();
         return newNode(Model.OVERLINE, [braceExpr()]);
+      case TK_DOT:
+        // 0.\dot{1}234\dot{5}
+        next();
+        {
+          let n, arg = "";
+          n = braceExpr();
+          assert(n.op === Model.NUM);
+          arg += n.args[0];
+          if (hd() === TK_NUM && lookahead() === TK_DOT) {
+            n = primaryExpr();
+            assert(n.op === Model.NUM);
+            arg += n.args[0];
+          }
+          if (hd() === TK_DOT) {
+            next();
+            n = braceExpr();
+            assert(n.op === Model.NUM);
+            arg += n.args[0];
+          }
+          expr = newNode(Model.OVERLINE, [numberNode(options, arg)]);
+        }
+        return expr;
       case TK_MATHFIELD:
         next();
         return newNode(tokenToOperator[tk], [braceExpr()]);
@@ -1961,10 +1977,11 @@ export let Model = (function () {
       }
       return expr;
     }
-    // Parse 'x_2'
+    // Parse 'x_2', where x might be a exponential.
+    // x^2_1 => x_1^2
     function subscriptExpr() {
       let t, args = [unaryExpr()];
-      if ((t=hd())===TK_UNDERSCORE) {
+      while ((t=hd())===TK_UNDERSCORE) {
         next({oneCharToken: true});
         args.push(exponentialExpr());
         if (isChemCore()) {
@@ -1975,10 +1992,55 @@ export let Model = (function () {
           }
         }
       }
-      if (args.length > 1) {
-        return newNode(Model.SUBSCRIPT, args);
+      let expr;
+      if (args.length === 1) {
+        expr = args[0];
+        assert(expr.op !== Model.SUBSCRIPT || expr.args.length !== 1, message(1012, [src]));
       } else {
-        return args[0];
+        expr = foldSubs(args);
+      }
+      return expr;
+      function foldSubs(args) {
+        let expo;
+        let expr, base;
+        args.forEach((arg, i) => {
+          if (arg.op === Model.SUBSCRIPT) {
+            arg = foldSubs(arg.args);
+          }
+          let baseArgs, argArgs;
+          if (arg.op === Model.POW && !arg.lbrk) {
+            expo = arg.args[1];
+            baseArgs =
+                base && base.op === Model.SUBSCRIPT && base.args ||
+                base && [base] ||
+                [];
+            argArgs =
+                arg.args[0].op === Model.SUBSCRIPT && arg.args[0].args ||
+                [arg.args[0]];
+          } else if (base && base.op === Model.POW) {
+            expo = base.args[1];
+            baseArgs =
+                base.args[0].op === Model.SUBSCRIPT && base.args[0].args ||
+                [base.args[0]] ||
+                [];
+            argArgs =
+                arg.op === Model.SUBSCRIPT && arg.args ||
+                [arg];
+            let args = baseArgs.concat(argArgs);
+          } else {
+            baseArgs =
+                base && base.op === Model.SUBSCRIPT && base.args ||
+                base && [base] ||
+                [];
+            argArgs =
+                arg.op === Model.SUBSCRIPT && arg.args ||
+                [arg];
+          }
+          const args = baseArgs.concat(argArgs);
+          base = args.length > 1 && newNode(Model.SUBSCRIPT, args) || args[0];
+        });
+        expr = expo && binaryNode(Model.POW, [base, expo]) || base;
+        return expr;
       }
     }
     // Parse '1/2/3/4', '1 1/2', '1\frac{1}{2}'
@@ -2106,7 +2168,7 @@ export let Model = (function () {
     }
     function derivativeExpr(node) {
       if (node.op !== Model.FRAC) {
-        return;
+        return null;
       }
       let numer = node.args[0];
       let denom = node.args[1];
@@ -2171,6 +2233,19 @@ export let Model = (function () {
         if (t === TK_CDOT || t === TK_TIMES || t === TK_DIV) {
           expr = newNode(tokenToOperator[t], [args.pop(), expr]);
         }
+        if (!(explicitOperator ||
+              args.length === 0 ||
+              expr.lbrk ||
+              args[args.length-1].op !== Model.NUM ||
+              !(args[args.length-1].numberFormat === 'decimal' && args[args.length-1].lastSeparatorIndex === args[args.length-1].args[0].length - 1) ||
+              args[args.length-1].lastSeparatorIndex === args[args.length-1].args[0].length ||
+              args[args.length-1].lbrk ||
+              isRepeatingDecimal([args[args.length-1], expr]) ||
+              expr.op !== Model.NUM)) {
+          // We have two adjacent numbers so merge them into one.
+          var n = args.pop();
+          expr = newNode(Model.NUM, [n.args[0] + expr.args[0]]);  // Don't use numberNode() to avoid separator checks.
+        }
         assert(explicitOperator ||
                args.length === 0 ||
                expr.lbrk ||
@@ -2182,7 +2257,7 @@ export let Model = (function () {
           // M(x) -> \M(x)
           args.pop();
           expr = unaryNode(Model.M, [expr]);
-        } else if (!explicitOperator) {
+        } else if (!explicitOperator && args.length > 0) {
           // Attempt to make units bind harder than multiplication. Reverted
           // because of usability and compatibility issues.
           if (args.length > 0 &&
@@ -2798,7 +2873,10 @@ export let Model = (function () {
         start();
         if (hd()) {
           let n = commaExpr();
-          assert(!hd(), message(1003, [scan.pos(), scan.lexeme(options), "'" + src.substring(scan.pos() - 1) + "'"]));
+          assert(!hd(), message(1003, [
+            scan.pos(),
+            scan.lexeme(options), "'" + src.substring(scan.pos() - 1) + "'"
+          ]));
           if (n.lbrk === TK_LEFTBRACESET) {
             n = newNode(Model.SET, [n]);
           }
@@ -2939,6 +3017,7 @@ export let Model = (function () {
         "\\type": TK_TYPE,
         "\\format": TK_FORMAT,
         "\\overline": TK_OVERLINE,
+        "\\dot": TK_DOT,
         "\\overset": TK_OVERSET,
         "\\underset": TK_UNDERSET,
         "\\backslash": TK_BACKSLASH,
@@ -3384,7 +3463,7 @@ export let Model = (function () {
             if (isAlphaCharCode(c) ||
                 c === CC_SINGLEQUOTE) {
               return variable(c);
-            } else if (t=unicodeToLaTeX[c]) {
+            } else if ((t=unicodeToLaTeX[c])) {
               lexeme = t;
               let tk = lexemeToToken[lexeme];
               if (tk === void 0) {
@@ -3411,13 +3490,29 @@ export let Model = (function () {
       function number(c) {
         while (isNumberCharCode(c) ||
                matchDecimalSeparator(String.fromCharCode(c)) ||
-               (lastSeparator = matchThousandsSeparator(String.fromCharCode(c), lastSeparator)) &&
-               isNumberCharCode(src.charCodeAt(curIndex))) {
-          // Make sure the next char is a num.
+               (lastSeparator = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
+          // While the next char is a num.
           lexeme += String.fromCharCode(c);
           c = src.charCodeAt(curIndex++);
           if (c === 92 && src.charCodeAt(curIndex) === 32) {
-            // We have a space as a decimal separator.
+            // We have an explicit space. Remember it in case it is a decimal separator.
+            // Convert '\ ' to ' '.
+            c = 32;
+            curIndex++;
+          }
+          if (matchDecimalSeparator(String.fromCharCode(c)) ||
+              (lastSeparator = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
+            // Only erase whitespace after punctuation.
+            lexeme += String.fromCharCode(c);
+            c = src.charCodeAt(curIndex++);
+            while (c === 92 && (c = src.charCodeAt(curIndex)) === 32 && curIndex++ ||
+                   isWhitespaceCharCode(c)) {
+              // Eat all the whitespace until the next non-whitespace character.
+              c = src.charCodeAt(curIndex++);
+            }
+          }
+          if (c === 92 && src.charCodeAt(curIndex) === 32) {
+            // We have an explicit space. Remember it in case it is a decimal separator.
             // Convert '\ ' to ' '.
             c = 32;
             curIndex++;
