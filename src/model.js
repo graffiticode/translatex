@@ -892,13 +892,7 @@ export let Model = (function () {
     };
   }
 
-  let noneNodeTicket = 0;
-  function noneNode() {
-    // None nodes are unique so they don't compare equivalent.
-    noneNodeTicket++;
-    return newNode(Model.NONE, [newNode(Model.NUM, [String(noneNodeTicket)])]);
-  }
-  let nodeEmpty = noneNode();
+  const nodeEmpty = newNode(Model.NONE, [newNode(Model.VAR, ["None"])]);
 
   let parse = function parse(options, src, env) {
     src = stripInvisible(src);
@@ -1274,8 +1268,8 @@ export let Model = (function () {
         next();
         expr1 = braceExpr();
         expr2 = braceExpr();
-        expr1 = expr1.args.length === 0 ? newNode(Model.COMMA, [noneNode()]) : expr1;
-        expr2 = expr1.args.length === 0 ? newNode(Model.COMMA, [noneNode()]) : expr2;
+        expr1 = expr1.args.length === 0 ? newNode(Model.COMMA, [nodeEmpty]) : expr1;
+        expr2 = expr1.args.length === 0 ? newNode(Model.COMMA, [nodeEmpty]) : expr2;
         node = newNode(Model.FRAC, [expr1, expr2]);
         node.isFraction = isSimpleFraction(node);
         break;
