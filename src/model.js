@@ -896,25 +896,20 @@ export let Model = (function () {
 
   let parse = function parse(options, src, env) {
     src = stripInvisible(src);
-    function matchThousandsSeparator(ch, last) {
+    function matchThousandsSeparator(ch, lastSeparator) {
       // Check separator and return if there is a match.
+      let match = '';
       if (Model.option(options, "allowThousandsSeparator") || Model.option(options, "setThousandsSeparator")) {
-        const separators = Model.option(options, "setThousandsSeparator");
-        if (separators === undefined) {
-          // Use defaults.
-          return ch === ',' ? ch : '';
-        } else {
-          // If the character matches the last separator or, if not, last is undefined
-          // and character is in the provided list, return the character.
-          if (ch === last || last === undefined && separators.indexOf(ch) >= 0 || separators === ch) {
-            return ch;
-          } else {
-            return "";
-          }
+        let separators = Model.option(options, "setThousandsSeparator");
+        separators = [].concat(separators !== undefined ? separators : ',');
+        // If the character matches the last separator or, if not, last is undefined
+        // and character is in the provided list, return the character.
+        if (ch === lastSeparator ||
+            !lastSeparator && separators.indexOf(ch) >= 0) {
+          match = ch;
         }
       }
-      // Not allowed. Will be treated as punctuation of some other kind.
-      return '';
+      return match;
     }
 
     function matchDecimalSeparator(ch) {
