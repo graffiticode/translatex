@@ -955,6 +955,7 @@ export let Model = (function () {
     const nodePositiveInfinity = newNode(Model.NUM, ["Infinity"]);
     // Construct a number node.
     function numberNode(options, n0, doScale, roundOnly) {
+      console.log("numberNode() n0=" + n0);
       if (n0 === '\\infty') {
         return nodePositiveInfinity;
       }
@@ -3491,9 +3492,7 @@ export let Model = (function () {
                (match = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
           lastSeparator = match || lastSeparator;  // Remember the last separator.
           // While the next char is a num.
-          if (match !== String.fromCharCode(c)) {
-            lexeme += String.fromCharCode(c);
-          }
+          lexeme += String.fromCharCode(c);
           c = src.charCodeAt(curIndex++);
           if (c === 92 && src.charCodeAt(curIndex) === 32) {
             // We have an explicit space. Remember it in case it is a decimal separator.
@@ -3504,10 +3503,8 @@ export let Model = (function () {
           if (matchDecimalSeparator(String.fromCharCode(c)) ||
               (match = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
             lastSeparator = match || lastSeparator;  // Remember the last separator.
-            // Only erase whitespace after punctuation.
-            if (match !== String.fromCharCode(c)) {
-              lexeme += String.fromCharCode(c);
-            }
+            // Erase whitespace after punctuation.
+            lexeme += String.fromCharCode(c);
             c = src.charCodeAt(curIndex++);
             while (c === 92 && (c = src.charCodeAt(curIndex)) === 32 && curIndex++ ||
                    isWhitespaceCharCode(c)) {
