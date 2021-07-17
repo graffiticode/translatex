@@ -955,7 +955,6 @@ export let Model = (function () {
     const nodePositiveInfinity = newNode(Model.NUM, ["Infinity"]);
     // Construct a number node.
     function numberNode(options, n0, doScale, roundOnly) {
-      console.log("numberNode() n0=" + n0);
       if (n0 === '\\infty') {
         return nodePositiveInfinity;
       }
