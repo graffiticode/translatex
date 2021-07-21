@@ -104,6 +104,7 @@ export let Model = (function () {
   Assert.messages[1010] = "Expecting an operator between numbers.";
   Assert.messages[1011] = "Invalid grouping bracket. %1";
   Assert.messages[1012] = "Misplaced subscript in '%1'";
+  Assert.messages[1013] = "Mismatched thousands separators: \"%1\" and \"%2\".";
   let message = Assert.message;
 
   // Create a model from a node object or expression string
@@ -896,25 +897,20 @@ export let Model = (function () {
 
   let parse = function parse(options, src, env) {
     src = stripInvisible(src);
-    function matchThousandsSeparator(ch, last) {
+    function matchThousandsSeparator(ch, lastSeparator) {
       // Check separator and return if there is a match.
+      let match = '';
       if (Model.option(options, "allowThousandsSeparator") || Model.option(options, "setThousandsSeparator")) {
-        const separators = Model.option(options, "setThousandsSeparator");
-        if (separators === undefined) {
-          // Use defaults.
-          return ch === ',' ? ch : '';
-        } else {
-          // If the character matches the last separator or, if not, last is undefined
-          // and character is in the provided list, return the character.
-          if (ch === last || last === undefined && separators.indexOf(ch) >= 0 || separators === ch) {
-            return ch;
-          } else {
-            return "";
-          }
+        let separators = Model.option(options, "setThousandsSeparator");
+        separators = [].concat(separators !== undefined ? separators : ',');
+        // If the character matches the last separator or, if not, last is undefined
+        // and character is in the provided list, return the character.
+        if (separators.indexOf(ch) >= 0) {
+          assert(!lastSeparator || ch === lastSeparator, message(1013, [lastSeparator, ch]));
+          match = ch;
         }
       }
-      // Not allowed. Will be treated as punctuation of some other kind.
-      return '';
+      return match;
     }
 
     function matchDecimalSeparator(ch) {
@@ -946,11 +942,11 @@ export let Model = (function () {
         });
         return decimalSeparator.indexOf(ch) >= 0;
       }
-      if (thousandsSeparators instanceof Array && thousandsSeparators.indexOf('.') >= 0) {
+      if (thousandsSeparators instanceof Array && thousandsSeparators.indexOf('.') >= 0 || thousandsSeparators === '.') {
         // Period is used as a thousands separator, so cannot be used as a
         // decimal separator.
-        assert(false, message(1008));
-        return false;
+        assert(decimalSeparator === undefined, message(1008, ['.']));
+        return ch === ',';
       }
       // Otherwise, period is used as the decimal separator.
       return ch === ".";
@@ -1008,7 +1004,7 @@ export let Model = (function () {
         assert(false, message(1005));
       }
       if (doScale) {
-        let scale = option(options, "decimalPlaces");
+        let scale = Model.option(options, "decimalPlaces");
         if (!roundOnly || n2.scale() > scale) {
           n2 = n2.setScale(scale, Decimal.ROUND_HALF_UP);
           n2 = String(n2);
@@ -2242,6 +2238,7 @@ export let Model = (function () {
               args[args.length-1].lbrk ||
               isRepeatingDecimal([args[args.length-1], expr]) ||
               expr.op !== Model.NUM)) {
+          assert(false, "Shouldn't get here");
           // We have two adjacent numbers so merge them into one.
           var n = args.pop();
           expr = newNode(Model.NUM, [n.args[0] + expr.args[0]]);  // Don't use numberNode() to avoid separator checks.
@@ -3488,9 +3485,11 @@ export let Model = (function () {
       // Recognize 1, 1.2, 0.3, .3, 1\ 234.00
       let lastSeparator;
       function number(c) {
+        let match;
         while (isNumberCharCode(c) ||
                matchDecimalSeparator(String.fromCharCode(c)) ||
-               (lastSeparator = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
+               (match = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
+          lastSeparator = match || lastSeparator;  // Remember the last separator.
           // While the next char is a num.
           lexeme += String.fromCharCode(c);
           c = src.charCodeAt(curIndex++);
@@ -3501,8 +3500,9 @@ export let Model = (function () {
             curIndex++;
           }
           if (matchDecimalSeparator(String.fromCharCode(c)) ||
-              (lastSeparator = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
-            // Only erase whitespace after punctuation.
+              (match = matchThousandsSeparator(String.fromCharCode(c), lastSeparator))) {
+            lastSeparator = match || lastSeparator;  // Remember the last separator.
+            // Erase whitespace after punctuation.
             lexeme += String.fromCharCode(c);
             c = src.charCodeAt(curIndex++);
             while (c === 92 && (c = src.charCodeAt(curIndex)) === 32 && curIndex++ ||
