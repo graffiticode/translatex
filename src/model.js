@@ -2216,6 +2216,9 @@ export let Model = (function () {
              t === TK_LANGLE || t === TK_MATHBF)) {
           break; // Stop parsing
         }
+        if (hasDX(flattenNestedNodes(expr))) {
+          break; //Stop parsing
+        }
         prevExplicitOperator = explicitOperator;  // In case we need to backup one operator.
         explicitOperator = false;
         if (isMultiplicative(t)) {
@@ -2707,8 +2710,8 @@ export let Model = (function () {
       }
       let expr, foundDX;
       if (hd() === TK_INT) {
-        // FIXME nested integrals are still broken.
         expr = integralExpr();
+        foundDX = hasDX(flattenNestedNodes(multiplicativeExpr()));
       } else {
         expr = flattenNestedNodes(multiplicativeExpr());
         let t;
