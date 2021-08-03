@@ -105,6 +105,7 @@ export let Model = (function () {
   Assert.messages[1011] = "Invalid grouping bracket. %1";
   Assert.messages[1012] = "Misplaced subscript in '%1'";
   Assert.messages[1013] = "Mismatched thousands separators: \"%1\" and \"%2\".";
+  Assert.messages[1014] = "Missing integration variable in '%1'.";
   let message = Assert.message;
 
   // Create a model from a node object or expression string
@@ -2739,6 +2740,7 @@ export let Model = (function () {
       args.push(foundDX || nodeEmpty);
       // [sub, sup,  expr, var], [expr, var]
       Model.option(options, 'parsingIntegralExpr', parsingIntegralExpr);
+      assert(foundDX, message(1014, [src.replace(new RegExp("\\\\", "g"), "\\")]));
       return newNode(Model.INTEGRAL, args);
     }
     function limitExpr() {
