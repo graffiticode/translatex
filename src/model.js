@@ -298,7 +298,6 @@ export let Model = (function () {
     PERCENT: "%",
     QMARK: "?",
     M: "M",
-    RIGHTARROW: "rightarrow",
     FACT: "fact",
     BINOM: "binom",
     ROW: "row",
@@ -1352,7 +1351,7 @@ export let Model = (function () {
           args.unshift(newNode(op, [parenExpr(t)]));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
-          foundDX = hasDX(expr);
+          foundDX = hasDX(options, expr);
           expr = foundDX && stripDX(expr) || expr;
           args.unshift(newNode(op, [expr]));
         }
@@ -1401,7 +1400,7 @@ export let Model = (function () {
           args.unshift(newNode(tokenToOperator[tk], [absExpr(t)]));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
-          foundDX = hasDX(expr);
+          foundDX = hasDX(options, expr);
           expr = foundDX && stripDX(expr) || expr;
           args.unshift(newNode(tokenToOperator[tk], [expr]));
         }
@@ -1433,7 +1432,7 @@ export let Model = (function () {
           args.push(absExpr(t));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
-          foundDX = hasDX(expr);
+          foundDX = hasDX(options, expr);
           expr = foundDX && stripDX(expr) || expr;
           args.push(expr);
         }
@@ -1461,7 +1460,7 @@ export let Model = (function () {
           args.push(absExpr(t));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
-          foundDX = hasDX(expr);
+          foundDX = hasDX(options, expr);
           expr = foundDX && stripDX(expr) || expr;
           args.push(expr);
         }
@@ -1496,7 +1495,7 @@ export let Model = (function () {
           args.push(absExpr(t));
         } else {
           expr = flattenNestedNodes(multiplicativeExpr(true));
-          foundDX = hasDX(expr);
+          foundDX = hasDX(options, expr);
           expr = foundDX && stripDX(expr) || expr;
           args.push(expr);
         }
@@ -2216,7 +2215,7 @@ export let Model = (function () {
              t === TK_LANGLE || t === TK_MATHBF)) {
           break; // Stop parsing
         }
-        if (hasDX(flattenNestedNodes(expr))) {
+        if (hasDX(options, flattenNestedNodes(expr))) {
           break; //Stop parsing
         }
         prevExplicitOperator = explicitOperator;  // In case we need to backup one operator.
@@ -2651,16 +2650,19 @@ export let Model = (function () {
       return node;
     }
     // Parse '\int a + b dx'
-    function hasDX(node) {
+    function hasDX(options, node) {
+      if (!Model.option(options, 'parsingIntegralExpr')) {
+        return null;
+      }
       let len = node.args.length;
       if (node.op === Model.MUL && node.args[len - 1].op === Model.FRAC) {
-        return hasDX(node.args[len - 1]);
+        return hasDX(options, node.args[len - 1]);
       } else if (isMultiplicativeNode(node) && isFunctionNode(node.args[len - 1])) {
-        return hasDX(node.args[len - 1]);
+        return hasDX(options, node.args[len - 1]);
       } else if (node.op === Model.FRAC) {
-        return hasDX(node.args[0]);  // Numerator
+        return hasDX(options, node.args[0]);  // Numerator
       } else if (isFunctionNode(node)) {
-        return hasDX(node.args[len - 1]); // Function arg
+        return hasDX(options, node.args[len - 1]); // Function arg
       }
       let dvar = node.args[len - 2];
       let ivar = node.args[len - 1];
@@ -2698,6 +2700,7 @@ export let Model = (function () {
     }
     function integralExpr() {
       eat(TK_INT);
+      const parsingIntegralExpr = Model.option(options, 'parsingIntegralExpr', true);
       let args = [];
       // Collect the subscript and expression
       if (hd() === TK_UNDERSCORE) {
@@ -2711,16 +2714,16 @@ export let Model = (function () {
       let expr, foundDX;
       if (hd() === TK_INT) {
         expr = integralExpr();
-        foundDX = hasDX(flattenNestedNodes(multiplicativeExpr()));
+        foundDX = hasDX(options, flattenNestedNodes(multiplicativeExpr()));
       } else {
         expr = flattenNestedNodes(multiplicativeExpr());
         let t;
-        foundDX = hasDX(expr);
+        foundDX = hasDX(options, expr);
         expr = foundDX && stripDX(expr) || expr;
         while (isAdditive(t = hd()) && !foundDX) {
           next();
           let expr2 = flattenNestedNodes(multiplicativeExpr());
-          foundDX = hasDX(expr2);
+          foundDX = hasDX(options, expr2);
           expr2 = foundDX && stripDX(expr2) || expr2;
           switch(t) {
           case TK_SUB:
@@ -2735,6 +2738,7 @@ export let Model = (function () {
       args.push(expr);
       args.push(foundDX || nodeEmpty);
       // [sub, sup,  expr, var], [expr, var]
+      Model.option(options, 'parsingIntegralExpr', parsingIntegralExpr);
       return newNode(Model.INTEGRAL, args);
     }
     function limitExpr() {
@@ -2952,7 +2956,6 @@ export let Model = (function () {
         "\\ ": null,
         "\\quad": null,
         "\\qquad": null,
-        "\\text": TK_INFTY,
         "\\text": TK_TEXT,
         "\\textrm": TK_TEXT,
         "\\textit": TK_TEXT,

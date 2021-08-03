@@ -1368,6 +1368,7 @@ export let Core = (function () {
     case "strict":
     case "integrationConstant":
     case "absoluteValue":
+    case "parsingIntegralExpr":
       if (typeof v === "undefined" || typeof v === "boolean") {
         break;
       }
