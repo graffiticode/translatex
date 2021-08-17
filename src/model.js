@@ -2577,7 +2577,7 @@ export let Model = (function () {
       }
       node.args.forEach(function (n) {
         n = flattenNestedNodes(n);
-        if (n.op === node.op) {
+        if (node.op !== Model.INTEGRAL && n.op === node.op) {
           args = args.concat(n.args);
         } else {
           args.push(n);
