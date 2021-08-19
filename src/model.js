@@ -58,12 +58,12 @@ import {Assert, assert} from "./assert.js";
 import {Ast} from "./ast.js";
 import {Decimal} from "decimal.js";
 
-export let Model = (function () {
+export const Model = (function () {
 
   function Model() {
   }
 
-  let envStack = [];
+  const envStack = [];
   let env = {};
   Model.fn = {};
   Model.env = env;
@@ -83,7 +83,7 @@ export let Model = (function () {
     return !!Model.env["Au"];
   }
 
-  let Mp = Model.prototype = new Ast();
+  const Mp = Model.prototype = new Ast();
 
   // Add messages here
   Assert.reserveCodeRange(1000, 1999, "model");
@@ -102,7 +102,7 @@ export let Model = (function () {
   Assert.messages[1012] = "Misplaced subscript in '%1'";
   Assert.messages[1013] = "Mismatched thousands separators: \"%1\" and \"%2\".";
   Assert.messages[1014] = "Missing integration variable in '%1'.";
-  let message = Assert.message;
+  const message = Assert.message;
 
   // Create a model from a node object or expression string
   Model.create = Mp.create = function create(options, node, location) {
@@ -134,7 +134,7 @@ export let Model = (function () {
     if (typeof node === "string") {
       // console.log("mathcore/create() node=" + node);
       // Got a string, so parse it into a node.
-      let parser = parse(options, node, Model.env);
+      const parser = parse(options, node, Model.env);
       node = parser.expr();
       // console.log("create() node=" + JSON.stringify(node, null, 2));
     } else {
@@ -145,12 +145,12 @@ export let Model = (function () {
     Object.keys(Model.fn).forEach(v => {
       if (!Mp[v]) {
         Mp[v] = function () {
-          let fn = Model.fn[v];
+          const fn = Model.fn[v];
           if (arguments.length > 1 &&
               arguments[1] instanceof Model) {
             return fn.apply(this, arguments);
           } else {
-            let args = [this];
+            const args = [this];
             for (let i = 0; i < arguments.length; i++) {
               args.push(arguments[i]);
             }
@@ -180,7 +180,7 @@ export let Model = (function () {
     return render(node);
   };
 
-  let OpStr = {
+  const OpStr = {
     ADD: "+",
     SUB: "-",
     MUL: "mul",
@@ -321,7 +321,7 @@ export let Model = (function () {
     Model[v] = OpStr[v];
   });
 
-  let OpToLaTeX = {};
+  const OpToLaTeX = {};
   OpToLaTeX[OpStr.ADD] = "+";
   OpToLaTeX[OpStr.SUB] = "-";
   OpToLaTeX[OpStr.MUL] = "\\times";
@@ -368,7 +368,8 @@ export let Model = (function () {
   OpToLaTeX[OpStr.INT] = "\\int";
 
   Model.fold = function fold(node, env) {
-    let args = [], val;
+    const args = [];
+    let val;
     node.args.forEach(function (n) {
       args.push(fold(n, env));
     });
@@ -385,6 +386,7 @@ export let Model = (function () {
     }
     return node;
   };
+
   function isControlCharCode(c) {
     return (
       c >= 0x0001 && c <= 0x001F && c !== 0x0009 ||
@@ -445,7 +447,7 @@ export let Model = (function () {
     );
   }
   // Render AST to LaTeX
-  let render = function render(n) {
+  const render = function render(n) {
     let text = "";
     if (typeof n === "string") {
       text = n;
@@ -453,7 +455,7 @@ export let Model = (function () {
       text = n;
     } else if (typeof n === "object") {
       // Render sub-expressions.
-      let args = [];
+      const args = [];
       for (let i = 0; i < n.args.length; i++) {
         args[i] = render(n.args[i]);
       }
@@ -470,7 +472,7 @@ export let Model = (function () {
         text = " " + n.args[0] + " ";
         break;
       case OpStr.SUB:
-        if (n.args.length===1) {
+        if (n.args.length === 1) {
           text = OpToLaTeX[n.op] + "" + args[0];
         } else {
           text = args[0] + " " + OpToLaTeX[n.op] + " " + args[1];
@@ -483,12 +485,12 @@ export let Model = (function () {
         break;
       case OpStr.POW: {
         // If subexpr is lower precedence, wrap in parens.
-        let lhs = n.args[0];
-        let rhs = n.args[1];
-        if ((lhs.args && lhs.args.length===2) || (rhs.args && rhs.args.length===2)) {
-          if (lhs.op===OpStr.ADD || lhs.op===OpStr.SUB ||
-              lhs.op===OpStr.MUL || lhs.op===OpStr.DIV ||
-              lhs.op===OpStr.SQRT) {
+        const lhs = n.args[0];
+        const rhs = n.args[1];
+        if ((lhs.args && lhs.args.length === 2) || (rhs.args && rhs.args.length === 2)) {
+          if (lhs.op === OpStr.ADD || lhs.op === OpStr.SUB ||
+              lhs.op === OpStr.MUL || lhs.op === OpStr.DIV ||
+              lhs.op === OpStr.SQRT) {
             args[0] = " (" + args[0] + ") ";
           }
         }
@@ -521,7 +523,7 @@ export let Model = (function () {
       case OpStr.CSCH:
       case OpStr.LN:
       case OpStr.M:
-        text = "{"+ OpToLaTeX[n.op] + "{" + args[0] + "}}";
+        text = "{" + OpToLaTeX[n.op] + "{" + args[0] + "}}";
         break;
       case OpStr.FRAC:
         text = "\\frac{" + args[0] + "}{" + args[1] + "}";
@@ -552,7 +554,7 @@ export let Model = (function () {
         text = "";
         n.args.forEach(function (term, index) {
           if (term.args && (term.args.length >= 2)) {
-            if (term.op===OpStr.ADD || term.op===OpStr.SUB) {
+            if (term.op === OpStr.ADD || term.op === OpStr.SUB) {
               args[index] = "(" + args[index] + ")";
             }
             if (index !== 0 && typeof term === "number") {
@@ -566,9 +568,9 @@ export let Model = (function () {
           }
           // Elide the times symbol if rhs is parenthesized or a var, or lhs is a number
           // nd rhs is not a number.
-          else if (term.op===OpStr.PAREN ||
-               term.op===OpStr.VAR ||
-               term.op===OpStr.CST ||
+          else if (term.op === OpStr.PAREN ||
+               term.op === OpStr.VAR ||
+               term.op === OpStr.CST ||
                typeof prevTerm === "number" && typeof term !== "number") {
             text += args[index];
           }
@@ -585,10 +587,10 @@ export let Model = (function () {
       case OpStr.ADD:
       case OpStr.COMMA:
         args.forEach(function (value, index) {
-          if (index===0) {
+          if (index === 0) {
             text = value;
           } else {
-            text = text + " "+ OpToLaTeX[n.op] + " " + value;
+            text = text + " " + OpToLaTeX[n.op] + " " + value;
           }
         });
         break;
@@ -886,7 +888,7 @@ export let Model = (function () {
 
   const nodeEmpty = newNode(Model.NONE, [newNode(Model.VAR, ["None"])]);
 
-  let parse = function parse(options, src, env) {
+  const parse = function parse(options, src, env) {
     src = stripInvisible(src);
     function matchThousandsSeparator(ch, lastSeparator) {
       // Check separator and return if there is a match.
@@ -907,12 +909,12 @@ export let Model = (function () {
     function matchDecimalSeparator(ch) {
       // We use the thousands separator to determine the conventional decimal
       // separator. If TS is ',' then DS is '.', otherwise DS is ','.
-      let decimalSeparator = Model.option(options, "setDecimalSeparator");
-      let thousandsSeparators = Model.option(options, "setThousandsSeparator");
+      const decimalSeparator = Model.option(options, "setDecimalSeparator");
+      const thousandsSeparators = Model.option(options, "setThousandsSeparator");
       if (typeof decimalSeparator === "string") {
         // Single separator.
         assert(decimalSeparator.length === 1, message(1002));
-        let separator = decimalSeparator;
+        const separator = decimalSeparator;
         if (thousandsSeparators instanceof Array &&
             thousandsSeparators.indexOf(separator) >= 0) {
           // There is a conflict between the decimal separator and the
@@ -990,7 +992,7 @@ export let Model = (function () {
         assert(false, message(1005));
       }
       if (doScale) {
-        let scale = Model.option(options, "decimalPlaces");
+        const scale = Model.option(options, "decimalPlaces");
         if (!roundOnly || n2.scale() > scale) {
           n2 = n2.setScale(scale, Decimal.ROUND_HALF_UP);
           n2 = String(n2);
@@ -998,7 +1000,7 @@ export let Model = (function () {
       } else {
         n2 = String(n2);
       }
-      var arg = Model.option(options, "strict") && n0 || n2;
+      const arg = Model.option(options, "strict") && n0 || n2;
       return {
         op: Model.NUM,
         args: [arg],
@@ -1035,8 +1037,8 @@ export let Model = (function () {
       return newNode(op, aa);
     }
 
-    let nodeOne = numberNode(options, "1");
-    let nodeMinusOne = numberNode(options, "-1");
+    const nodeOne = numberNode(options, "1");
+    const nodeMinusOne = numberNode(options, "-1");
 
     //
     // PARSER
@@ -1045,7 +1047,7 @@ export let Model = (function () {
     let T0 = TK_NONE;
     let T1 = TK_NONE;
     let lexemeT0, lexemeT1;
-    let scan = scanner(src);
+    const scan = scanner(src);
     // Prime the token stream.
     function start(options) {
       T0 = scan.start(options);
@@ -1081,10 +1083,10 @@ export let Model = (function () {
     }
     // Consume the current token if it matches, otherwise throw.
     function eat(tc, options) {
-      let tk = hd();
+      const tk = hd();
       if (tk !== tc) {
-        let expected = String.fromCharCode(tc);
-        let found = tk ? String.fromCharCode(tk) : "EOS";
+        const expected = String.fromCharCode(tc);
+        const found = tk ? String.fromCharCode(tk) : "EOS";
         assert(false, message(1001, [expected + "[" + tc + "]", found + "[" + tk + "]"]));
       }
       next(options);
@@ -1092,10 +1094,10 @@ export let Model = (function () {
     // Begin parsing functions.
     function isSimpleFraction(node) {
       if (node.op === Model.FRAC) {
-        let n0 =
+        const n0 =
             node.args[0].op === Model.SUB && node.args[0].args.length === 1 && node.args[0].args[0] ||
             node.args[0];
-        let n1 =
+        const n1 =
             node.args[1].op === Model.SUB && node.args[1].args.length === 1 && node.args[1].args[0] ||
             node.args[1];
         return (
@@ -1107,8 +1109,8 @@ export let Model = (function () {
     }
     function isProperFraction(node) {
       if (node.op === Model.FRAC) {
-        let n0 = node.args[0];
-        let n1 = node.args[1];
+        const n0 = node.args[0];
+        const n1 = node.args[1];
         return (
           n0.op === Model.NUM && n0.numberFormat === "integer" &&
           n1.op === Model.NUM && n1.numberFormat === "integer" &&
@@ -1181,7 +1183,7 @@ export let Model = (function () {
         break;
       case TK_BEGIN: {
         next();
-        let figure = braceExpr();
+        const figure = braceExpr();
         if (figure.op === Model.VAR) {
           if (figure.args[0].indexOf("array") === 0) {
             if (hd() === TK_LEFTBRACE) {
@@ -1199,7 +1201,7 @@ export let Model = (function () {
             }
           }
         }
-        let tbl = matrixExpr();
+        const tbl = matrixExpr();
         eat(TK_END);
         braceExpr();
         if (figure.op === Model.VAR) {
@@ -1229,11 +1231,11 @@ export let Model = (function () {
         break;
       case TK_BINOM: {
         next();
-        let n = braceExpr();
-        let k = braceExpr();
+        const n = braceExpr();
+        const k = braceExpr();
         // (n k) = \frac{n!}{k!(n-k)!}
-        let num = unaryNode(Model.FACT, [n]);
-        let den = binaryNode(Model.POW, [
+        const num = unaryNode(Model.FACT, [n]);
+        const den = binaryNode(Model.POW, [
           binaryNode(Model.MUL, [
             unaryNode(Model.FACT, [k]),
             unaryNode(Model.FACT, [binaryNode(Model.ADD, [n, negate(k)])])
@@ -1267,7 +1269,7 @@ export let Model = (function () {
         node = newNode(Model.VEC, [braceExpr()]);
         break;
       case TK_OPERATORNAME: {
-        let lex = lexeme(options);
+        const lex = lexeme(options);
         next();
         node = newNode(Model.OPERATORNAME, [newNode(Model.VAR, [lex]), primaryExpr()]);
         break;
@@ -1339,7 +1341,7 @@ export let Model = (function () {
       case TK_ARCCOTH:
         next();
         // Collect exponents if there are any
-        while ((t=hd())===TK_CARET) {
+        while ((t = hd()) === TK_CARET) {
           next({oneCharToken: true});
           args.push(unaryExpr());
         }
@@ -1579,7 +1581,7 @@ export let Model = (function () {
     }
     // Parse '1 & 2 & 3 \\ a & b & c'
     function matrixExpr( ) {
-      let args = [];
+      const args = [];
       args.push(rowExpr());
       while (hd() === TK_NEWROW) {
         next();
@@ -1589,7 +1591,7 @@ export let Model = (function () {
     }
     // Parse '1 & 2 & 3'
     function rowExpr( ) {
-      let args = [];
+      const args = [];
       args.push(commaExpr());
       while (hd() === TK_NEWCOL) {
         next();
@@ -1609,7 +1611,7 @@ export let Model = (function () {
       } else {
         tk1 = tk;
       }
-      let e = additiveExpr();
+      const e = additiveExpr();
       eat((tk2 = tk === TK_LEFTCMD && TK_RIGHTCMD || tk1));
       if (tk2 === TK_RIGHTCMD) {
         eat((tk2 = tk1)); // Capture right token.
@@ -1666,7 +1668,7 @@ export let Model = (function () {
       if (tk === TK_LEFTCMD) {
         eat(TK_LEFTBRACKET); // Capture left token.
       }
-      let e = commaExpr();
+      const e = commaExpr();
       eat((tk2 = tk === TK_LEFTCMD && TK_LEFTCMD || TK_RIGHTBRACKET));
       if (tk2 === TK_RIGHTCMD) {
         eat((tk2 = TK_RIGHTBRACKET)); // Capture right token.
@@ -1701,7 +1703,7 @@ export let Model = (function () {
         e = newNode(Model.COMMA, []);
       } else {
         inParenExpr = true;
-        let allowSemicolon = true; // Allow semis if in an interval.
+        const allowSemicolon = true; // Allow semis if in an interval.
         e = commaExpr(allowSemicolon);
         // (..], [..], [..), (..), ]..], ]..[, [..[
         eat((tk2 =
@@ -1726,7 +1728,7 @@ export let Model = (function () {
       // intervals: (1, 3), [1, 3], [1, 3), (1, 3]
       if ((tk1 === TK_LEFTPAREN || tk1 === TK_LEFTBRACKET || tk1 === TK_RIGHTBRACKET) &&
           (tk2 === TK_RIGHTPAREN || tk2 === TK_RIGHTBRACKET || tk2 === TK_LEFTBRACKET)) {
-        let op = (
+        const op = (
           e.op === Model.COMMA && e.args.length === 2 && (
             tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN && Model.INTERVALOPEN ||
             tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET && Model.INTERVAL
@@ -1744,7 +1746,7 @@ export let Model = (function () {
         assert(tk1 === TK_LEFTPAREN && tk2 === TK_RIGHTPAREN ||
                tk1 === TK_LEFTBRACKET && tk2 === TK_RIGHTBRACKET ||
                tk1 === tk2, message(1011, ["tk1=" + tk1 + " tk2=" + tk2]));
-        let op =
+        const op =
             tk1 === TK_LEFTBRACKET && Model.BRACKET ||
             Model.PAREN;
         e = newNode(op, [e]);
@@ -1757,8 +1759,8 @@ export let Model = (function () {
     }
     // Parse 'x^2'
     function exponentialExpr() {
-      let args = [primaryExpr()];
-      while (hd()===TK_CARET) {
+      const args = [primaryExpr()];
+      while (hd() === TK_CARET) {
         next({oneCharToken: true});
         let t;
         if ((isMathSymbol(args[0]) || isChemCore()) &&
@@ -1797,7 +1799,7 @@ export let Model = (function () {
         expo.isPolynomial = isPolynomial(expo);
         return expo;
       } else {
-        let node = args[0];
+        const node = args[0];
         node.isPolynomial = isPolynomial(node);
         return node;
       }
@@ -1832,7 +1834,7 @@ export let Model = (function () {
         } else if (t === TK_VERTICALBAR && lookahead() === TK_UNDERSCORE) {
           // x|_{x=3}, x|_1^2
           next();
-          let args = [expr];
+          const args = [expr];
           next({oneCharToken: true});
           args.push(newNode(Model.SUBSCRIPT, [equalExpr()]));
           expr = newNode(Model.PIPE, args);
@@ -1884,7 +1886,7 @@ export let Model = (function () {
         }
         expr = newNode(op, [expr]);
         if ((t = hd()) === TK_CARET) {
-          let args = [expr];
+          const args = [expr];
           // _1, _1^2, _+^-
           op = tokenToOperator[t];
           next({oneCharToken: true});
@@ -1932,7 +1934,7 @@ export let Model = (function () {
     // Parse 'x_2', where x might be a exponential.
     // x^2_1 => x_1^2
     function subscriptExpr() {
-      let args = [unaryExpr()];
+      const args = [unaryExpr()];
       while (hd() === TK_UNDERSCORE) {
         next({oneCharToken: true});
         args.push(exponentialExpr());
@@ -1954,7 +1956,7 @@ export let Model = (function () {
       return expr;
       function foldSubs(args) {
         let expo;
-        let expr, base;
+        let base;
         args.forEach(arg => {
           if (arg.op === Model.SUBSCRIPT) {
             arg = foldSubs(arg.args);
@@ -1990,8 +1992,7 @@ export let Model = (function () {
           const args = baseArgs.concat(argArgs);
           base = args.length > 1 && newNode(Model.SUBSCRIPT, args) || args[0];
         });
-        expr = expo && binaryNode(Model.POW, [base, expo]) || base;
-        return expr;
+        return expo && binaryNode(Model.POW, [base, expo]) || base;
       }
     }
     // Parse '1/2/3/4', '1 1/2', '1\frac{1}{2}'
@@ -1999,7 +2000,7 @@ export let Model = (function () {
       let t, node = subscriptExpr();
       if (isNumber(node) &&
           (hd() === TK_FRAC || hd() === TK_NUM && lookahead() === TK_SLASH)) {
-        let frac = fractionExpr();
+        const frac = fractionExpr();
         if (isMixedNumber(node, frac)) {
           let neg;
           if (isNeg(node)) {
@@ -2028,7 +2029,7 @@ export let Model = (function () {
       if (n.op !== Model.VAR) {
         return false;
       }
-      let sym = Model.env[n.args[0]];
+      const sym = Model.env[n.args[0]];
       return sym && sym.name ? true : false;  // This is somewhat ad hoc, update as needed.
     }
     function isVar(n, id) {
@@ -2088,13 +2089,13 @@ export let Model = (function () {
       if (n.op !== Model.FRAC) {
         return false;
       }
-      let numer = n.args[0];
-      let numerHead =
+      const numer = n.args[0];
+      const numerHead =
         numer.op === Model.MUL && numer.args[0].op === Model.VAR && numer.args[0].args[0] ||
         numer.op === Model.VAR && numer.args[0] ||
         numer.op === Model.POW && numer.args[0].op === Model.VAR && numer.args[0].args[0];
-      let denom = n.args[1];
-      let denomHead =
+      const denom = n.args[1];
+      const denomHead =
         denom.op === Model.MUL && denom.args[0].op === Model.VAR && denom.args[0].args[0];
       return numerHead === "d" && denomHead === "d" &&
         (denom.args[1] && denom.args[1].op === Model.VAR ||
@@ -2105,19 +2106,19 @@ export let Model = (function () {
       if (node.op !== Model.FRAC) {
         return null;
       }
-      let numer = node.args[0];
-      let denom = node.args[1];
-      let n =
+      const numer = node.args[0];
+      const denom = node.args[1];
+      const n =
         numer.op === Model.MUL &&
         numer.args.slice(1).length > 0 &&
         multiplyNode(numer.args.slice(1)) || nodeOne;
       assert(denom.args.length === 2);
-      let arg = denom.args[1];
-      let sym = arg.op === Model.POW && arg.args[0] || arg;
-      let order = arg.op === Model.POW && arg.args[1] || nodeOne;
+      const arg = denom.args[1];
+      const sym = arg.op === Model.POW && arg.args[0] || arg;
+      const order = arg.op === Model.POW && arg.args[1] || nodeOne;
       return newNode(Model.DERIV, [n, sym, order]);
     }
-    function multiplicativeExpr(implicitOnly=false) {
+    function multiplicativeExpr(implicitOnly = false) {
       let t, expr, explicitOperator = false, args = [];
       let n0;
       expr = fractionExpr();
@@ -2173,25 +2174,25 @@ export let Model = (function () {
         if (!(explicitOperator ||
               args.length === 0 ||
               expr.lbrk ||
-              args[args.length-1].op !== Model.NUM ||
-              !(args[args.length-1].numberFormat === 'decimal' && args[args.length-1].lastSeparatorIndex === args[args.length-1].args[0].length - 1) ||
-              args[args.length-1].lastSeparatorIndex === args[args.length-1].args[0].length ||
-              args[args.length-1].lbrk ||
-              isRepeatingDecimal([args[args.length-1], expr]) ||
+              args[args.length - 1].op !== Model.NUM ||
+              !(args[args.length - 1].numberFormat === 'decimal' && args[args.length - 1].lastSeparatorIndex === args[args.length - 1].args[0].length - 1) ||
+              args[args.length - 1].lastSeparatorIndex === args[args.length - 1].args[0].length ||
+              args[args.length - 1].lbrk ||
+              isRepeatingDecimal([args[args.length - 1], expr]) ||
               expr.op !== Model.NUM)) {
           assert(false, "Shouldn't get here");
           // We have two adjacent numbers so merge them into one.
-          var n = args.pop();
+          const n = args.pop();
           expr = newNode(Model.NUM, [n.args[0] + expr.args[0]]);  // Don't use numberNode() to avoid separator checks.
         }
         assert(explicitOperator ||
                args.length === 0 ||
                expr.lbrk ||
-               args[args.length-1].op !== Model.NUM ||
-               args[args.length-1].lbrk ||
-               isRepeatingDecimal([args[args.length-1], expr]) ||
+               args[args.length - 1].op !== Model.NUM ||
+               args[args.length - 1].lbrk ||
+               isRepeatingDecimal([args[args.length - 1], expr]) ||
                expr.op !== Model.NUM, message(1010));
-        if (isChemCore() && t === TK_LEFTPAREN && isVar(args[args.length-1], "M")) {
+        if (isChemCore() && t === TK_LEFTPAREN && isVar(args[args.length - 1], "M")) {
           // M(x) -> \M(x)
           args.pop();
           expr = unaryNode(Model.M, [expr]);
@@ -2199,7 +2200,7 @@ export let Model = (function () {
           // Attempt to make units bind harder than multiplication. Reverted
           // because of usability and compatibility issues.
           if (args.length > 0 &&
-              isMixedNumber(args[args.length-1], expr)) {
+              isMixedNumber(args[args.length - 1], expr)) {
             // 3 \frac{1}{2} -> 3 + \frac{1}{2}
             t = args.pop();
             if (isNeg(t)) {
@@ -2208,44 +2209,44 @@ export let Model = (function () {
             expr = binaryNode(Model.ADD, [t, expr]);
             expr.isMixedNumber = true;
           } else if (args.length > 0 &&
-                     args[args.length-1].op === Model.VAR &&
+                     args[args.length - 1].op === Model.VAR &&
                      expr.op === Model.VAR && expr.args[0].indexOf("'") === 0) {
             // Merge previous var with current '.
             expr = binaryNode(Model.POW, [args.pop(), expr]);
             expr.isImplicit = expr.args[0].isImplicit;
           } else if (args.length > 0 &&
-                     (args[args.length-1].op === Model.MUL || args[args.length-1].op === Model.DOT) &&  // 2x', 2*x', 2\cdot x'
-                     args[args.length-1].args[args[args.length-1].args.length-1].op === Model.VAR &&
+                     (args[args.length - 1].op === Model.MUL || args[args.length - 1].op === Model.DOT) &&  // 2x', 2*x', 2\cdot x'
+                     args[args.length - 1].args[args[args.length - 1].args.length - 1].op === Model.VAR &&
                      expr.op === Model.VAR && expr.args[0].indexOf("'") === 0) {
             t = args.pop();
             expr = multiplyNode(t.args.concat(binaryNode(Model.POW, [t.args.pop(), expr])));
             expr.isImplicit = expr.args[0].isImplicit;
           } else if (args.length > 0 &&
-                     args[args.length-1].op === Model.VAR &&
+                     args[args.length - 1].op === Model.VAR &&
                      expr.op === Model.POW &&
                      expr.args[0].op === Model.VAR &&
                      expr.args[0].args[0].indexOf("'") === 0) {
             // Merge previous var with current ' and raise to the power.
             expr = newNode(Model.POW, [binaryNode(Model.POW, [args.pop(), expr.args[0]])].concat(expr.args.slice(1)));
           } else if (args.length > 0 &&
-                     (n0 = isRepeatingDecimal([args[args.length-1], expr]))) {
+                     (n0 = isRepeatingDecimal([args[args.length - 1], expr]))) {
             args.pop();
             expr = n0;
           } else if (isENotation(args, expr)) {
             // 1E2, 1E-2, 1e2
-            let tmp = args.pop();
+            const tmp = args.pop();
             expr = binaryNode(Model.POW, [numberNode(options, "10"), unaryExpr()]);
             expr = binaryNode(Model.TIMES, [tmp, expr]);
             expr.isScientific = true;
-          } else if (!isChemCore() && isPolynomialTerm(args[args.length-1], expr)) {
+          } else if (!isChemCore() && isPolynomialTerm(args[args.length - 1], expr)) {
             // 2x, -3y but not CH (in chem)
             expr.isPolynomialTerm = true;
-            let t = args.pop();
+            const t = args.pop();
             if (!t.isPolynomialTerm) {
-              if (t.op === Model.MUL && t.args[t.args.length-1].isPolynomialTerm) {
+              if (t.op === Model.MUL && t.args[t.args.length - 1].isPolynomialTerm) {
                 assert(t.args.length === 2);
-                let prefix = t.args[0];
-                let suffix = t.args[1];
+                const prefix = t.args[0];
+                const suffix = t.args[1];
                 expr.isPolynomialTerm = suffix.isPolynomialTerm = false;
                 expr = binaryNode(Model.MUL, [prefix, binaryNode(Model.MUL, [suffix, expr], true)]);
                 expr.args[1].isPolynomialTerm = true;
@@ -2256,7 +2257,7 @@ export let Model = (function () {
             }
           } else if (args[args.length - 1].op === Model.DERIV) {
             // Fold expr into derivative expr.
-            let arg = args.pop();
+            const arg = args.pop();
             let e = arg.args[0];
             e = isOne(e) && expr || multiplyNode([e, expr]);
             expr = newNode(Model.DERIV, [e].concat(arg.args.slice(1)));
@@ -2328,7 +2329,7 @@ export let Model = (function () {
       }
       if (!n0.lbrk && !n1.lbrk &&
           (isPolynomialPart(n0) && isPolynomialPart(n1) ||
-           n0.op === Model.MUL && n0.args[n0.args.length-1].isPolynomialTerm && isPolynomialPart(n1))) {
+           n0.op === Model.MUL && n0.args[n0.args.length - 1].isPolynomialTerm && isPolynomialPart(n1))) {
         return true;
       }
       return false;
@@ -2352,15 +2353,15 @@ export let Model = (function () {
       return false;
     }
 
-    let bigZero = new Decimal("0");
-    let bigOne = new Decimal("1");
+    const bigZero = new Decimal("0");
+    const bigOne = new Decimal("1");
 
     function isPolynomial(node) {
       // This recognizes some common shapes of polynomials.
       let degree = 0;
       if (node.op === Model.POW) {
-        let base = node.args[0];
-        let expo = node.args[1];
+        const base = node.args[0];
+        const expo = node.args[1];
         if ((base.op === Model.VAR ||
              base.isPolynomial ||
              base.op === Model.PAREN &&
@@ -2372,12 +2373,12 @@ export let Model = (function () {
         degree = 1;
       } else if (node.op === Model.ADD || node.op === Model.SUB) {
         node.args.forEach(n => {
-          let d = isPolynomial(n) ;
+          const d = isPolynomial(n) ;
           degree = d > degree && d || degree;
         });
       } else if (node.op === Model.MUL) {
         node.args.forEach(n => {
-          let d = isPolynomial(n) ;
+          const d = isPolynomial(n) ;
           degree = d > degree && d || degree;
         });
       }
@@ -2390,7 +2391,7 @@ export let Model = (function () {
       // "3." "\overline{..}"
       // "10\times3." "\overline{..}", prefix=10
       let prefix;
-      var isNeg = false;
+      let isNeg = false;
       if (args[0].op === Model.SUB && args[0].args[0].op === Model.NUM) {
         args[0] = args[0].args[0];
         isNeg = true;
@@ -2429,7 +2430,7 @@ export let Model = (function () {
     }
 
     function isENotation(args, expr) {
-      if (args.length > 0 && isNumber(args[args.length-1]) &&
+      if (args.length > 0 && isNumber(args[args.length - 1]) &&
           expr.op === Model.TEXT &&
           (expr.args[0].args[0] === "E" || expr.args[0].args[0] === "e") &&
           (hd() === TK_NUM || (hd() === 45 || hd() === 43) && lookahead() === TK_NUM)) {
@@ -2454,8 +2455,8 @@ export let Model = (function () {
         return false;
       } else if (args.length === 2) {
         // 1.0 \times 10 ^ 1
-        let a = args[0];
-        let e = args[1];
+        const a = args[0];
+        const e = args[1];
         if ((n = isNumber(a)) &&
             (n.args[0].length === 1 || n.args[0].indexOf(".") === 1) &&
             e.op === Model.POW &&
@@ -2471,11 +2472,11 @@ export let Model = (function () {
     function isNeg(n) {
       if (typeof n === "number") {
         return n < 0;
-      } else if (n.args.length===1) {
+      } else if (n.args.length === 1) {
         return n.op === OpStr.SUB && n.args[0].args[0] > 0 ||  // Is unary minus.
                n.op === Model.NUM && +n.args[0] < 0;           // Is negative number.
-      } else if (n.args.length===2) {
-        return n.op===OpStr.MUL && isNeg(n.args[0]);  // Leading term is neg.
+      } else if (n.args.length === 2) {
+        return n.op === OpStr.MUL && isNeg(n.args[0]);  // Leading term is neg.
       }
       return false;
     }
@@ -2486,7 +2487,7 @@ export let Model = (function () {
       } else if (n.op === Model.SUB && n.args.length === 1) {
         return n.args[0];
       } else if (n.op === Model.MUL) {
-        let args = n.args.slice(0); // Copy.
+        const args = n.args.slice(0); // Copy.
         return multiplyNode([negate(args.shift())].concat(args));
       } else if (n.op === Model.POW && isMinusOne(n.args[1])) {
         return binaryNode(Model.POW, [negate(n.args[0]), nodeMinusOne]);
@@ -2527,7 +2528,7 @@ export let Model = (function () {
           expr = binaryNode(Model.SUB, [expr, expr2]);
           break;
         default: {
-          let flatten =
+          const flatten =
             !Model.option(options, "compareGrouping") &&
             !(expr.isMixedNumber || expr2.isMixedNumber);
           expr = binaryNode(Model.ADD, [expr, expr2], flatten);
@@ -2583,7 +2584,7 @@ export let Model = (function () {
           args.push(n);
         }
       });
-      let isMixedNumber = node.isMixedNumber;
+      const isMixedNumber = node.isMixedNumber;
       node = newNode(node.op, args);
       node.isMixedNumber = isMixedNumber;
       return node;
@@ -2593,7 +2594,7 @@ export let Model = (function () {
       if (!Model.option(options, 'parsingIntegralExpr')) {
         return null;
       }
-      let len = node.args.length;
+      const len = node.args.length;
       if (node.op === Model.MUL && node.args[len - 1].op === Model.FRAC) {
         return hasDX(options, node.args[len - 1]);
       } else if (isMultiplicativeNode(node) && isFunctionNode(node.args[len - 1])) {
@@ -2603,8 +2604,8 @@ export let Model = (function () {
       } else if (isFunctionNode(node)) {
         return hasDX(options, node.args[len - 1]); // Function arg
       }
-      let dvar = node.args[len - 2];
-      let ivar = node.args[len - 1];
+      const dvar = node.args[len - 2];
+      const ivar = node.args[len - 1];
       return (
         node && node.op === Model.MUL &&
           dvar.op === Model.VAR && dvar.args[0] === "d" &&
@@ -2631,7 +2632,7 @@ export let Model = (function () {
         ]);
       } else if (isFunctionNode(node)) {
         // \ln(x dx)
-        node = newNode(node.op, [stripDX(node.args[node.args.length-1])]);
+        node = newNode(node.op, [stripDX(node.args[node.args.length - 1])]);
       } else {
         node = multiplyNode(node.args.slice(0, node.args.length - 2));
       }
@@ -2640,7 +2641,7 @@ export let Model = (function () {
     function integralExpr() {
       eat(TK_INT);
       const parsingIntegralExpr = Model.option(options, 'parsingIntegralExpr', true);
-      let args = [];
+      const args = [];
       // Collect the subscript and expression
       if (hd() === TK_UNDERSCORE) {
         next({oneCharToken: true});
@@ -2683,7 +2684,7 @@ export let Model = (function () {
     }
     function limitExpr() {
       eat(TK_LIM);
-      let args = [];
+      const args = [];
       // Collect the subscript and expression
       if (hd() === TK_UNDERSCORE) {
         next({oneCharToken: true});
@@ -2693,7 +2694,7 @@ export let Model = (function () {
       return newNode(Model.LIM, args);
     }
     function isRelational(t) {
-      return t === TK_LT || t === TK_LE || t=== TK_GT || t === TK_GE ||
+      return t === TK_LT || t === TK_LE || t === TK_GT || t === TK_GE ||
         t === TK_NGTR || t === TK_NLESS ||
         t === TK_IN || t === TK_TO || t === TK_COLON ||
         t === TK_PERP || t === TK_PROPTO ||
@@ -2707,7 +2708,7 @@ export let Model = (function () {
     function relationalExpr() {
       let t = hd();
       let expr = additiveExpr();
-      let args = [];
+      const args = [];
       let isNot = false;
       while (isRelational(t = hd())) {
         // x < y < z -> [x < y, y < z]
@@ -2717,7 +2718,7 @@ export let Model = (function () {
           isNot = true;
           continue;
         }
-        let expr2 = additiveExpr();
+        const expr2 = additiveExpr();
         expr = newNode(tokenToOperator[t], [expr, expr2]);
         if (isNot) {
           // Modify with not.
@@ -2743,12 +2744,12 @@ export let Model = (function () {
     function equalExpr() {
       let expr = relationalExpr();
       let t;
-      let args = [];
+      const args = [];
       while (isEquality(t = hd()) ||
              t === TK_RIGHTARROW) {
         // x = y = z -> [x = y, y = z]
         next();
-        let expr2 = additiveExpr();
+        const expr2 = additiveExpr();
         expr = newNode(tokenToOperator[t], [expr, expr2]);
         args.push(expr);
         // Make a copy of the reused node.
@@ -2773,17 +2774,17 @@ export let Model = (function () {
       let t;
       while (isImplies(t = hd())) {
         next();
-        let expr2 = equalExpr();
+        const expr2 = equalExpr();
         expr = newNode(tokenToOperator[t], [expr, expr2]);
       }
       return expr;
     }
     // Parse 'a, b, c, d'
     function commaExpr(allowSemicolon) {
-      let expr = impliesExpr();
-      let args = [expr];
+      const expr = impliesExpr();
+      const args = [expr];
       let t;
-      while ((t = hd())===TK_COMMA ||
+      while ((t = hd()) === TK_COMMA ||
              allowSemicolon && t === TK_SEMICOLON) {
         // If commas are thousands or decimal separator then they are already
         // consumed as part of the number.
@@ -2801,14 +2802,14 @@ export let Model = (function () {
     // Root syntax.
     function tokenize() {
       // Just return a list of lexemes.
-      let args = [];
+      const args = [];
       start();
       while (hd()) {
-        let lex = lexeme(options);
+        const lex = lexeme(options);
         args.push(newNode(hd(), lex ? [lex] : []));
         next();
       }
-      let node = newNode(Model.COMMA, args);
+      const node = newNode(Model.COMMA, args);
       return node;
     }
     function expr() {
@@ -2842,7 +2843,7 @@ export let Model = (function () {
     function scanner(src) {
       let curIndex = 0;
       let lexeme = "";
-      let lexemeToToken = {
+      const lexemeToToken = {
         "\\Delta": TK_DELTA,
         "\\cdot": TK_CDOT,
         "\\times": TK_TIMES,
@@ -2973,7 +2974,7 @@ export let Model = (function () {
         "\\langle": TK_LANGLE,
         "\\rangle": TK_RANGLE,
       };
-      let unicodeToLaTeX = {
+      const unicodeToLaTeX = {
         0x00B0: "\\degree",
         0x2200: "\\forall",
         0x2201: "\\complement",
@@ -3282,7 +3283,7 @@ export let Model = (function () {
         0x03A8: "\\Psi",
         0x03A9: "\\Omega",
       };
-      let identifiers = Object.keys(env);
+      const identifiers = Object.keys(env);
       // Add keywords to the list of identifiers.
       identifiers.push("to");
       function isAlphaCharCode(c) {
@@ -3403,7 +3404,7 @@ export let Model = (function () {
             if (isAlphaCharCode(c) ||
                 c === CC_SINGLEQUOTE) {
               return variable(c);
-            } else if ((t=unicodeToLaTeX[c])) {
+            } else if ((t = unicodeToLaTeX[c])) {
               lexeme = t;
               let tk = lexemeToToken[lexeme];
               if (tk === void 0) {
@@ -3478,8 +3479,8 @@ export let Model = (function () {
         // name.
         let ch = String.fromCharCode(c);
         lexeme += ch;
-        var identifier = lexeme;
-        var startIndex = curIndex + 1;
+        let identifier = lexeme;
+        const startIndex = curIndex + 1;
         while (isAlphaCharCode(c) || c === CC_SINGLEQUOTE) {
           // All single character names are valid variable lexemes. Now we check
           // for longer match against unit names. The longest one wins.
@@ -3489,8 +3490,8 @@ export let Model = (function () {
             break;
           }
           ch = String.fromCharCode(c);
-          var match = identifiers.some(function (u) {
-            var ident = identifier + ch;
+          const match = identifiers.some(function (u) {
+            const ident = identifier + ch;
             // Check of not an explicit variable and has a prefix that is a unit.
             return u.indexOf(ident) === 0;
           });
@@ -3548,7 +3549,7 @@ export let Model = (function () {
           lexeme = "";
           c = src.charCodeAt(curIndex++);
           while (c && c !== CC_RIGHTBRACE) {
-            let ch = String.fromCharCode(c);
+            const ch = String.fromCharCode(c);
             if (ch === "&" && src.substring(curIndex).indexOf("nbsp;") === 0) {
               // Skip &nbsp;
               curIndex += 5;
@@ -3571,9 +3572,9 @@ export let Model = (function () {
           }
           lexeme = "";
           c = src.charCodeAt(curIndex++);
-          let keepTextWhitespace = Model.option(options, "keepTextWhitespace");
+          const keepTextWhitespace = Model.option(options, "keepTextWhitespace");
           while (c && c !== CC_RIGHTBRACE) {
-            let ch = String.fromCharCode(c);
+            const ch = String.fromCharCode(c);
             if (!keepTextWhitespace && ch === "&" && src.substring(curIndex).indexOf("nbsp;") === 0) {
               // Skip &nbsp;
               curIndex += 5;
