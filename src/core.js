@@ -6,7 +6,7 @@ import {version} from "./version.js";
 import {every, forEach, keys, indexOf} from "./backward.js";
 import {Assert, assert, message} from "./assert.js";
 import {Ast} from "./ast.js";
-import {Model} from "./model.js";
+import {Parser} from "@artcompiler/parselatex";
 import {rules} from "./rules.js";
 
 (function (ast) {
@@ -41,159 +41,159 @@ import {rules} from "./rules.js";
     function visit(options, node, visit, resume) {
       assert(node.op && node.args, "Visitor.visit() op=" + node.op + " args = " + node.args);
       switch (node.op) {
-      case Model.NUM:
+      case Parser.NUM:
         node = visit.numeric(node, resume);
         break;
-      case Model.ADD:
-      case Model.SUB:
-      case Model.PM:
-      case Model.BACKSLASH: // set operator
-      case Model.DIV:
-      case Model.FRAC:
-      case Model.LOG:
-      case Model.COLON:
-      case Model.FUNC:
-      case Model.TYPE:
+      case Parser.ADD:
+      case Parser.SUB:
+      case Parser.PM:
+      case Parser.BACKSLASH: // set operator
+      case Parser.DIV:
+      case Parser.FRAC:
+      case Parser.LOG:
+      case Parser.COLON:
+      case Parser.FUNC:
+      case Parser.TYPE:
         if (node.args.length === 1) {
           node = visit.unary(node, resume);
         } else {
           node = visit.binary(node, resume);
         }
         break;
-      case Model.MUL:
-      case Model.TIMES:
-      case Model.COEFF:
-      case Model.CDOT:
+      case Parser.MUL:
+      case Parser.TIMES:
+      case Parser.COEFF:
+      case Parser.CDOT:
         node = visit.multiplicative(node, resume);
         break;
-      case Model.POW:
+      case Parser.POW:
         node = visit.exponential(node, resume);
         break;
-      case Model.VAR:
+      case Parser.VAR:
         node = visit.variable(node, resume);
         break;
-      case Model.SQRT:
-      case Model.SIN:
-      case Model.COS:
-      case Model.TAN:
-      case Model.SEC:
-      case Model.CSC:
-      case Model.COT:
-      case Model.ARCSIN:
-      case Model.ARCCOS:
-      case Model.ARCTAN:
-      case Model.ARCSEC:
-      case Model.ARCCSC:
-      case Model.ARCCOT:
-      case Model.SINH:
-      case Model.COSH:
-      case Model.TANH:
-      case Model.ARCSINH:
-      case Model.ARCCOSH:
-      case Model.ARCTANH:
-      case Model.ARCSECH:
-      case Model.ARCCSCH:
-      case Model.ARCCOTH:
-      case Model.SECH:
-      case Model.CSCH:
-      case Model.COTH:
-      case Model.PERCENT:
-      case Model.M:
-      case Model.ABS:
-      case Model.FACT:
-      case Model.FORALL:
-      case Model.EXISTS:
-      case Model.IN:
-      case Model.SUM:
-      case Model.LIM:
-      case Model.EXP:
-      case Model.TO:
-      case Model.DERIV:
-      case Model.INTEGRAL:
-      case Model.PROD:
-      case Model.CUP:
-      case Model.BIGCUP:
-      case Model.CAP:
-      case Model.BIGCAP:
-      case Model.PIPE:
-      case Model.ION:
-      case Model.POW:
-      case Model.SUBSCRIPT:
-      case Model.OVERLINE:
-      case Model.OVERSET:
-      case Model.UNDERSET:
-      case Model.MATHBF:
-      case Model.TEXT:
-      case Model.NONE:
-      case Model.DEGREE:
-      case Model.DOT:
-      case Model.MATHFIELD:
-      case Model.SET:
-      case Model.NOT:
-      case Model.OPERATORNAME:
+      case Parser.SQRT:
+      case Parser.SIN:
+      case Parser.COS:
+      case Parser.TAN:
+      case Parser.SEC:
+      case Parser.CSC:
+      case Parser.COT:
+      case Parser.ARCSIN:
+      case Parser.ARCCOS:
+      case Parser.ARCTAN:
+      case Parser.ARCSEC:
+      case Parser.ARCCSC:
+      case Parser.ARCCOT:
+      case Parser.SINH:
+      case Parser.COSH:
+      case Parser.TANH:
+      case Parser.ARCSINH:
+      case Parser.ARCCOSH:
+      case Parser.ARCTANH:
+      case Parser.ARCSECH:
+      case Parser.ARCCSCH:
+      case Parser.ARCCOTH:
+      case Parser.SECH:
+      case Parser.CSCH:
+      case Parser.COTH:
+      case Parser.PERCENT:
+      case Parser.M:
+      case Parser.ABS:
+      case Parser.FACT:
+      case Parser.FORALL:
+      case Parser.EXISTS:
+      case Parser.IN:
+      case Parser.SUM:
+      case Parser.LIM:
+      case Parser.EXP:
+      case Parser.TO:
+      case Parser.DERIV:
+      case Parser.INTEGRAL:
+      case Parser.PROD:
+      case Parser.CUP:
+      case Parser.BIGCUP:
+      case Parser.CAP:
+      case Parser.BIGCAP:
+      case Parser.PIPE:
+      case Parser.ION:
+      case Parser.POW:
+      case Parser.SUBSCRIPT:
+      case Parser.OVERLINE:
+      case Parser.OVERSET:
+      case Parser.UNDERSET:
+      case Parser.MATHBF:
+      case Parser.TEXT:
+      case Parser.NONE:
+      case Parser.DEGREE:
+      case Parser.DOT:
+      case Parser.MATHFIELD:
+      case Parser.SET:
+      case Parser.NOT:
+      case Parser.OPERATORNAME:
         node = visit.unary(node, resume);
         break;
-      case Model.COMMA:
-      case Model.MATRIX:
-      case Model.VEC:
-      case Model.ROW:
-      case Model.COL:
-      case Model.LIST:
-      case Model.ANGLEBRACKET:
+      case Parser.COMMA:
+      case Parser.MATRIX:
+      case Parser.VEC:
+      case Parser.ROW:
+      case Parser.COL:
+      case Parser.LIST:
+      case Parser.ANGLEBRACKET:
         node = visit.comma(node, resume);
         break;
-      case Model.EQL:
-      case Model.LT:
-      case Model.LE:
-      case Model.GT:
-      case Model.GE:
-      case Model.NE:
-      case Model.NGTR:
-      case Model.NLESS:
-      case Model.NI:
-      case Model.SUBSETEQ:
-      case Model.SUPSETEQ:
-      case Model.SUBSET:
-      case Model.SUPSET:
-      case Model.NNI:
-      case Model.NSUBSETEQ:
-      case Model.NSUPSETEQ:
-      case Model.NSUBSET:
-      case Model.NSUPSET:
-      case Model.APPROX:
-      case Model.IMPLIES:
-      case Model.PERP:
-      case Model.PROPTO:
-      case Model.PARALLEL:
-      case Model.NPARALLEL:
-      case Model.SIM:
-      case Model.CONG:
-      case Model.CAPRIGHTARROW:
-      case Model.RIGHTARROW:
-      case Model.LEFTARROW:
-      case Model.LONGRIGHTARROW:
-      case Model.LONGLEFTARROW:
-      case Model.OVERRIGHTARROW:
-      case Model.OVERLEFTARROW:
-      case Model.CAPLEFTRIGHTARROW:
-      case Model.LEFTRIGHTARROW:
-      case Model.LONGLEFTRIGHTARROW:
-      case Model.OVERLEFTRIGHTARROW:
+      case Parser.EQL:
+      case Parser.LT:
+      case Parser.LE:
+      case Parser.GT:
+      case Parser.GE:
+      case Parser.NE:
+      case Parser.NGTR:
+      case Parser.NLESS:
+      case Parser.NI:
+      case Parser.SUBSETEQ:
+      case Parser.SUPSETEQ:
+      case Parser.SUBSET:
+      case Parser.SUPSET:
+      case Parser.NNI:
+      case Parser.NSUBSETEQ:
+      case Parser.NSUPSETEQ:
+      case Parser.NSUBSET:
+      case Parser.NSUPSET:
+      case Parser.APPROX:
+      case Parser.IMPLIES:
+      case Parser.PERP:
+      case Parser.PROPTO:
+      case Parser.PARALLEL:
+      case Parser.NPARALLEL:
+      case Parser.SIM:
+      case Parser.CONG:
+      case Parser.CAPRIGHTARROW:
+      case Parser.RIGHTARROW:
+      case Parser.LEFTARROW:
+      case Parser.LONGRIGHTARROW:
+      case Parser.LONGLEFTARROW:
+      case Parser.OVERRIGHTARROW:
+      case Parser.OVERLEFTARROW:
+      case Parser.CAPLEFTRIGHTARROW:
+      case Parser.LEFTRIGHTARROW:
+      case Parser.LONGLEFTRIGHTARROW:
+      case Parser.OVERLEFTRIGHTARROW:
         node = visit.equals(node, resume);
         break;
-      case Model.PAREN:
-      case Model.BRACKET:
-      case Model.BRACE:
-      case Model.INTERVAL:
-      case Model.INTERVALOPEN:
-      case Model.INTERVALLEFTOPEN:
-      case Model.INTERVALRIGHTOPEN:
+      case Parser.PAREN:
+      case Parser.BRACKET:
+      case Parser.BRACE:
+      case Parser.INTERVAL:
+      case Parser.INTERVALOPEN:
+      case Parser.INTERVALLEFTOPEN:
+      case Parser.INTERVALRIGHTOPEN:
         node = visit.paren(node);
         break;
       default:
         if (visit.name !== "normalizeLiteral" &&
             visit.name !== "sort") {
-          node = newNode(Model.VAR, ["INTERNAL ERROR Should not get here. Unhandled node operator " + node.op]);
+          node = newNode(Parser.VAR, ["INTERNAL ERROR Should not get here. Unhandled node operator " + node.op]);
           console.trace(JSON.stringify(node, null, 2));
         }
         break;
@@ -204,7 +204,7 @@ import {rules} from "./rules.js";
       if (!word) {
         return "";
       }
-      let words = Model.option(options, "words");
+      let words = Parser.option(options, "words");
       let val;
       if (words) {
         val = words[word];
@@ -221,18 +221,18 @@ import {rules} from "./rules.js";
       // Normalize the fmt object to an array of objects
       var list = [];
       switch (fmt.op) {
-      case Model.VAR:
+      case Parser.VAR:
         list.push({
           code: fmt.args[0]
         });
         break;
-      case Model.MUL:
+      case Parser.MUL:
         var code = "";
         var length = undefined;  // undefined and zero have different meanings.
         forEach(fmt.args, function (f) {
-          if (f.op === Model.VAR) {
+          if (f.op === Parser.VAR) {
             code += f.args[0];
-          } else if (f.op === Model.NUM) {
+          } else if (f.op === Parser.NUM) {
             length = +f.args[0];
           }
         });
@@ -241,7 +241,7 @@ import {rules} from "./rules.js";
           length: length
         });
         break;
-      case Model.COMMA:
+      case Parser.COMMA:
         forEach(fmt.args, function (f) {
           list = list.concat(normalizeFormatObject(f));
         });
@@ -368,19 +368,19 @@ import {rules} from "./rules.js";
         switch (code) {
         case "simpleSmallRowMatrix":
         case "smallRowMatrix":
-          return node.op === Model.MATRIX && node.m === 1 && node.n < 4;
+          return node.op === Parser.MATRIX && node.m === 1 && node.n < 4;
         case "simpleSmallColumnMatrix":
         case "smallColumnMatrix":
-          return node.op === Model.MATRIX && node.m < 4 && node.n === 1;
+          return node.op === Parser.MATRIX && node.m < 4 && node.n === 1;
         case "simpleSmallMatrix":
         case "smallMatrix":
-          return node.op === Model.MATRIX && node.m < 4 && node.n < 4;
+          return node.op === Parser.MATRIX && node.m < 4 && node.n < 4;
         case "matrix":
-          return node.op === Model.MATRIX;
+          return node.op === Parser.MATRIX;
         case "row":
-          return node.op === Model.ROW;
+          return node.op === Parser.ROW;
         case "column":
-          return node.op === Model.COL;
+          return node.op === Parser.COL;
         default:
           return false;
         }
@@ -407,25 +407,25 @@ import {rules} from "./rules.js";
       }
     }
     function isSimpleExpression(node) {
-      if (node.op === Model.NUM ||
-          node.op === Model.VAR ||
+      if (node.op === Parser.NUM ||
+          node.op === Parser.VAR ||
           typeof node === "string") {
         return true;
       }
       return false;
     }
     function hasSimpleExpressions(node) {
-      assert(node.op === Model.MATRIX || node.op === Model.ROW || node.op === Model.COL);
+      assert(node.op === Parser.MATRIX || node.op === Parser.ROW || node.op === Parser.COL);
       return every(node.args, n => {
-        if (n.op === Model.MATRIX || n.op === Model.ROW || n.op === Model.COL) {
+        if (n.op === Parser.MATRIX || n.op === Parser.ROW || n.op === Parser.COL) {
           return hasSimpleExpressions(n);
         }
         return isSimpleExpression(n);
       });
     }
     function matchType(options, pattern, node) {
-      if (pattern.op === Model.TYPE &&
-          pattern.args[0].op === Model.VAR) {
+      if (pattern.op === Parser.TYPE &&
+          pattern.args[0].op === Parser.VAR) {
         let name = pattern.args[0].args[0];
         name = name.indexOf("[") > 0 && name.slice(0, name.indexOf("[")) || name;
         switch (name) {
@@ -441,7 +441,7 @@ import {rules} from "./rules.js";
         case "repeatingDecimal":
           return checkNumberType(pattern.args[0], node);
         case "variable":
-          return node.op === Model.VAR;
+          return node.op === Parser.VAR;
         case "simpleSmallRowMatrix":
         case "simpleSmallColumnMatrix":
         case "simpleSmallMatrix":
@@ -456,34 +456,34 @@ import {rules} from "./rules.js";
         case "polynomial":
           return checkPolynomialType(pattern.args[0].args[0], node);
         default:
-          let types = Model.option(options, "types");
+          let types = Parser.option(options, "types");
           let type = types[name];
           if (type) {
             assert(type instanceof Array);
             return type.some(function (pattern) {
               // FIXME pre-compile types.
-              let matches = match(options, [Model.create(options, pattern)], node);
+              let matches = match(options, [Parser.create(options, pattern)], node);
               return matches.length > 0;
             });
           }
         }
         return false;
-      } else if (pattern.op === Model.COLON &&
-          pattern.args[0].op === Model.VAR && pattern.args[0].args[0] === "?") {
+      } else if (pattern.op === Parser.COLON &&
+          pattern.args[0].op === Parser.VAR && pattern.args[0].args[0] === "?") {
         // This is a legacy case that can be removed when all content is updated.
-        assert(pattern.args[1].op === Model.VAR);
+        assert(pattern.args[1].op === Parser.VAR);
         switch (pattern.args[1].args[0]) {
         case "N":
-          return node.op === Model.NUM;
+          return node.op === Parser.NUM;
         case "V":
-          return node.op === Model.VAR;
+          return node.op === Parser.VAR;
         default:
         }
         return false;
       }
       return (
-        pattern.op === Model.VAR && pattern.args[0] === "?" ||
-        pattern.op === Model.MATRIX && node.op === Model.MATRIX
+        pattern.op === Parser.VAR && pattern.args[0] === "?" ||
+        pattern.op === Parser.MATRIX && node.op === Parser.MATRIX
       );
     }
 
@@ -504,7 +504,7 @@ import {rules} from "./rules.js";
           if (pattern.args.length === node.args.length) {
             // Same number of args, so see if each matches.
             return pattern.args.every(function (arg, i) {
-              if (pattern.op === Model.VAR) {
+              if (pattern.op === Parser.VAR) {
                 if (arg === node.args[i]) {
                   return true;
                 }
@@ -541,7 +541,7 @@ import {rules} from "./rules.js";
         str = str.replace(new RegExp("%" + (i + 1), "g"), arg.args[0]);
       });
       if (args.length > 2) {
-        return expandBinary(t, [newNode(Model.VAR, [str])].concat(args.slice(2)));
+        return expandBinary(t, [newNode(Parser.VAR, [str])].concat(args.slice(2)));
       }
       return str;
     }
@@ -597,54 +597,54 @@ import {rules} from "./rules.js";
           });
         }
         return {
-          op: Model.VAR,
+          op: Parser.VAR,
           args: [str],
         };
       }
       return args[0];
     }
     function isEmpty(node) {
-      return node.op === Model.VAR && node.args.length === 1 && node.args[0] === "";
+      return node.op === Parser.VAR && node.args.length === 1 && node.args[0] === "";
     }
 
     function getPrec(op) {
       switch (op) {
-      case Model.OR:
+      case Parser.OR:
         return 1;
-      case Model.AND:
+      case Parser.AND:
         return 2;
-      case Model.EQ:
-      case Model.NE:
+      case Parser.EQ:
+      case Parser.NE:
         return 3;
-      case Model.LT:
-      case Model.GT:
-      case Model.LE:
-      case Model.GE:
-      case Model.NGTR:
-      case Model.NLESS:
-      case Model.NI:
-      case Model.SUBSETEQ:
-      case Model.SUPSETEQ:
-      case Model.SUBSET:
-      case Model.SUPSET:
-      case Model.NNI:
-      case Model.NSUBSETEQ:
-      case Model.NSUPSETEQ:
-      case Model.NSUBSET:
-      case Model.NSUPSET:
+      case Parser.LT:
+      case Parser.GT:
+      case Parser.LE:
+      case Parser.GE:
+      case Parser.NGTR:
+      case Parser.NLESS:
+      case Parser.NI:
+      case Parser.SUBSETEQ:
+      case Parser.SUPSETEQ:
+      case Parser.SUBSET:
+      case Parser.SUPSET:
+      case Parser.NNI:
+      case Parser.NSUBSETEQ:
+      case Parser.NSUPSETEQ:
+      case Parser.NSUBSET:
+      case Parser.NSUPSET:
         return 4;
-      case Model.ADD:
-      case Model.SUB:
-      case Model.PM:
+      case Parser.ADD:
+      case Parser.SUB:
+      case Parser.PM:
         return 5;
-      case Model.MUL:
-      case Model.FRAC:
-      case Model.DIV:
-      case Model.MOD:
-      case Model.COLON:
+      case Parser.MUL:
+      case Parser.FRAC:
+      case Parser.DIV:
+      case Parser.MOD:
+      case Parser.COLON:
         return 6;
-      case Model.POW:
-      case Model.LOG:
+      case Parser.POW:
+      case Parser.LOG:
       default:
         return 7;
       }
@@ -684,13 +684,13 @@ import {rules} from "./rules.js";
           var flatten = true;
           forEach(node.args, function (n) {
             if ((n.isPolynomialTerm || n.isImplicit) && args.length > 0) {
-              args.push(binaryNode(Model.MUL, [args.pop(), normalizeLiteral(options, n)], flatten));
+              args.push(binaryNode(Parser.MUL, [args.pop(), normalizeLiteral(options, n)], flatten));
             } else {
               args.push(normalizeLiteral(options, n));
             }
           });
           // Only have explicit mul left, so convert to times.
-          var op = node.op === Model.MUL ? Model.TIMES : node.op;
+          var op = node.op === Parser.MUL ? Parser.TIMES : node.op;
           var n = binaryNode(op, args, true);
           n.isScientific = node.isScientific;
           n.isMixedNumber = node.isMixedNumber;
@@ -724,7 +724,7 @@ import {rules} from "./rules.js";
           forEach(node.args, function (n) {
             args.push(normalizeLiteral(options, n));
           });
-          let op = node.op === Model.LIST && Model.COMMA || node.op;  // Normalize LIST.
+          let op = node.op === Parser.LIST && Parser.COMMA || node.op;  // Normalize LIST.
           return newNode(op, args);
         },
         paren: function(node) {
@@ -740,15 +740,15 @@ import {rules} from "./rules.js";
           forEach(node.args, function (n) {
             args.push(normalizeLiteral(options, n));
           });
-          if (Model.option(options, "ignoreOrder") &&
-              (node.op === Model.GT ||
-               node.op === Model.GE)) {
+          if (Parser.option(options, "ignoreOrder") &&
+              (node.op === Parser.GT ||
+               node.op === Parser.GE)) {
             // Swap adjacent elements and reverse the operator.
             assert(args.length === 2, "Internal error: comparisons have only two operands");
             var t = args[0];
             args[0] = args[1];
             args[1] = t;
-            node.op = node.op === Model.GT ? Model.LT : Model.LE;
+            node.op = node.op === Parser.GT ? Parser.LT : Parser.LE;
             node.args = args;
           } else {
             node.args = args;
@@ -774,8 +774,8 @@ import {rules} from "./rules.js";
       let matchedTemplates = [];
       templates.forEach(function (template) {
         if((!template.context ||
-            Model.option(options, "NoParens") && template.context.indexOf("NoParens") > -1 ||
-            Model.option(options, "EndRoot") && template.context.indexOf("EndRoot") > -1) &&
+            Parser.option(options, "NoParens") && template.context.indexOf("NoParens") > -1 ||
+            Parser.option(options, "EndRoot") && template.context.indexOf("EndRoot") > -1) &&
            arity >= paramCount(template)) {  // Some args might be elided.
           matchedTemplates.push(template);
         }
@@ -836,7 +836,7 @@ import {rules} from "./rules.js";
         name: "translate",
         numeric: function(node) {
           let args = [{
-            op: Model.VAR,
+            op: Parser.VAR,
             args: [lookup(options, node.args[0])]
           }];
           let env = {};
@@ -929,7 +929,7 @@ import {rules} from "./rules.js";
           //   }
           // });
           // let matches = match(options, patterns, node);
-          // let args = [newNode(Model.VAR, [str])];
+          // let args = [newNode(Parser.VAR, [str])];
           // if (matches.length === 0) {
           //   return args[0];
           // }
@@ -945,7 +945,7 @@ import {rules} from "./rules.js";
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          args.push(newNode(Model.VAR, [lookup(options, nodeArgs.shift())]));
+          args.push(newNode(Parser.VAR, [lookup(options, nodeArgs.shift())]));
           forEach(nodeArgs, function (n, i) {
             // Now translate the subscripts.
             args = args.concat(translate(options, n, [globalRules, argRules]));
@@ -953,18 +953,18 @@ import {rules} from "./rules.js";
           return expand(template, args);
         },
         comma: function(node) {
-          if (node.op === Model.MATRIX || node.op === Model.ROW || node.op === Model.COL) {
+          if (node.op === Parser.MATRIX || node.op === Parser.ROW || node.op === Parser.COL) {
             let env = {};
-            if (node.op === Model.MATRIX) {
-              assert(node.args[0].op === Model.ROW);
-              assert(node.args[0].args[0].op === Model.COL);
+            if (node.op === Parser.MATRIX) {
+              assert(node.args[0].op === Parser.ROW);
+              assert(node.args[0].args[0].op === Parser.COL);
               node.m = env.m = node.args[0].args.length;
               node.n = env.n = node.args[0].args[0].args.length;
               forEach(node.args, (n, i) => {
                 // matrix dimensions
                 n.m = i + 1;
               });
-            } else if (node.op === Model.ROW) {
+            } else if (node.op === Parser.ROW) {
               forEach(node.args, (n, i) => {
                 n.m = i + 1;
                 n.n = undefined;
@@ -1125,7 +1125,7 @@ import {rules} from "./rules.js";
     let keys = Object.keys(rules);
     let compiledRules = {};
     keys.forEach(function (key) {
-      let pattern = JSON.stringify(Model.create(options, key));  // Parse and normalize.
+      let pattern = JSON.stringify(Parser.create(options, key));  // Parse and normalize.
       let template = compileTemplate(options, rules[key]);
       if (!compiledRules[pattern]) {
         compiledRules[pattern] = template;
@@ -1167,21 +1167,21 @@ import {rules} from "./rules.js";
     }
     return out;
   }
-  Model.fn.translate = function (n1, options) {
-    let rules = Model.option(options, "rules");
+  Parser.fn.translate = function (n1, options) {
+    let rules = Parser.option(options, "rules");
     let n = translate(options, n1, rules);
-    if (!n || n.op !== Model.VAR) {
-      n = newNode(Model.VAR, [""]);
+    if (!n || n.op !== Parser.VAR) {
+      n = newNode(Parser.VAR, [""]);
     }
     return trim(n.args[0]);
   }
 
-  let option = Model.option = function option(options, p, v) {
+  let option = Parser.option = function option(options, p, v) {
     assert(options);
     let opt = options && options[p];
     if (v !== undefined) {
       // Set the option value.
-      Model.options = options = options ? options : {};
+      Parser.options = options = options ? options : {};
       options[p] = v;
     }
     if (opt === undefined) {
@@ -1222,7 +1222,7 @@ import {rules} from "./rules.js";
     let env = {
     };
 
-    trace("\nMath Model self testing");
+    trace("\nMath Parser self testing");
     (function () {
     })();
   }
@@ -1438,14 +1438,14 @@ export let Core = (function () {
     let valueNode;
     let method = spec.method;
     let value = spec.value;
-    let options = Model.options = spec.options;
+    let options = Parser.options = spec.options;
     let pendingError;
     try {
       Assert.setLocation("spec");
       validateOptions(options);
-      Model.pushEnv(env);
-      valueNode = value != undefined ? Model.create(options, value, "spec") : undefined;
-      Model.popEnv();
+      Parser.pushEnv(env);
+      valueNode = value != undefined ? Parser.create(options, value, "spec") : undefined;
+      Parser.popEnv();
     } catch (e) {
       console.log("ERROR makeEvaluator() " + e.stack);
       pendingError = e;
@@ -1468,8 +1468,8 @@ export let Core = (function () {
         }
         Assert.setLocation("user");
         assert(solution != undefined, message(3002));
-        Model.pushEnv(env);
-        let solutionNode = Model.create(options, solution, "user");
+        Parser.pushEnv(env);
+        let solutionNode = Parser.create(options, solution, "user");
         assert(solutionNode, message(3008, ["invalid input"]));
         Assert.setLocation("spec");
         let result;
@@ -1481,7 +1481,7 @@ export let Core = (function () {
           assert(false, message(3004, [method]));
           break;
         }
-        Model.popEnv();
+        Parser.popEnv();
         resume([], result);
       } catch (e) {
         console.log("ERROR evaluate() " + e.stack);
@@ -1523,8 +1523,6 @@ export let Core = (function () {
   // Exports
   return {
     translate: translate,
-    Model: Model,
-    Ast: Ast
   };
 })();
 

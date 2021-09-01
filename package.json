@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@artcompiler/parselatex": "^1.0.1",
     "path": "^0.12.7",
     "webpack": "^5.30.0",
     "webpack-cli": "^4.6.0"
