@@ -6,8 +6,8 @@ import {version} from "./version.js";
 import {every, forEach, keys, indexOf} from "./backward.js";
 import {Assert, assert, message} from "./assert.js";
 //import {Ast} from "./ast.js";
-import {Ast, Parser} from "../../../../parselatex/index.js";
-//import {Ast, Parser} from "@artcompiler/parselatex";
+//import {Ast, Parser} from "../../../../parselatex/index.js";
+import {Ast, Parser} from "@artcompiler/parselatex";
 import {rules} from "./rules.js";
 
 (function (ast) {
