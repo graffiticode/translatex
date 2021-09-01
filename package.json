@@ -1,6 +1,6 @@
 {
   "name": "@artcompiler/translatex",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "type": "module",
   "description": "A library for translating LaTeX",
   "main": "index.js",
@@ -11,10 +11,10 @@
   "author": "https://github.com/jeffdyer",
   "license": "MIT",
   "devDependencies": {
-    "@artcompiler/parselatex": "^1.0.2",
+    "@artcompiler/parselatex": "^1.0.1",
     "path": "^0.12.7",
-    "webpack": "^5.51.1",
-    "webpack-cli": "^4.8.0"
+    "webpack": "^5.30.0",
+    "webpack-cli": "^4.6.0"
   },
   "scripts": {
     "build": "node ./tools/build.js"
@@ -23,6 +23,6 @@
     "node": ">=14.4.0"
   },
   "dependencies": {
-    "decimal.js": "^10.3.1"
+    "decimal.js": "^10.2.1"
   }
 }
