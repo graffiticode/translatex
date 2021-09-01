@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Art Compiler LLC. All Rights Reserved.
+ * Copyright 2021 ARTCOMPILER INC. All Rights Reserved.
  *
  */
 import {version} from "./version.js";

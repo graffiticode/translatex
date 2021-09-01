@@ -1,4 +1,15 @@
 {
+  "name": "@artcompiler/translatex",
+  "version": "0.7.2",
+  "type": "module",
+  "description": "A library for translating LaTeX",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artcompiler/parselatex.git"
+  },
+  "author": "https://github.com/jeffdyer",
+  "license": "MIT",
   "devDependencies": {
     "@artcompiler/parselatex": "^1.0.1",
     "path": "^0.12.7",
