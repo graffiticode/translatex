@@ -11,7 +11,7 @@
   "author": "https://github.com/jeffdyer",
   "license": "MIT",
   "devDependencies": {
-    "@artcompiler/parselatex": "^1.0.1",
+    "@artcompiler/parselatex": "https://github.com/artcompiler/parselatex/archive/refs/tags/v1.0.0.tar.gz",
     "path": "^0.12.7",
     "webpack": "^5.30.0",
     "webpack-cli": "^4.6.0"
