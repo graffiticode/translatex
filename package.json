@@ -6,7 +6,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/artcompiler/parselatex.git"
+    "url": "git+https://github.com/artcompiler/translatex.git"
   },
   "author": "https://github.com/jeffdyer",
   "license": "MIT",
