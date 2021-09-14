@@ -74,74 +74,85 @@
 
 */
 
-import {every, forEach} from "./backward.js";
-let ASSERT = true;
-export let assert = (function () {
+const ASSERT = true;
+export const assert = (function () {
   return !ASSERT ?
     function () { } :
     function (val, str, location) {
       if (str === void 0) {
-        str = "failed!";
+        str = 'failed!';
       }
       if (!val) {
-        let err = new Error(str);
-        err.location = location ? location : Assert.location;
+        const err = new Error(str);
+        err.location = location || Assert.location;
         throw err;
       }
-    }
-})();
+    };
+}());
 
-export let message = function (errorCode, args) {
+export const message = function (errorCode, args) {
   let str = Assert.messages[errorCode];
-  let location = Assert.location;
+  const { location } = Assert;
   if (args) {
-    forEach(args, function (arg, i) {
-      str = str.replace("%" + (i + 1), arg);
+    args.forEach((arg, i) => {
+      str = str.replace(`%${i + 1}`, arg);
     });
   }
-  return errorCode + ": " + str;
+  return `${errorCode}: ${str}`;
 };
 
-export let reserveCodeRange = function (first, last, moduleName) {
-  assert(first <= last, "Invalid code range");
-  let noConflict = every(Assert.reservedCodes, function (range) {
-    return last < range.first || first > range.last;
-  });
-  assert(noConflict, "Conflicting request for error code range");
-  Assert.reservedCodes.push({first: first, last: last, name: moduleName});
-}
+export const reserveCodeRange = function (first, last, moduleName) {
+  assert(first <= last, 'Invalid code range');
+  const noConflict = Assert.reservedCodes.every((range) => last < range.first || first > range.last);
+  assert(noConflict, 'Conflicting request for error code range');
+  Assert.reservedCodes.push({ first, last, name: moduleName });
+};
 
-export let setLocation = function (location) {
-  //assert(location, "Empty location");
+export const setLocation = function (location) {
+  // assert(location, "Empty location");
   Assert.location = location;
-}
+};
 
-export let clearLocation = function () {
+export const clearLocation = function () {
   Assert.location = null;
-}
+};
 
-export let setCounter = function (count, message) {
+const setTimeout_ = function (timeout, message) {
+  if (timeout === undefined) {
+    return undefined;
+  }
+  Assert.timeout = timeout ? Date.now() + timeout : 0;
+  Assert.timeoutMessage = message || 'ERROR timeout exceeded';
+};
+
+const checkTimeout = function () {
+  assert(!Assert.timeout || Assert.timeout > Date.now(), Assert.timeoutMessage);
+};
+
+export const setCounter = function (count, message) {
   Assert.count = count;
-  Assert.countMessage = message ? message : "ERROR count exceeded";
-}
+  Assert.countMessage = message || 'ERROR count exceeded';
+};
 
-export let checkCounter = function () {
-  let count = Assert.count;
-  if (typeof count !== "number" || isNaN(count)) {
-    assert(false, "ERROR counter not set");
+export const checkCounter = function () {
+  const { count } = Assert;
+  if (typeof count !== 'number' || isNaN(count)) {
+    assert(false, 'ERROR counter not set');
     return;
   }
   assert(Assert.count--, Assert.countMessage);
-}
+};
 
-export let Assert = {
-  assert: assert,
-  message: message,
+export const Assert = {
+  assert,
+  message,
   messages: {},
-  reserveCodeRange: reserveCodeRange,
+  reserveCodeRange,
   reservedCodes: [],
-  setLocation: setLocation,
-  clearLocation: clearLocation,
-  setCounter: setCounter,
-  checkCounter: checkCounter,
+  setLocation,
+  clearLocation,
+  checkTimeout,
+  setTimeout: setTimeout_,
+  setCounter,
+  checkCounter,
 };

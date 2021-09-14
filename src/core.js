@@ -3,10 +3,7 @@
  *
  */
 import {version} from "./version.js";
-import {every, forEach, keys, indexOf} from "./backward.js";
 import {Assert, assert, message} from "./assert.js";
-//import {Ast} from "./ast.js";
-//import {Ast, Parser} from "../../../../parselatex/index.js";
 import {Ast, Parser} from "@artcompiler/parselatex";
 import {rules} from "./rules.js";
 
@@ -26,7 +23,7 @@ import {rules} from "./rules.js";
       return args[0];
     }
     var aa = [];
-    forEach(args, function(n) {
+    args.forEach(function(n) {
       if (flatten && n.op === op) {
         aa = aa.concat(n.args);
       } else {
@@ -230,7 +227,7 @@ import {rules} from "./rules.js";
       case Parser.MUL:
         var code = "";
         var length = undefined;  // undefined and zero have different meanings.
-        forEach(fmt.args, function (f) {
+        fmt.args.forEach(function (f) {
           if (f.op === Parser.VAR) {
             code += f.args[0];
           } else if (f.op === Parser.NUM) {
@@ -243,7 +240,7 @@ import {rules} from "./rules.js";
         });
         break;
       case Parser.COMMA:
-        forEach(fmt.args, function (f) {
+        fmt.args.forEach(function (f) {
           list = list.concat(normalizeFormatObject(f));
         });
         break;
@@ -284,8 +281,8 @@ import {rules} from "./rules.js";
           }
           if (node.numberFormat === "decimal") {
             if (length === undefined ||
-                length === 0 && indexOf(node.args[0], ".") === -1 ||
-                length === node.args[0].substring(indexOf(node.args[0], ".") + 1).length) {
+                length === 0 && node.args[0].indexOf(".") === -1 ||
+                length === node.args[0].substring(node.args[0].indexOf(".") + 1).length) {
               // If there is no size or if the size matches the value...
               return true;
             }
@@ -310,7 +307,7 @@ import {rules} from "./rules.js";
           }
           if (node.numberFormat === "integer" ||
               node.numberFormat === "decimal") {
-            var brk = indexOf(node.args[0], ".");
+            var brk = node.args[0].indexOf(".");
             if (length === undefined ||
                 length === 0 && brk === -1 ||
                 brk >= 0 && length === node.args[0].substring(brk + 1).length) {
@@ -323,8 +320,8 @@ import {rules} from "./rules.js";
           if (node.isScientific) {
             var coeff = node.args[0].args[0];
             if (length === undefined ||
-                length === 0 && indexOf(coeff, ".") === -1 ||
-                length === coeff.substring(indexOf(coeff, ".") + 1).length) {
+                length === 0 && coeff.indexOf(".") === -1 ||
+                length === coeff.substring(coeff.indexOf(".") + 1).length) {
               // If there is no size or if the size matches the value...
               return true;
             }
@@ -417,7 +414,7 @@ import {rules} from "./rules.js";
     }
     function hasSimpleExpressions(node) {
       assert(node.op === Parser.MATRIX || node.op === Parser.ROW || node.op === Parser.COL);
-      return every(node.args, n => {
+      return node.args.every(n => {
         if (n.op === Parser.MATRIX || n.op === Parser.ROW || n.op === Parser.COL) {
           return hasSimpleExpressions(n);
         }
@@ -538,7 +535,7 @@ import {rules} from "./rules.js";
     }
     function expandBinary(str, args) {
       let t = str;
-      forEach(args, function (arg, i) {
+      args.forEach(function (arg, i) {
         str = str.replace(new RegExp("%" + (i + 1), "g"), arg.args[0]);
       });
       if (args.length > 2) {
@@ -557,7 +554,7 @@ import {rules} from "./rules.js";
         }
         if (str.indexOf("%*") >= 0) {
           let s = "";
-          forEach(args, function (arg, i) {
+          args.forEach(function (arg, i) {
             if (s !== "") {
               s += " ";
             }
@@ -674,7 +671,7 @@ import {rules} from "./rules.js";
         },
         binary: function (node) {
           var args = [];
-          forEach(node.args, function (n) {
+          node.args.forEach(function (n) {
             args.push(normalizeLiteral(options, n));
           });
           node.args = args;
@@ -683,7 +680,7 @@ import {rules} from "./rules.js";
         multiplicative: function (node) {
           var args = [];
           var flatten = true;
-          forEach(node.args, function (n) {
+          node.args.forEach(function (n) {
             if ((n.isPolynomialTerm || n.isImplicit) && args.length > 0) {
               args.push(binaryNode(Parser.MUL, [args.pop(), normalizeLiteral(options, n)], flatten));
             } else {
@@ -702,7 +699,7 @@ import {rules} from "./rules.js";
         },
         unary: function(node) {
           var args = [];
-          forEach(node.args, function (n) {
+          node.args.forEach(function (n) {
             args.push(normalizeLiteral(options, n));
           });
           let n = newNode(node.op, args);
@@ -711,7 +708,7 @@ import {rules} from "./rules.js";
         },
         exponential: function (node) {
           var args = [];
-          forEach(node.args, function (n) {
+          node.args.forEach(function (n) {
             args.push(normalizeLiteral(options, n));
           });
           node.args = args;
@@ -722,7 +719,7 @@ import {rules} from "./rules.js";
         },
         comma: function(node) {
           var args = [];
-          forEach(node.args, function (n) {
+          node.args.forEach(function (n) {
             args.push(normalizeLiteral(options, n));
           });
           let op = node.op === Parser.LIST && Parser.COMMA || node.op;  // Normalize LIST.
@@ -730,7 +727,7 @@ import {rules} from "./rules.js";
         },
         paren: function(node) {
           var args = [];
-          forEach(node.args, function (n) {
+          node.args.forEach(function (n) {
             args.push(normalizeLiteral(options, n));
           });
           node.args = args;
@@ -738,7 +735,7 @@ import {rules} from "./rules.js";
         },
         equals: function(node) {
           var args = [];
-          forEach(node.args, function (n) {
+          node.args.forEach(function (n) {
             args.push(normalizeLiteral(options, n));
           });
           if (Parser.option(options, "ignoreOrder") &&
@@ -863,7 +860,7 @@ import {rules} from "./rules.js";
           let argRules = getRulesForArgs(template);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          forEach(nodeArgs, function (n, i) {
+          nodeArgs.forEach(function (n, i) {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
@@ -879,7 +876,7 @@ import {rules} from "./rules.js";
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          forEach(nodeArgs, function (n, i) {
+          nodeArgs.forEach(function (n, i) {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
@@ -895,7 +892,7 @@ import {rules} from "./rules.js";
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          forEach(nodeArgs, function (n, i) {
+          nodeArgs.forEach(function (n, i) {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
@@ -910,14 +907,14 @@ import {rules} from "./rules.js";
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          forEach(nodeArgs, function (n, i) {
+          nodeArgs.forEach(function (n, i) {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
         },
         variable: function(node) {
           // let str = "";
-          // forEach(node.args, function (n, i) {
+          // node.args.forEach(function (n, i) {
           //   // This is a little bit of a hack to handle how subscripts are encoded
           //   // as compound variables.
           //   if (i > 0) {
@@ -947,7 +944,7 @@ import {rules} from "./rules.js";
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
           args.push(newNode(Parser.VAR, [lookup(options, nodeArgs.shift())]));
-          forEach(nodeArgs, function (n, i) {
+          nodeArgs.forEach(function (n, i) {
             // Now translate the subscripts.
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
@@ -961,17 +958,17 @@ import {rules} from "./rules.js";
               assert(node.args[0].args[0].op === Parser.COL);
               node.m = env.m = node.args[0].args.length;
               node.n = env.n = node.args[0].args[0].args.length;
-              forEach(node.args, (n, i) => {
+              node.args.forEach((n, i) => {
                 // matrix dimensions
                 n.m = i + 1;
               });
             } else if (node.op === Parser.ROW) {
-              forEach(node.args, (n, i) => {
+              node.args.forEach((n, i) => {
                 n.m = i + 1;
                 n.n = undefined;
               });
             } else {
-              forEach(node.args, (n, i) => {
+              node.args.forEach((n, i) => {
                 n.m = node.m;
                 n.n = i + 1;
               });
@@ -985,7 +982,7 @@ import {rules} from "./rules.js";
             let args = [];
             let argRules = getRulesForArgs(template, rules);
             let nodeArgs = getNodeArgsForTemplate(node, template);
-            forEach(nodeArgs, function (n, i) {
+            nodeArgs.forEach(function (n, i) {
               args = args.concat(translate(options, n, [globalRules, argRules]));
               args[i].m = n.m;
               args[i].n = n.n;
@@ -1001,7 +998,7 @@ import {rules} from "./rules.js";
             let argRules = getRulesForArgs(template, rules);
             let nodeArgs = getNodeArgsForTemplate(node, template);
             let args = [];
-            forEach(nodeArgs, function (n, i) {
+            nodeArgs.forEach(function (n, i) {
               args = args.concat(translate(options, n, [globalRules, argRules]));
             });
             template.isBinary = true;
@@ -1018,7 +1015,7 @@ import {rules} from "./rules.js";
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          forEach(nodeArgs, function (n, i) {
+          nodeArgs.forEach(function (n, i) {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
@@ -1034,7 +1031,7 @@ import {rules} from "./rules.js";
           let argRules = getRulesForArgs(template, rules);
           let nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          forEach(nodeArgs, function (n) {
+          nodeArgs.forEach(function (n) {
             args.push(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
@@ -1410,7 +1407,7 @@ export let Core = (function () {
   }
   function validateOptions(options) {
     if (options) {
-      forEach(Object.keys(options), function (option) {
+      Object.keys(options).forEach(function (option) {
         validateOption(option, options[option]);
       });
     }
@@ -1506,7 +1503,7 @@ export let Core = (function () {
       model: valueNode,
     };
     function parseErrorCode(e) {
-      let code = +e.slice(0, indexOf(e, ":"));
+      let code = +e.slice(0, e.indexOf(":"));
       if (!isNaN(code)) {
         return code;
       }
@@ -1515,7 +1512,7 @@ export let Core = (function () {
     function parseMessage(e) {
       let code = parseErrorCode(e);
       if (code) {
-        return e.slice(indexOf(e, ":")+2);
+        return e.slice(e.indexOf(":")+2);
       }
       return e;
     }
