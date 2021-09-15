@@ -25,7 +25,8 @@ where `./translatex` refers to the directory that contains this repo.
 
 ```javascript
 import {TransLaTeX} from '@artcompiler/translatex'
-const str = TransLaTeX.translate(rules, '1 + 2');
+const str = TransLaTeX.translate(rules, '-1+2');
+console.log(str);  // (negative (number one)) plus (number two)
 ```
 where `rules` is a rules object created using **L120**. For example:
 https://gc.acx.ac/item?id=3LgCjBbX9u0
