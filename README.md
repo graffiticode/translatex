@@ -28,10 +28,9 @@ import {TransLaTeX} from '@artcompiler/translatex'
 const str = TransLaTeX.translate(rules, '1 + 2');
 ```
 
-where rules are rules created using L120, such as like this:
+where `rules` is the rules object created using **L120**. For example:
 https://gc.acx.ac/item?id=3LgCjBbX9u0
 
-The `rules` object is the DATA JSON, such as this:
+The `rules` object is the *DATA* JSON obtained by clicking the *DATA* link in the navigation bar at the top of the Graffiticode browser window. For example:
 https://gc.acx.ac/data?id=3LgCjBbX9u0
-obtained by clicking the DATA link in the navigation bar at the top of the browser window.
 
