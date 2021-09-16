@@ -1,38 +1,36 @@
-# Spokenmath
+# TransLaTeX
+A library for translating LaTeX
 
-A library for constructing math to speech translators.
+#### DESCRIPTION
 
-##### > npm install
+This module implements a LaTeX translator using translation rules written in L120.
 
-* Installs dependencies.
+#### BUILD
 
-##### > npm run build
+```
+$ make
+```
 
-* Compiles source files (in ES2015) to a node compatible library (in ES5).
-* Creates a browser compatible bundle.
+This command will run ESLint linter and Jest tests.
 
-##### > npm run test
+#### INSTALLING
 
-* Runs tests.
+```
+$ npm i './translatex'
+```
 
-##### Embedding API
+where `./translatex` refers to the directory that contains this repo.
 
-Call the Spokenmath evaluator with a global options object constructed with Graffiticode L115 (e.g.  http://www.graffiticode.com/item?id=80526+38905) and an object containing the LaTeX to translate and parsing settings.
+#### CALLING
 
-[NOTE: you can use the JSON objects in ./tests/data for the global options (e.g. gc80526.json)]
+```javascript
+import {TransLaTeX} from '@artcompiler/translatex'
+const str = TransLaTeX.translate(rules, '-1+2');
+console.log(str);  // (negative (number one)) plus (number two)
+```
+where `rules` is a rules object created using **L120**. For example:
+https://gc.acx.ac/item?id=3LgCjBbX9u0
 
+A rules object is the DATA JSON obtained by clicking the **DATA** link in the navigation bar at the top of the Graffiticode browser window. Here is a sample:
+https://gc.acx.ac/data?id=3LgCjBbX9u0
 
-Here is an example embedding:
-
-    function run(opts, obj) {
-      // opts -- object containing words and rules authored in http://www.graffiticode.com/L115 (./tests/data/gc80526.json).
-      //         If !opt === true, then Spokenmath Core.translate will provide a default set of rules.
-      // obj -- {settings, src}
-      let src = obj.src;
-      let options = Object.assign({}, opts, obj.settings);  // Merge item options into global options.
-      Core.translate(options, src, function (err, result) {
-        // Receive result
-      });
-    }
-
-(See ./tests/test.js for another example.)
