@@ -3,34 +3,16 @@
  *
  */
 import { Ast, Parser } from '@artcompiler/parselatex';
-import { version } from './version.js';
 import { Assert, assert, message } from './assert.js';
 import { rules } from './rules.js';
 
 (function (ast) {
-
-  const messages = Assert.messages;
 
   function newNode(op, args) {
     return {
       op,
       args,
     };
-  }
-
-  function binaryNode(op, args, flatten) {
-    if (args.length < 2) {
-      return args[0];
-    }
-    let aa = [];
-    args.forEach((n) => {
-      if (flatten && n.op === op) {
-        aa = aa.concat(n.args);
-      } else {
-        aa.push(n);
-      }
-    });
-    return newNode(op, aa);
   }
 
   // The outer Visitor function provides a global scope for all visitors,
@@ -115,7 +97,6 @@ import { rules } from './rules.js';
       case Parser.BIGCAP:
       case Parser.PIPE:
       case Parser.ION:
-      case Parser.POW:
       case Parser.SUBSCRIPT:
       case Parser.OVERLINE:
       case Parser.OVERSET:
@@ -225,24 +206,28 @@ import { rules } from './rules.js';
         });
         break;
       case Parser.MUL:
-        var code = '';
-        var length = undefined;  // undefined and zero have different meanings.
-        fmt.args.forEach((f) => {
-          if (f.op === Parser.VAR) {
-            code += f.args[0];
-          } else if (f.op === Parser.NUM) {
-            length = +f.args[0];
-          }
-        });
-        list.push({
-          code,
-          length,
-        });
+        {
+          let code = '';
+          let length;  // undefined and zero have different meanings.
+          fmt.args.forEach((f) => {
+            if (f.op === Parser.VAR) {
+              code += f.args[0];
+            } else if (f.op === Parser.NUM) {
+              length = +f.args[0];
+            }
+          });
+          list.push({
+            code,
+            length,
+          });
+        }
         break;
       case Parser.COMMA:
         fmt.args.forEach((f) => {
           list = list.concat(normalizeFormatObject(f));
         });
+        break;
+      default:
         break;
       }
       return list;
@@ -356,13 +341,13 @@ import { rules } from './rules.js';
           assert(false, message(2015, [code]));
           break;
         }
+        return false;
       });
     }
     function checkMatrixType(fmt, node) {
       const fmtList = normalizeFormatObject(fmt);
       return fmtList.some((f) => {
         const code = f.code;
-        const length = f.length;
         switch (code) {
         case 'simpleSmallRowMatrix':
         case 'smallRowMatrix':
@@ -384,7 +369,7 @@ import { rules } from './rules.js';
         }
       });
     }
-    
+
     function checkPolynomialType(pattern, node) {
       const fmt = parseFormatPattern(pattern);
       const name = fmt.name;
@@ -398,14 +383,13 @@ import { rules } from './rules.js';
           }
           const n = parseInt(arg, 10);
           return node.isPolynomial > n;
-          
         }
         return node.isPolynomial;
       default:
         return false;
       }
     }
-    
+
     function isSimpleExpression(node) {
       if (node.op === Parser.NUM ||
           node.op === Parser.VAR ||
