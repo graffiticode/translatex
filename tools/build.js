@@ -41,7 +41,7 @@ function rules() {
   console.log("Fetching rules " + id);
   exec('curl -L "http://www.graffiticode.com/data?id=' + id + '" -o "./data.txt"');
   var data = JSON.parse(fs.readFileSync("./data.txt", "utf8"));
-  fs.writeFileSync("src/rules.js", "export var rules=" + JSON.stringify(data.options), "utf8");
+  fs.writeFileSync("src/rules.js", "export const rules=" + JSON.stringify(data.options), "utf8");
 }
 
 function compile() {

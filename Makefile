@@ -8,6 +8,11 @@ init: .npm-install-done
 	npm install
 	touch .npm-install-done
 
+default: lint test
+
+lint:
+	npm run lint
+
 build:
 	npm run build
 

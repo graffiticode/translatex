@@ -2,19 +2,19 @@
  * Copyright 2021 ARTCOMPILER INC. All Rights Reserved.
  *
  */
-import {version} from "./version.js";
-import {Assert, assert, message} from "./assert.js";
-import {Ast, Parser} from "@artcompiler/parselatex";
-import {rules} from "./rules.js";
+import { Ast, Parser } from '@artcompiler/parselatex';
+import { version } from './version.js';
+import { Assert, assert, message } from './assert.js';
+import { rules } from './rules.js';
 
 (function (ast) {
 
-  let messages = Assert.messages;
+  const messages = Assert.messages;
 
   function newNode(op, args) {
     return {
-      op: op,
-      args: args
+      op,
+      args,
     };
   }
 
@@ -22,8 +22,8 @@ import {rules} from "./rules.js";
     if (args.length < 2) {
       return args[0];
     }
-    var aa = [];
-    args.forEach(function(n) {
+    let aa = [];
+    args.forEach((n) => {
       if (flatten && n.op === op) {
         aa = aa.concat(n.args);
       } else {
@@ -37,7 +37,7 @@ import {rules} from "./rules.js";
   // as well as dispatching to methods within a visitor.
   function Visitor(ast) {
     function visit(options, node, visit, resume) {
-      assert(node.op && node.args, "Visitor.visit() op=" + node.op + " args = " + node.args);
+      assert(node.op && node.args, `Visitor.visit() op=${node.op} args = ${node.args}`);
       switch (node.op) {
       case Parser.NUM:
         node = visit.numeric(node, resume);
@@ -189,10 +189,10 @@ import {rules} from "./rules.js";
         node = visit.paren(node);
         break;
       default:
-        if (visit.name !== "normalizeLiteral" &&
-            visit.name !== "sort") {
-          node = newNode(Parser.VAR, ["INTERNAL ERROR Should not get here. Unhandled node operator " + node.op]);
-          console.trace(JSON.stringify(node, null, 2));
+        if (visit.name !== 'normalizeLiteral' &&
+            visit.name !== 'sort') {
+          node = newNode(Parser.VAR, [`INTERNAL ERROR Should not get here. Unhandled node operator ${node.op}`]);
+          console.log(JSON.stringify(node, null, 2));
         }
         break;
       }
@@ -200,16 +200,16 @@ import {rules} from "./rules.js";
     }
     function lookup(options, word) {
       if (!word) {
-        return "";
+        return '';
       }
-      let words = Parser.option(options, "words");
+      const words = Parser.option(options, 'words');
       let val;
       if (words) {
         val = words[word];
       }
       if (!val) {
         val = word;
-        if (val.charAt(0) === "\\") {
+        if (val.charAt(0) === '\\') {
           val = val.substring(1);
         }
       }
@@ -217,17 +217,17 @@ import {rules} from "./rules.js";
     }
     function normalizeFormatObject(fmt) {
       // Normalize the fmt object to an array of objects
-      var list = [];
+      let list = [];
       switch (fmt.op) {
       case Parser.VAR:
         list.push({
-          code: fmt.args[0]
+          code: fmt.args[0],
         });
         break;
       case Parser.MUL:
-        var code = "";
+        var code = '';
         var length = undefined;  // undefined and zero have different meanings.
-        fmt.args.forEach(function (f) {
+        fmt.args.forEach((f) => {
           if (f.op === Parser.VAR) {
             code += f.args[0];
           } else if (f.op === Parser.NUM) {
@@ -235,12 +235,12 @@ import {rules} from "./rules.js";
           }
         });
         list.push({
-          code: code,
-          length: length
+          code,
+          length,
         });
         break;
       case Parser.COMMA:
-        fmt.args.forEach(function (f) {
+        fmt.args.forEach((f) => {
           list = list.concat(normalizeFormatObject(f));
         });
         break;
@@ -249,65 +249,65 @@ import {rules} from "./rules.js";
     }
     function parseFormatPattern(pattern) {
       // Normalize the fmt object to an array of objects
-      let [name, arg] = pattern.split("[");
+      const [name, arg] = pattern.split('[');
       return {
-        name: name,
-        arg: arg && arg.substring(0, arg.indexOf("]")) || undefined,
-      }
+        name,
+        arg: arg && arg.substring(0, arg.indexOf(']')) || undefined,
+      };
     }
     function checkNumberType(fmt, node) {
-      var fmtList = normalizeFormatObject(fmt);
-      return fmtList.some(function (f) {
-        var code = f.code;
-        var length = f.length;
+      const fmtList = normalizeFormatObject(fmt);
+      return fmtList.some((f) => {
+        const code = f.code;
+        const length = f.length;
         switch (code) {
-        case "integer":
-          if (node.numberFormat === "integer") {
+        case 'integer':
+          if (node.numberFormat === 'integer') {
             if (length === undefined || length === node.args[0].length) {
               // If there is no size or if the size matches the value...
               return true;
             }
           }
           break;
-        case "decimal":
-          if (node.numberFormat === "decimal" &&
+        case 'decimal':
+          if (node.numberFormat === 'decimal' &&
               node.isRepeating) {
             if (length === undefined) {
               return true;
-            } else {
+            }
               // Repeating is infinite.
               return false;
-            }
+
           }
-          if (node.numberFormat === "decimal") {
+          if (node.numberFormat === 'decimal') {
             if (length === undefined ||
-                length === 0 && node.args[0].indexOf(".") === -1 ||
-                length === node.args[0].substring(node.args[0].indexOf(".") + 1).length) {
+                length === 0 && node.args[0].indexOf('.') === -1 ||
+                length === node.args[0].substring(node.args[0].indexOf('.') + 1).length) {
               // If there is no size or if the size matches the value...
               return true;
             }
           }
           break;
-        case "repeatingDecimal":
-          if (node.numberFormat === "decimal" &&
+        case 'repeatingDecimal':
+          if (node.numberFormat === 'decimal' &&
               node.isRepeating) {
-            assert(!length, "The repeatingDecimal pattern does not take a length");
+            assert(!length, 'The repeatingDecimal pattern does not take a length');
             return true;
           }
           return false;
-        case "number":
-          if (node.numberFormat === "decimal" &&
+        case 'number':
+          if (node.numberFormat === 'decimal' &&
               node.isRepeating) {
             if (length === undefined) {
               return true;
-            } else {
+            }
               // Repeating is infinite.
               return false;
-            }
+
           }
-          if (node.numberFormat === "integer" ||
-              node.numberFormat === "decimal") {
-            var brk = node.args[0].indexOf(".");
+          if (node.numberFormat === 'integer' ||
+              node.numberFormat === 'decimal') {
+            const brk = node.args[0].indexOf('.');
             if (length === undefined ||
                 length === 0 && brk === -1 ||
                 brk >= 0 && length === node.args[0].substring(brk + 1).length) {
@@ -316,39 +316,39 @@ import {rules} from "./rules.js";
             }
           }
           break;
-        case "scientific":
+        case 'scientific':
           if (node.isScientific) {
-            var coeff = node.args[0].args[0];
+            const coeff = node.args[0].args[0];
             if (length === undefined ||
-                length === 0 && coeff.indexOf(".") === -1 ||
-                length === coeff.substring(coeff.indexOf(".") + 1).length) {
+                length === 0 && coeff.indexOf('.') === -1 ||
+                length === coeff.substring(coeff.indexOf('.') + 1).length) {
               // If there is no size or if the size matches the value...
               return true;
             }
           }
           break;
-        case "fraction":
+        case 'fraction':
           if (node.isFraction ||
               node.isMixedNumber) {
             return true;
           }
           break;
-        case "simpleFraction":
-        case "nonMixedFraction": // deprecated
+        case 'simpleFraction':
+        case 'nonMixedFraction': // deprecated
           if (node.isFraction) {
             return true;
           }
           break;
-        case "mixedFraction":  // deprecated
-        case "mixedNumber":
+        case 'mixedFraction':  // deprecated
+        case 'mixedNumber':
           if (node.isMixedNumber) {
             return true;
           }
           break;
-        case "fractionOrDecimal":
+        case 'fractionOrDecimal':
           if (node.isFraction ||
               node.isMixedNumber ||
-              node.numberFormat === "decimal") {
+              node.numberFormat === 'decimal') {
             return true;
           }
           break;
@@ -359,62 +359,64 @@ import {rules} from "./rules.js";
       });
     }
     function checkMatrixType(fmt, node) {
-      var fmtList = normalizeFormatObject(fmt);
-      return fmtList.some(function (f) {
-        var code = f.code;
-        var length = f.length;
+      const fmtList = normalizeFormatObject(fmt);
+      return fmtList.some((f) => {
+        const code = f.code;
+        const length = f.length;
         switch (code) {
-        case "simpleSmallRowMatrix":
-        case "smallRowMatrix":
+        case 'simpleSmallRowMatrix':
+        case 'smallRowMatrix':
           return node.op === Parser.MATRIX && node.m === 1 && node.n < 4;
-        case "simpleSmallColumnMatrix":
-        case "smallColumnMatrix":
+        case 'simpleSmallColumnMatrix':
+        case 'smallColumnMatrix':
           return node.op === Parser.MATRIX && node.m < 4 && node.n === 1;
-        case "simpleSmallMatrix":
-        case "smallMatrix":
+        case 'simpleSmallMatrix':
+        case 'smallMatrix':
           return node.op === Parser.MATRIX && node.m < 4 && node.n < 4;
-        case "matrix":
+        case 'matrix':
           return node.op === Parser.MATRIX;
-        case "row":
+        case 'row':
           return node.op === Parser.ROW;
-        case "column":
+        case 'column':
           return node.op === Parser.COL;
         default:
           return false;
         }
       });
     }
+    
     function checkPolynomialType(pattern, node) {
-      var fmt = parseFormatPattern(pattern);
-      var name = fmt.name;
-      var arg = fmt.arg;
+      const fmt = parseFormatPattern(pattern);
+      const name = fmt.name;
+      const arg = fmt.arg;
       switch (name) {
-      case "polynomial":
+      case 'polynomial':
         if (arg) {
-          if (arg.indexOf(">") === 0) {
-            let n = parseInt(arg.substring(1));
-            return node.isPolynomial > n;
-          } else {
-            let n = parseInt(arg);
+          if (arg.indexOf('>') === 0) {
+            const n = parseInt(arg.substring(1), 10);
             return node.isPolynomial > n;
           }
+          const n = parseInt(arg, 10);
+          return node.isPolynomial > n;
+          
         }
         return node.isPolynomial;
       default:
         return false;
       }
     }
+    
     function isSimpleExpression(node) {
       if (node.op === Parser.NUM ||
           node.op === Parser.VAR ||
-          typeof node === "string") {
+          typeof node === 'string') {
         return true;
       }
       return false;
     }
     function hasSimpleExpressions(node) {
       assert(node.op === Parser.MATRIX || node.op === Parser.ROW || node.op === Parser.COL);
-      return node.args.every(n => {
+      return node.args.every((n) => {
         if (n.op === Parser.MATRIX || n.op === Parser.ROW || n.op === Parser.COL) {
           return hasSimpleExpressions(n);
         }
@@ -425,62 +427,64 @@ import {rules} from "./rules.js";
       if (pattern.op === Parser.TYPE &&
           pattern.args[0].op === Parser.VAR) {
         let name = pattern.args[0].args[0];
-        name = name.indexOf("[") > 0 && name.slice(0, name.indexOf("[")) || name;
+        name = name.indexOf('[') > 0 && name.slice(0, name.indexOf('[')) || name;
         switch (name) {
-        case "number":
-        case "integer":
-        case "decimal":
-        case "scientific":
-        case "fraction":
-        case "simpleFraction":
-        case "mixedFraction":  // deprecated
-        case "mixedNumber":
-        case "fractionOrDecimal":
-        case "repeatingDecimal":
+        case 'number':
+        case 'integer':
+        case 'decimal':
+        case 'scientific':
+        case 'fraction':
+        case 'simpleFraction':
+        case 'mixedFraction':  // deprecated
+        case 'mixedNumber':
+        case 'fractionOrDecimal':
+        case 'repeatingDecimal':
           return checkNumberType(pattern.args[0], node);
-        case "variable":
+        case 'variable':
           return node.op === Parser.VAR;
-        case "simpleSmallRowMatrix":
-        case "simpleSmallColumnMatrix":
-        case "simpleSmallMatrix":
+        case 'simpleSmallRowMatrix':
+        case 'simpleSmallColumnMatrix':
+        case 'simpleSmallMatrix':
           return checkMatrixType(pattern.args[0], node) && hasSimpleExpressions(node);
-        case "smallRowMatrix":
-        case "smallColumnMatrix":
-        case "smallMatrix":
-        case "matrix":
-        case "row":
-        case "column":
+        case 'smallRowMatrix':
+        case 'smallColumnMatrix':
+        case 'smallMatrix':
+        case 'matrix':
+        case 'row':
+        case 'column':
           return checkMatrixType(pattern.args[0], node);
-        case "polynomial":
+        case 'polynomial':
           return checkPolynomialType(pattern.args[0].args[0], node);
         default:
-          let types = Parser.option(options, "types");
-          let type = types[name];
-          if (type) {
-            assert(type instanceof Array);
-            return type.some(function (pattern) {
-              // FIXME pre-compile types.
-              let matches = match(options, [Parser.create(options, pattern)], node);
-              return matches.length > 0;
-            });
+          {
+            const types = Parser.option(options, 'types');
+            const type = types[name];
+            if (type) {
+              assert(type instanceof Array);
+              return type.some((pattern) => {
+                // FIXME pre-compile types.
+                const matches = match(options, [Parser.create(options, pattern)], node);
+                return matches.length > 0;
+              });
+            }
           }
         }
         return false;
-      } else if (pattern.op === Parser.COLON &&
-          pattern.args[0].op === Parser.VAR && pattern.args[0].args[0] === "?") {
+      } if (pattern.op === Parser.COLON &&
+          pattern.args[0].op === Parser.VAR && pattern.args[0].args[0] === '?') {
         // This is a legacy case that can be removed when all content is updated.
         assert(pattern.args[1].op === Parser.VAR);
         switch (pattern.args[1].args[0]) {
-        case "N":
+        case 'N':
           return node.op === Parser.NUM;
-        case "V":
+        case 'V':
           return node.op === Parser.VAR;
         default:
         }
         return false;
       }
       return (
-        pattern.op === Parser.VAR && pattern.args[0] === "?" ||
+        pattern.op === Parser.VAR && pattern.args[0] === '?' ||
         pattern.op === Parser.MATRIX && node.op === Parser.MATRIX
       );
     }
@@ -490,7 +494,7 @@ import {rules} from "./rules.js";
       if (patterns.size === 0 || node === undefined) {
         return false;
       }
-      let matches = patterns.filter(function (pattern) {
+      const matches = patterns.filter((pattern) => {
         if (pattern.op === undefined || node.op === undefined) {
           return false;
         }
@@ -501,22 +505,22 @@ import {rules} from "./rules.js";
         if (pattern.op === node.op) {
           if (pattern.args.length === node.args.length) {
             // Same number of args, so see if each matches.
-            return pattern.args.every(function (arg, i) {
+            return pattern.args.every((arg, i) => {
               if (pattern.op === Parser.VAR) {
                 if (arg === node.args[i]) {
                   return true;
                 }
                 return false;
               }
-              let result = match(options, [arg], node.args[i]);
+              const result = match(options, [arg], node.args[i]);
               return result.length === 1;
             });
-          } else if (pattern.args.length < node.args.length) {
+          } if (pattern.args.length < node.args.length) {
             // Different number of args, then see if there is a wildcard match.
-            let nargs = node.args.slice(1);
+            const nargs = node.args.slice(1);
             if (pattern.args.length === 2) {
               // Binary node pattern
-              let result = (
+              const result = (
                 match(options, [pattern.args[0]], node.args[0]).length > 0 &&
                 match(options, [pattern.args[1]], newNode(node.op, nargs)).length > 0
                   // Match rest of the node against the second pattern argument.
@@ -534,9 +538,9 @@ import {rules} from "./rules.js";
       return matches;
     }
     function expandBinary(str, args) {
-      let t = str;
-      args.forEach(function (arg, i) {
-        str = str.replace(new RegExp("%" + (i + 1), "g"), arg.args[0]);
+      const t = str;
+      args.forEach((arg, i) => {
+        str = str.replace(new RegExp(`%${i + 1}`, 'g'), arg.args[0]);
       });
       if (args.length > 2) {
         return expandBinary(t, [newNode(Parser.VAR, [str])].concat(args.slice(2)));
@@ -548,15 +552,14 @@ import {rules} from "./rules.js";
       // Use first matched template for now.
       let str = template.str;
       if (str && args) {
-        let count = str.split("%").length - 1;
-        if (str.indexOf("%%") >= 0) {
-          str = str.replace(new RegExp("%%", "g"), args[0].args[0]);
+        if (str.indexOf('%%') >= 0) {
+          str = str.replace(new RegExp('%%', 'g'), args[0].args[0]);
         }
-        if (str.indexOf("%*") >= 0) {
-          let s = "";
-          args.forEach(function (arg, i) {
-            if (s !== "") {
-              s += " ";
+        if (str.indexOf('%*') >= 0) {
+          let s = '';
+          args.forEach((arg, i) => {
+            if (s !== '') {
+              s += ' ';
             }
             // Replicate template for each argument.
             if (i === args.length - 1) {
@@ -564,34 +567,34 @@ import {rules} from "./rules.js";
               // trailing separator. Times two because what comes before the
               // "%*", if anything, is a bracket so need to include the close
               // bracket.
-              str = str.slice(0, 2 * str.indexOf("%*") + "%*".length);
+              str = str.slice(0, 2 * str.indexOf('%*') + '%*'.length);
             }
-            s += str.replace("%*", arg.args[0]).replace("%M", arg.m).replace("%N", arg.n);
+            s += str.replace('%*', arg.args[0]).replace('%M', arg.m).replace('%N', arg.n);
           });
           str = s;  // Overwrite str.
         }
-        if (str.indexOf("%IP") >= 0) {
-          str = str.replace(new RegExp("%IP", "g"), env.ip);
+        if (str.indexOf('%IP') >= 0) {
+          str = str.replace(new RegExp('%IP', 'g'), env.ip);
         }
-        if (str.indexOf("%FP0") >= 0) {
-          str = str.replace(new RegExp("%FP0", "g"), env.fp);
+        if (str.indexOf('%FP0') >= 0) {
+          str = str.replace(new RegExp('%FP0', 'g'), env.fp);
         }
-        if (str.indexOf("%FP") >= 0) {
-          str = str.replace(new RegExp("%FP", "g"), env.fp.split("").join(" "));
+        if (str.indexOf('%FP') >= 0) {
+          str = str.replace(new RegExp('%FP', 'g'), env.fp.split('').join(' '));
         }
-        if (str.indexOf("%M") >= 0) {
+        if (str.indexOf('%M') >= 0) {
           assert(env.m);
-          str = str.replace(new RegExp("%M", "g"), env.m);
+          str = str.replace(new RegExp('%M', 'g'), env.m);
         }
-        if (str.indexOf("%N") >= 0) {
+        if (str.indexOf('%N') >= 0) {
           assert(env.n);
-          str = str.replace(new RegExp("%N", "g"), env.n);
+          str = str.replace(new RegExp('%N', 'g'), env.n);
         }
         if (template.isBinary && args.length > 2) {
           str = expandBinary(str, args);
         } else {
-          args.forEach(function (arg, i) {
-            str = str.replace(new RegExp("%" + (i + 1), "g"), !arg ? '' : arg.args[0]);
+          args.forEach((arg, i) => {
+            str = str.replace(new RegExp(`%${i + 1}`, 'g'), !arg ? '' : arg.args[0]);
           });
         }
         return {
@@ -601,217 +604,54 @@ import {rules} from "./rules.js";
       }
       return args[0];
     }
-    function isEmpty(node) {
-      return node.op === Parser.VAR && node.args.length === 1 && node.args[0] === "";
-    }
-
-    function getPrec(op) {
-      switch (op) {
-      case Parser.OR:
-        return 1;
-      case Parser.AND:
-        return 2;
-      case Parser.EQ:
-      case Parser.NE:
-        return 3;
-      case Parser.LT:
-      case Parser.GT:
-      case Parser.LE:
-      case Parser.GE:
-      case Parser.NGTR:
-      case Parser.NLESS:
-      case Parser.NI:
-      case Parser.SUBSETEQ:
-      case Parser.SUPSETEQ:
-      case Parser.SUBSET:
-      case Parser.SUPSET:
-      case Parser.NNI:
-      case Parser.NSUBSETEQ:
-      case Parser.NSUPSETEQ:
-      case Parser.NSUBSET:
-      case Parser.NSUPSET:
-        return 4;
-      case Parser.ADD:
-      case Parser.SUB:
-      case Parser.PM:
-        return 5;
-      case Parser.MUL:
-      case Parser.FRAC:
-      case Parser.DIV:
-      case Parser.MOD:
-      case Parser.COLON:
-        return 6;
-      case Parser.POW:
-      case Parser.LOG:
-      default:
-        return 7;
-      }
-      assert(false, "ERROR missing precedence for " + op);
-    }
-
-    function isLowerPrecedence(n0, n1) {
-      // Is n1 lower precedence than n0?
-      let p0 = getPrec(n0.op);
-      let p1 = getPrec(n1.op);
-      return p1 < p0;
-    }
-
-    function normalizeLiteral(options, root) {
-      if (!root || !root.args) {
-        assert(false, "Should not get here. Illformed node.");
-        return 0;
-      }
-      var nid = ast.intern(root);
-      // if (root.normalizeLiteralNid === nid) {
-      //   return root;
-      // }
-      var node = visit(options, root, {
-        numeric: function (node) {
-          return node;
-        },
-        binary: function (node) {
-          var args = [];
-          node.args.forEach(function (n) {
-            args.push(normalizeLiteral(options, n));
-          });
-          node.args = args;
-          return node;
-        },
-        multiplicative: function (node) {
-          var args = [];
-          var flatten = true;
-          node.args.forEach(function (n) {
-            if ((n.isPolynomialTerm || n.isImplicit) && args.length > 0) {
-              args.push(binaryNode(Parser.MUL, [args.pop(), normalizeLiteral(options, n)], flatten));
-            } else {
-              args.push(normalizeLiteral(options, n));
-            }
-          });
-          // Only have explicit mul left, so convert to times.
-          var op = node.op === Parser.MUL ? Parser.TIMES : node.op;
-          var n = binaryNode(op, args, true);
-          n.isScientific = node.isScientific;
-          n.isMixedNumber = node.isMixedNumber;
-          n.isBinomial = node.isBinomial;
-          n.isPolynomial = node.isPolynomial;
-          n.isPolynomialTerm = node.isPolynomialTerm;
-          return n;
-        },
-        unary: function(node) {
-          var args = [];
-          node.args.forEach(function (n) {
-            args.push(normalizeLiteral(options, n));
-          });
-          let n = newNode(node.op, args);
-          n.isPolynomial = node.isPolynomial;
-          return n;
-        },
-        exponential: function (node) {
-          var args = [];
-          node.args.forEach(function (n) {
-            args.push(normalizeLiteral(options, n));
-          });
-          node.args = args;
-          return node;
-        },
-        variable: function(node) {
-          return node;
-        },
-        comma: function(node) {
-          var args = [];
-          node.args.forEach(function (n) {
-            args.push(normalizeLiteral(options, n));
-          });
-          let op = node.op === Parser.LIST && Parser.COMMA || node.op;  // Normalize LIST.
-          return newNode(op, args);
-        },
-        paren: function(node) {
-          var args = [];
-          node.args.forEach(function (n) {
-            args.push(normalizeLiteral(options, n));
-          });
-          node.args = args;
-          return node;
-        },
-        equals: function(node) {
-          var args = [];
-          node.args.forEach(function (n) {
-            args.push(normalizeLiteral(options, n));
-          });
-          if (Parser.option(options, "ignoreOrder") &&
-              (node.op === Parser.GT ||
-               node.op === Parser.GE)) {
-            // Swap adjacent elements and reverse the operator.
-            assert(args.length === 2, "Internal error: comparisons have only two operands");
-            var t = args[0];
-            args[0] = args[1];
-            args[1] = t;
-            node.op = node.op === Parser.GT ? Parser.LT : Parser.LE;
-            node.args = args;
-          } else {
-            node.args = args;
-          }
-          return node;
-        }
-      });
-      // // If the node has changed, normalizeLiteral again
-      // while (nid !== ast.intern(node)) {
-      //   nid = ast.intern(node);
-      //   node = normalizeLiteral(options, node);
-      // }
-      // node.normalizeLiteralNid = nid;
-      // node.normalizeLiteralNid = ast.intern(node);
-      return node;
-    }
 
     function matchedTemplate(options, rules, matches, arity) {
       let templates = [];
-      matches.forEach(function (m) {
+      matches.forEach((m) => {
         templates = templates.concat(rules[JSON.stringify(m)]);
       });
-      let matchedTemplates = [];
-      templates.forEach(function (template) {
-        if((!template.context ||
-            Parser.option(options, "NoParens") && template.context.indexOf("NoParens") > -1 ||
-            Parser.option(options, "EndRoot") && template.context.indexOf("EndRoot") > -1) &&
+      const matchedTemplates = [];
+      templates.forEach((template) => {
+        if ((!template.context ||
+            Parser.option(options, 'NoParens') && template.context.indexOf('NoParens') > -1 ||
+            Parser.option(options, 'EndRoot') && template.context.indexOf('EndRoot') > -1) &&
            arity >= paramCount(template)) {  // Some args might be elided.
           matchedTemplates.push(template);
         }
       });
       if (matchedTemplates.length === 0) {
         // Make one up.
-        matchedTemplates.push({str: ""});
+        matchedTemplates.push({ str: '' });
       }
       // Use first match.
       return matchedTemplates[0];
       function paramCount(template) {
         // Parse out the number of params in the template.
-        assert(typeof template.str === "string");
-        let a = template.str.split("%");
-        let nn = a.filter(n => {
-          return !isNaN(+n[0]);
+        assert(typeof template.str === 'string');
+        const a = template.str.split('%');
+        const nn = a.filter((n) => {
+          return !Number.isNaN(+n[0]);
         });
-        return nn.length === 0 ? 0 : +nn.sort()[nn.length-1][0];
+        return nn.length === 0 ? 0 : +nn.sort()[nn.length - 1][0];
       }
     }
     function getNodeArgsForTemplate(node, template) {
       // Parse out the number of params in the template.
-      assert(typeof template.str === "string");
-      let str = template.str;
-      if (str.indexOf("%%") >= 0) {
+      assert(typeof template.str === 'string');
+      const str = template.str;
+      if (str.indexOf('%%') >= 0) {
         return [node];
       }
       // let a = str.split("%");  // ["..", "1..", "2.."]
       // let nn = a.filter(n => {
       //   // Include '%1', %M, %N
-      //   return !isNaN(+n[0]) || n[0] === "M" || n[0] === "N";
+      //   return !Number.isNaN(+n[0]) || n[0] === "M" || n[0] === "N";
       // });
       return node.args;
     }
     function translate(options, root, rules) {
       // Translate math from LaTeX to English.
       // rules = {ptrn: tmpl, ...};
-      let globalRules;
       if (rules instanceof Array) {
         if (rules.length === 1) {
           rules = rules[0];
@@ -819,100 +659,100 @@ import {rules} from "./rules.js";
           rules = mergeMaps(rules[1], rules[0]);
         }
       }
-      globalRules = rules;
-      let keys = Object.keys(rules);
+      const globalRules = rules;
+      const keys = Object.keys(rules);
       // FIXME when IE supports Map, this can be removed.
-      let patterns = [];
-      keys.forEach(k => {
+      const patterns = [];
+      keys.forEach((k) => {
         patterns.push(JSON.parse(k));
       });
       if (!root || !root.args) {
-        assert(false, "Should not get here. Illformed node.");
+        assert(false, 'Should not get here. Illformed node.');
         return 0;
       }
       return visit(options, root, {
-        name: "translate",
-        numeric: function(node) {
-          let args = [{
+        name: 'translate',
+        numeric(node) {
+          const args = [{
             op: Parser.VAR,
-            args: [lookup(options, node.args[0])]
+            args: [lookup(options, node.args[0])],
           }];
-          let env = {};
-          if (node.numberFormat === "decimal") {
-            let parts = node.args[0].split(".");
+          const env = {};
+          if (node.numberFormat === 'decimal') {
+            const parts = node.args[0].split('.');
             env.ip = parts[0];
-            env.fp = parts[1] || "0";  // 7.
+            env.fp = parts[1] || '0';  // 7.
           }
-          let matches = match(options, patterns, node);
+          const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(options, rules, matches, 1);
+          const template = matchedTemplate(options, rules, matches, 1);
           return expand(template, args, env);
         },
-        binary: function(node) {
-          let matches = match(options, patterns, node);
+        binary(node) {
+          const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
-          let template = matchedTemplate(options, rules, matches, node.args.length);
-          let argRules = getRulesForArgs(template);
-          let nodeArgs = getNodeArgsForTemplate(node, template);
+          const template = matchedTemplate(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(template);
+          const nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          nodeArgs.forEach(function (n, i) {
+          nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
           return expand(template, args);
         },
-        multiplicative: function(node) {
-          let matches = match(options, patterns, node);
+        multiplicative(node) {
+          const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(options, rules, matches, node.args.length);
-          let argRules = getRulesForArgs(template, rules);
-          let nodeArgs = getNodeArgsForTemplate(node, template);
+          const template = matchedTemplate(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(template, rules);
+          const nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          nodeArgs.forEach(function (n, i) {
+          nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
           return expand(template, args);
         },
-        unary: function(node) {
-          let matches = match(options, patterns, node);
+        unary(node) {
+          const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(options, rules, matches, node.args.length);
-          let argRules = getRulesForArgs(template, rules);
-          let nodeArgs = getNodeArgsForTemplate(node, template);
+          const template = matchedTemplate(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(template, rules);
+          const nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          nodeArgs.forEach(function (n, i) {
+          nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
         },
-        exponential: function(node) {
-          let matches = match(options, patterns, node);
+        exponential(node) {
+          const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(options, rules, matches, node.args.length);
-          let argRules = getRulesForArgs(template, rules);
-          let nodeArgs = getNodeArgsForTemplate(node, template);
+          const template = matchedTemplate(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(template, rules);
+          const nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          nodeArgs.forEach(function (n, i) {
+          nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
         },
-        variable: function(node) {
+        variable(node) {
           // let str = "";
           // node.args.forEach(function (n, i) {
           //   // This is a little bit of a hack to handle how subscripts are encoded
@@ -934,25 +774,25 @@ import {rules} from "./rules.js";
           // // Use first match for now.
           // let template = matchedTemplate(options, rules, matches, 1);
           // return expand(template, args);
-          let matches = match(options, patterns, node);
+          const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(options, rules, matches, node.args.length);
-          let argRules = getRulesForArgs(template, rules);
-          let nodeArgs = getNodeArgsForTemplate(node, template);
+          const template = matchedTemplate(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(template, rules);
+          const nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
           args.push(newNode(Parser.VAR, [lookup(options, nodeArgs.shift())]));
-          nodeArgs.forEach(function (n, i) {
+          nodeArgs.forEach((n) => {
             // Now translate the subscripts.
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
         },
-        comma: function(node) {
+        comma(node) {
           if (node.op === Parser.MATRIX || node.op === Parser.ROW || node.op === Parser.COL) {
-            let env = {};
+            const env = {};
             if (node.op === Parser.MATRIX) {
               assert(node.args[0].op === Parser.ROW);
               assert(node.args[0].args[0].op === Parser.COL);
@@ -973,110 +813,98 @@ import {rules} from "./rules.js";
                 n.n = i + 1;
               });
             }
-            let matches = match(options, patterns, node);
+            const matches = match(options, patterns, node);
             if (matches.length === 0) {
               return node;
             }
             // Use first match for now.
-            let template = matchedTemplate(options, rules, matches, node.args.length);
+            const template = matchedTemplate(options, rules, matches, node.args.length);
             let args = [];
-            let argRules = getRulesForArgs(template, rules);
-            let nodeArgs = getNodeArgsForTemplate(node, template);
-            nodeArgs.forEach(function (n, i) {
+            const argRules = getRulesForArgs(template, rules);
+            const nodeArgs = getNodeArgsForTemplate(node, template);
+            nodeArgs.forEach((n, i) => {
               args = args.concat(translate(options, n, [globalRules, argRules]));
               args[i].m = n.m;
               args[i].n = n.n;
             });
             return expand(template, args, env);
-          } else {
-            let matches = match(options, patterns, node);
+          }
+            const matches = match(options, patterns, node);
             if (matches.length === 0) {
               return node;
             }
             // Use first match for now.
-            let template = matchedTemplate(options, rules, matches, node.args.length);
-            let argRules = getRulesForArgs(template, rules);
-            let nodeArgs = getNodeArgsForTemplate(node, template);
+            const template = matchedTemplate(options, rules, matches, node.args.length);
+            const argRules = getRulesForArgs(template, rules);
+            const nodeArgs = getNodeArgsForTemplate(node, template);
             let args = [];
-            nodeArgs.forEach(function (n, i) {
+            nodeArgs.forEach((n) => {
               args = args.concat(translate(options, n, [globalRules, argRules]));
             });
             template.isBinary = true;
             return expand(template, args);
-          }
+
         },
-        equals: function(node) {
-          let matches = match(options, patterns, node);
+        equals(node) {
+          const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(options, rules, matches, node.args.length);
-          let argRules = getRulesForArgs(template, rules);
-          let nodeArgs = getNodeArgsForTemplate(node, template);
+          const template = matchedTemplate(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(template, rules);
+          const nodeArgs = getNodeArgsForTemplate(node, template);
           let args = [];
-          nodeArgs.forEach(function (n, i) {
+          nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           template.isBinary = true;
           return expand(template, args, node);
         },
-        paren: function(node) {
-          let matches = match(options, patterns, node);
+        paren(node) {
+          const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          let template = matchedTemplate(options, rules, matches, 1);
-          let argRules = getRulesForArgs(template, rules);
-          let nodeArgs = getNodeArgsForTemplate(node, template);
-          let args = [];
-          nodeArgs.forEach(function (n) {
+          const template = matchedTemplate(options, rules, matches, 1);
+          const argRules = getRulesForArgs(template, rules);
+          const nodeArgs = getNodeArgsForTemplate(node, template);
+          const args = [];
+          nodeArgs.forEach((n) => {
             args.push(translate(options, n, [globalRules, argRules]));
           });
           return expand(template, args);
-        }
+        },
       });
     }
 
-    this.normalizeLiteral = normalizeLiteral;
     this.translate = translate;
   }
 
-  function normalizeLiteral(options, node) {
-    let visitor = new Visitor(ast);
-    var prevLocation = Assert.location;
-    if (node.location) {
-      Assert.setLocation(node.location);
-    }
-    var result = visitor.normalizeLiteral(options, node);
-    Assert.setLocation(prevLocation);
-    return result;
-  }
+  // function dumpRules(rules) {
+  //   let str = '';
+  //   for (const [key, val] of rules) {
+  //     str += `${JSON.stringify(key, null, 2)} --> ${JSON.stringify(val, null, 2)}\n`;
+  //   }
+  //   return str;
+  // }
 
-  function dumpRules(rules) {
-    let str = "";
-    for (var [key, val] of rules) {
-      str += JSON.stringify(key, null, 2) + " --> " + JSON.stringify(val, null, 2) + "\n";
-    }
-    return str;
-  }
-
-  function getRulesForArgs(template, rules) {
+  function getRulesForArgs(template) {
     // Use first match for now.
     return template.rules;
   }
 
   function mergeMaps(m1, m2) {
-    let map = {};
+    const map = {};
     if (m1) {
-      let keys = Object.keys(m1);
-      keys.forEach(k => {
+      const keys = Object.keys(m1);
+      keys.forEach((k) => {
         map[k] = m1[k];
       });
     }
-    let keys = Object.keys(m2);
-    keys.forEach(k => {
+    const keys = Object.keys(m2);
+    keys.forEach((k) => {
       if (!map[k]) {
         map[k] = m2[k];
       }
@@ -1087,11 +915,10 @@ import {rules} from "./rules.js";
     let compiledTemplate;
     if (template instanceof Array) {
       compiledTemplate = [];
-      template.forEach(function (t) {
+      template.forEach((t) => {
         compiledTemplate = compiledTemplate.concat(compileTemplate(options, t));
       });
-    } else {
-      if (typeof template === "string") {
+    } else if (typeof template === 'string') {
         // "%1"
         compiledTemplate = [{
           str: template,
@@ -1099,32 +926,33 @@ import {rules} from "./rules.js";
       } else {
         // {"%1": {"?": "%1"}}
         // [cntx1 "%1", cntx2 {"%1": {?: "%1"}}] --> [{context: "cntx1", str: "%1"},...]
-        let context = "", str, rules;
+        let context = '';
+let str;
+let rules;
         if (template.options) {
-          context += template.options.EndRoot ? " EndRoot" : "";
-          context += template.options.NoParens ? " NoParens" : "";
+          context += template.options.EndRoot ? ' EndRoot' : '';
+          context += template.options.NoParens ? ' NoParens' : '';
           str = template.value;
         } else {
           str = Object.keys(template)[0];
-          assert(str !== "options");
+          assert(str !== 'options');
           rules = compileRules(options, template[str]);
         }
         compiledTemplate = [{
-          context: context,
-          str: str,
-          rules: rules,
+          context,
+          str,
+          rules,
         }];
       }
-    }
     return compiledTemplate;
   }
   function compileRules(options, rules) {
     // { "ast as string": template, ... }
-    let keys = Object.keys(rules);
-    let compiledRules = {};
-    keys.forEach(function (key) {
-      let pattern = JSON.stringify(Parser.create(options, key));  // Parse and normalize.
-      let template = compileTemplate(options, rules[key]);
+    const keys = Object.keys(rules);
+    const compiledRules = {};
+    keys.forEach((key) => {
+      const pattern = JSON.stringify(Parser.create(options, key));  // Parse and normalize.
+      const template = compileTemplate(options, rules[key]);
       if (!compiledRules[pattern]) {
         compiledRules[pattern] = template;
       }
@@ -1132,78 +960,78 @@ import {rules} from "./rules.js";
     return compiledRules;
   }
   function translate(options, node, rules) {
-    let visitor = new Visitor(ast);
-    let compiledRules = compileRules(options, rules);
+    const visitor = new Visitor(ast);
+    const compiledRules = compileRules(options, rules);
     return visitor.translate(options, node, compiledRules);
   }
   function trim(str) {
     let i = 0;
-    let out = "";
+    let out = '';
     for (; i < str.length; i++) {
       switch (str.charAt(i)) {
-      case " ":
-      case "\t":
-      case "\n":
-        if (out.length === 0 || out.charAt(out.length-1) === " ") {
+      case ' ':
+      case '\t':
+      case '\n':
+        if (out.length === 0 || out.charAt(out.length - 1) === ' ') {
           // Erase space at beginning and after other space.
           continue;
         }
-        out += " ";
+        out += ' ';
         break;
       default:
         out += str.charAt(i);
         break;
       }
     }
-    while (out.charAt(out.length - 1) === " ") {
+    while (out.charAt(out.length - 1) === ' ') {
       // Trim off trailing whitespace.
       out = out.substring(0, out.length - 1);
     }
-    while (out.lastIndexOf("baseline") !== -1 && out.lastIndexOf(" baseline") === out.length - " baseline".length) {
+    while (out.lastIndexOf('baseline') !== -1 && out.lastIndexOf(' baseline') === out.length - ' baseline'.length) {
       // Trim off trailing modifiers
-      out = out.substring(0, out.length - " baseline".length);
+      out = out.substring(0, out.length - ' baseline'.length);
     }
     return out;
   }
   Parser.fn.translate = function (n1, options) {
-    let rules = Parser.option(options, "rules");
+    const rules = Parser.option(options, 'rules');
     let n = translate(options, n1, rules);
     if (!n || n.op !== Parser.VAR) {
-      n = newNode(Parser.VAR, [""]);
+      n = newNode(Parser.VAR, ['']);
     }
     return trim(n.args[0]);
-  }
+  };
 
-  let option = Parser.option = function option(options, p, v) {
+  Parser.option = function option(options, p, v) {
     assert(options);
     let opt = options && options[p];
     if (v !== undefined) {
       // Set the option value.
-      Parser.options = options = options ? options : {};
+      Parser.options = options = options || {};
       options[p] = v;
     }
     if (opt === undefined) {
       switch (p) {
-      case "field":
-        opt = "integer";
+      case 'field':
+        opt = 'integer';
         break;
-      case "decimalPlaces":
+      case 'decimalPlaces':
         opt = 10;
         break;
-      case "toleranceAbsolute":
-      case "tolerancePercent":
-      case "toleranceRange":
-      case "setThousandsSeparator":
-      case "setDecimalSeparator":
-      case "dontExpandPowers":
-      case "dontFactorDenominators":
-      case "dontFactorTerms":
-      case "dontConvertDecimalToFraction":
-      case "strict":
-      case "antiderivative":
+      case 'toleranceAbsolute':
+      case 'tolerancePercent':
+      case 'toleranceRange':
+      case 'setThousandsSeparator':
+      case 'setDecimalSeparator':
+      case 'dontExpandPowers':
+      case 'dontFactorDenominators':
+      case 'dontFactorTerms':
+      case 'dontConvertDecimalToFraction':
+      case 'strict':
+      case 'antiderivative':
         opt = undefined;
         break;
-      case "types":
+      case 'types':
         opt = {};
         break;
       default:
@@ -1213,187 +1041,173 @@ import {rules} from "./rules.js";
     }
     // Return the original or default option.
     return opt;
-  }
+  };
 
-  let RUN_SELF_TESTS = false;
-  if (RUN_SELF_TESTS) {
-    let env = {
-    };
-
-    trace("\nMath Parser self testing");
-    (function () {
-    })();
-  }
-})(new Ast);
-export let Core = (function () {
-  Assert.reserveCodeRange(3000, 3999, "core");
-  let messages = Assert.messages;
-  let message = Assert.message;
-  let assert = Assert.assert;
-  messages[3001] = "No Math Core spec provided.";
-  messages[3002] = "No Math Core solution provided.";
-  messages[3003] = "No Math Core spec value provided.";
+}(new Ast()));
+export const Core = (function () {
+  Assert.reserveCodeRange(3000, 3999, 'core');
+  const messages = Assert.messages;
+  const message = Assert.message;
+  const assert = Assert.assert;
+  messages[3001] = 'No Math Core spec provided.';
+  messages[3002] = 'No Math Core solution provided.';
+  messages[3003] = 'No Math Core spec value provided.';
   messages[3004] = "Invalid Math Core spec method '%1'.";
-  messages[3005] = "Operation taking too long.";
+  messages[3005] = 'Operation taking too long.';
   messages[3006] = "Invalid option name '%1'.";
   messages[3007] = "Invalid option value '%2' for option '%1'.";
-  messages[3008] = "Internal error: %1";
+  messages[3008] = 'Internal error: %1';
 
-  let u = 1;
-  let k = 1000;
-  let c = Math.pow(10, -2);
-  let m = Math.pow(10, -3);
-  let mu = Math.pow(10, -6); // micro, \\mu
-  let n = Math.pow(10, -9);
-  let env = {
-    "matrix": {},
-    "pmatrix": {},
-    "bmatrix": {},
-    "Bmatrix": {},
-    "vmatrix": {},
-    "Vmatrix": {},
-    "array": {},
-    "\\alpha": { type: "var" },
-    "\\beta": { type: "var" },
-    "\\gamma": { type: "var" },
-    "\\delta": { type: "var" },
-    "\\epsilon": { type: "var" },
-    "\\zeta": { type: "var" },
-    "\\eta": { type: "var" },
-    "\\theta": { type: "var" },
-    "\\iota": { type: "var" },
-    "\\kappa": { type: "var" },
-    "\\lambda": { type: "var" },
-    "\\mu": { type: "const", value: mu },
-    "\\nu": { type: "var" },
-    "\\xi": { type: "var" },
-    "\\pi": { type: "const", value: Math.PI },
-    "\\rho": { type: "var" },
-    "\\sigma": { type: "var" },
-    "\\tau": { type: "var" },
-    "\\upsilon": { type: "var" },
-    "\\phi": { type: "var" },
-    "\\chi": { type: "var" },
-    "\\psi": { type: "var" },
-    "\\omega": { type: "var" },
-    "\\sin": { type: "var" },
-    "\\cos": { type: "var" },
-    "\\tan": { type: "var" },
-    "\\sec": { type: "var" },
-    "\\csc": { type: "var" },
-    "\\cot": { type: "var" },
-    "\\arcsin": { type: "var" },
-    "\\arccos": { type: "var" },
-    "\\arctan": { type: "var" },
-    "\\arcsec": { type: "var" },
-    "\\arccsc": { type: "var" },
-    "\\arccot": { type: "var" },
-    "\\sinh": { type: "var" },
-    "\\cosh": { type: "var" },
-    "\\tanh": { type: "var" },
-    "\\sech": { type: "var" },
-    "\\csch": { type: "var" },
-    "\\coth": { type: "var" },
-    "\\log": { type: "var" },
-    "\\ln": { type: "var" },
-    "\\lg": { type: "var" },
+  const mu = 10 ** -6; // micro, \\mu
+  const env = {
+    matrix: {},
+    pmatrix: {},
+    bmatrix: {},
+    Bmatrix: {},
+    vmatrix: {},
+    Vmatrix: {},
+    array: {},
+    '\\alpha': { type: 'var' },
+    '\\beta': { type: 'var' },
+    '\\gamma': { type: 'var' },
+    '\\delta': { type: 'var' },
+    '\\epsilon': { type: 'var' },
+    '\\zeta': { type: 'var' },
+    '\\eta': { type: 'var' },
+    '\\theta': { type: 'var' },
+    '\\iota': { type: 'var' },
+    '\\kappa': { type: 'var' },
+    '\\lambda': { type: 'var' },
+    '\\mu': { type: 'const', value: mu },
+    '\\nu': { type: 'var' },
+    '\\xi': { type: 'var' },
+    '\\pi': { type: 'const', value: Math.PI },
+    '\\rho': { type: 'var' },
+    '\\sigma': { type: 'var' },
+    '\\tau': { type: 'var' },
+    '\\upsilon': { type: 'var' },
+    '\\phi': { type: 'var' },
+    '\\chi': { type: 'var' },
+    '\\psi': { type: 'var' },
+    '\\omega': { type: 'var' },
+    '\\sin': { type: 'var' },
+    '\\cos': { type: 'var' },
+    '\\tan': { type: 'var' },
+    '\\sec': { type: 'var' },
+    '\\csc': { type: 'var' },
+    '\\cot': { type: 'var' },
+    '\\arcsin': { type: 'var' },
+    '\\arccos': { type: 'var' },
+    '\\arctan': { type: 'var' },
+    '\\arcsec': { type: 'var' },
+    '\\arccsc': { type: 'var' },
+    '\\arccot': { type: 'var' },
+    '\\sinh': { type: 'var' },
+    '\\cosh': { type: 'var' },
+    '\\tanh': { type: 'var' },
+    '\\sech': { type: 'var' },
+    '\\csch': { type: 'var' },
+    '\\coth': { type: 'var' },
+    '\\log': { type: 'var' },
+    '\\ln': { type: 'var' },
+    '\\lg': { type: 'var' },
   };
 
   function validateOption(p, v) {
     switch (p) {
-    case "field":
+    case 'field':
       switch (v) {
-      case void 0: // undefined means use default
-      case "integer":
-      case "real":
-      case "complex":
+      case undefined: // undefined means use default
+      case 'integer':
+      case 'real':
+      case 'complex':
         break;
       default:
         assert(false, message(3007, [p, v]));
         break;
       }
       break;
-    case "decimalPlaces":
-      if (v === void 0 || +v >= 0 && +v <= 20) {
+    case 'decimalPlaces':
+      if (v === undefined || +v >= 0 && +v <= 20) {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "toleranceAbsolute":
+    case 'toleranceAbsolute':
       if (v === undefined || +v >= 0 ||
-          typeof v === "string") {
+          typeof v === 'string') {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "tolerancePercent":
+    case 'tolerancePercent':
       if (v === undefined || +v >= 0) {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "toleranceRange":
+    case 'toleranceRange':
       if (v === undefined ||
           v instanceof Array && v.length === 2) {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "antiderivative":
-      if (typeof v === "undefined" ||
-          typeof v === "string") {
+    case 'antiderivative':
+      if (typeof v === 'undefined' ||
+          typeof v === 'string') {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "NoParens":
-    case "EndRoot":
-    case "allowDecimal":
-    case "allowInterval":
-    case "dontExpandPowers":
-    case "dontFactorDenominators":
-    case "dontFactorTerms":
-    case "dontConvertDecimalToFraction":
-    case "dontSimplifyImaginary":
-    case "ignoreOrder":
-    case "inverseResult":
-    case "requireThousandsSeparator":
-    case "ignoreText":
-    case "ignoreTrailingZeros":
-    case "allowThousandsSeparator":
-    case "compareSides":
-    case "ignoreCoefficientOne":
-    case "strict":
-    case "integrationConstant":
-    case "absoluteValue":
-    case "parsingIntegralExpr":
-      if (typeof v === "undefined" || typeof v === "boolean") {
+    case 'NoParens':
+    case 'EndRoot':
+    case 'allowDecimal':
+    case 'allowInterval':
+    case 'dontExpandPowers':
+    case 'dontFactorDenominators':
+    case 'dontFactorTerms':
+    case 'dontConvertDecimalToFraction':
+    case 'dontSimplifyImaginary':
+    case 'ignoreOrder':
+    case 'inverseResult':
+    case 'requireThousandsSeparator':
+    case 'ignoreText':
+    case 'ignoreTrailingZeros':
+    case 'allowThousandsSeparator':
+    case 'compareSides':
+    case 'ignoreCoefficientOne':
+    case 'strict':
+    case 'integrationConstant':
+    case 'absoluteValue':
+    case 'parsingIntegralExpr':
+      if (typeof v === 'undefined' || typeof v === 'boolean') {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "setThousandsSeparator":
-      if (typeof v === "undefined" ||
-          typeof v === "string" && v.length === 1 ||
+    case 'setThousandsSeparator':
+      if (typeof v === 'undefined' ||
+          typeof v === 'string' && v.length === 1 ||
           v instanceof Array) {
         break;
       }
       assert(false, message(3007, [p, v]));
       break;
-    case "setDecimalSeparator":
-      if (typeof v === "undefined" ||
-          typeof v === "string" && v.length === 1 ||
+    case 'setDecimalSeparator':
+      if (typeof v === 'undefined' ||
+          typeof v === 'string' && v.length === 1 ||
           v instanceof Array && v.length > 0 && v[0].length === 1) {
         break;
       }
       assert(false, message(3007, [p, JSON.stringify(v)]));
       break;
-    case "words":
-    case "rules":
-    case "types":
-    case "data":
-      if (typeof v === "undefined" ||
-          typeof v === "object") {
+    case 'words':
+    case 'rules':
+    case 'types':
+    case 'data':
+      if (typeof v === 'undefined' ||
+          typeof v === 'object') {
         break;
       }
       assert(false, message(3007, [p, v]));
@@ -1403,11 +1217,11 @@ export let Core = (function () {
       break;
     }
     // If we get this far, all is well.
-    return;
+
   }
   function validateOptions(options) {
     if (options) {
-      Object.keys(options).forEach(function (option) {
+      Object.keys(options).forEach((option) => {
         validateOption(option, options[option]);
       });
     }
@@ -1422,30 +1236,30 @@ export let Core = (function () {
       options.rules = rules.rules;
       options.types = rules.types;
     }
-    let spec = {
-      method: "translate",
-      options: options
+    const spec = {
+      method: 'translate',
+      options,
     };
     options.allowInterval = true;
-    let evaluator = makeEvaluator(spec, resume);
+    const evaluator = makeEvaluator(spec, resume);
     evaluator.evaluate(solution, (err, val) => {
       resume(err, val);
     });
   }
   function makeEvaluator(spec, resume) {
     let valueNode;
-    let method = spec.method;
-    let value = spec.value;
-    let options = Parser.options = spec.options;
+    const method = spec.method;
+    const value = spec.value;
+    const options = Parser.options = spec.options;
     let pendingError;
     try {
-      Assert.setLocation("spec");
+      Assert.setLocation('spec');
       validateOptions(options);
       Parser.pushEnv(env);
-      valueNode = value != undefined ? Parser.create(options, value, "spec") : undefined;
+      valueNode = value !== undefined ? Parser.create(options, value, 'spec') : undefined;
       Parser.popEnv();
     } catch (e) {
-      console.log("ERROR makeEvaluator() " + e.stack);
+      console.log(`ERROR makeEvaluator() ${e.stack}`);
       pendingError = e;
       resume([{
         result: null,
@@ -1454,25 +1268,25 @@ export let Core = (function () {
         stack: e.stack,
         location: e.location,
         model: null,  // Unused, for now.
-        toString: function () {
-          return this.errorCode + ": (" + this.location + ") " + this.message + "\n" + this.stack;
+        toString() {
+          return `${this.errorCode}: (${this.location}) ${this.message}\n${this.stack}`;
         },
-      }], "");  // If error, empty string.
+      }], '');  // If error, empty string.
     }
-    let evaluate = function evaluate(solution, resume) {
+    const evaluate = function evaluate(solution, resume) {
       try {
         if (pendingError) {
           throw pendingError;
         }
-        Assert.setLocation("user");
-        assert(solution != undefined, message(3002));
+        Assert.setLocation('user');
+        assert(solution !== undefined, message(3002));
         Parser.pushEnv(env);
-        let solutionNode = Parser.create(options, solution, "user");
-        assert(solutionNode, message(3008, ["invalid input"]));
-        Assert.setLocation("spec");
+        const solutionNode = Parser.create(options, solution, 'user');
+        assert(solutionNode, message(3008, ['invalid input']));
+        Assert.setLocation('spec');
         let result;
         switch (method) {
-        case "translate":
+        case 'translate':
           result = solutionNode.translate(options);
           break;
         default:
@@ -1482,8 +1296,8 @@ export let Core = (function () {
         Parser.popEnv();
         resume([], result);
       } catch (e) {
-        console.log("ERROR evaluate() " + e.stack);
-        let message = e.message;
+        console.log(`ERROR evaluate() ${e.stack}`);
+        const message = e.message;
         resume([{
           result: null,
           errorCode: parseErrorCode(message),
@@ -1491,28 +1305,28 @@ export let Core = (function () {
           stack: e.stack,
           location: e.location,
           model: null,  // Unused, for now.
-          toString: function () {
-            return this.errorCode + ": (" + this.location + ") " + this.message + "\n" + this.stack;
+          toString() {
+            return `${this.errorCode}: (${this.location}) ${this.message}\n${this.stack}`;
           },
-        }], "");  // If error, empty string.
-        return;
+        }], '');  // If error, empty string.
+
       }
     };
     return {
-      evaluate: evaluate,
+      evaluate,
       model: valueNode,
     };
     function parseErrorCode(e) {
-      let code = +e.slice(0, e.indexOf(":"));
-      if (!isNaN(code)) {
+      const code = +e.slice(0, e.indexOf(':'));
+      if (!Number.isNaN(code)) {
         return code;
       }
       return 0;
     }
     function parseMessage(e) {
-      let code = parseErrorCode(e);
+      const code = parseErrorCode(e);
       if (code) {
-        return e.slice(e.indexOf(":")+2);
+        return e.slice(e.indexOf(':') + 2);
       }
       return e;
     }
@@ -1520,11 +1334,11 @@ export let Core = (function () {
 
   // Exports
   return {
-    translate: translate,
+    translate,
   };
-})();
+}());
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   // Make a browser hook.
   window.Core = Core;
 }
