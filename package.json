@@ -1,6 +1,6 @@
 {
   "name": "@artcompiler/translatex",
-  "version": "0.7.4",
+  "version": "0.9.0",
   "type": "module",
   "description": "A library for translating LaTeX",
   "main": "index.js",
@@ -28,7 +28,7 @@
     "node": ">=14.4.0"
   },
   "dependencies": {
-    "@artcompiler/parselatex": "github:artcompiler/parselatex#v1.1.0",
+    "@artcompiler/parselatex": "file:dependencies/parselatex-1.1.0.tar.gz",
     "decimal.js": "^10.2.1"
   }
 }
