@@ -1,5 +1,3 @@
-.PHONY: build
-
 all: init build
 
 init: .npm-install-done
@@ -28,4 +26,10 @@ clean:
 	rm -rf dist
 	rm -rf build
 
-.PHONY: all init clean
+update-dependencies:
+	cp ../parselatex/*.tgz .
+	npm i file:artcompiler-parselatex-1.1.0.tgz
+	npm pack .
+
+.PHONY: archive all init clean build
+

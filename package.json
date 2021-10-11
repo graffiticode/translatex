@@ -4,10 +4,6 @@
   "type": "module",
   "description": "A library for translating LaTeX",
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/artcompiler/translatex.git"
-  },
   "author": "https://github.com/jeffdyer",
   "license": "MIT",
   "devDependencies": {
@@ -28,7 +24,7 @@
     "node": ">=14.4.0"
   },
   "dependencies": {
-    "@artcompiler/parselatex": "file:dependencies/parselatex-1.1.0.tar.gz",
+    "@artcompiler/parselatex": "file:artcompiler-parselatex-1.1.0.tgz",
     "decimal.js": "^10.2.1"
   }
 }
