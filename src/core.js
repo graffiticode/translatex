@@ -30,6 +30,7 @@ import { rules } from './rules.js';
       case Parser.BACKSLASH: // set operator
       case Parser.DIV:
       case Parser.FRAC:
+      case Parser.BINOM:
       case Parser.LOG:
       case Parser.COLON:
       case Parser.FUNC:
