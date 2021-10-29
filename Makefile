@@ -28,7 +28,8 @@ clean:
 
 update-dependencies:
 	cp ../parselatex/*.tgz .
-	npm i file:artcompiler-parselatex-1.1.0.tgz
+	npm i file:artcompiler-parselatex-1.2.0.tgz
+	npm i
 	npm pack .
 
 .PHONY: archive all init clean build
