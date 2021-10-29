@@ -27,6 +27,7 @@ clean:
 	rm -rf build
 
 update-dependencies:
+	rm *.tgz
 	cp ../parselatex/*.tgz .
 	npm i file:artcompiler-parselatex-1.2.0.tgz
 	npm i
