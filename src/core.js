@@ -15,6 +15,14 @@ import { rules } from './rules.js';
     };
   }
 
+  function binaryNode(op, args) {
+    if (args.length > 1) {
+      return {op, args};
+    } else {
+      return args[0];
+    }
+  }
+
   // The outer Visitor function provides a global scope for all visitors,
   // as well as dispatching to methods within a visitor.
   function Visitor(ast) {
@@ -634,6 +642,16 @@ import { rules } from './rules.js';
       // });
       return node.args;
     }
+    function unflatten(node) {
+      if (node.args.length <= 2) {
+        return node;
+      }
+      const rnode = node.args.pop();
+      return binaryNode(node.op, [
+        unflatten(node),
+        rnode
+      ]);
+    }
     function translate(options, root, rules) {
       // Translate math from LaTeX to English.
       // rules = {ptrn: tmpl, ...};
@@ -692,6 +710,7 @@ import { rules } from './rules.js';
           return expand(template, args);
         },
         multiplicative(node) {
+          node = unflatten(node);
           const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
