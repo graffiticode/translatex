@@ -695,6 +695,7 @@ import { rules } from './rules.js';
           return expand(template, args, env);
         },
         binary(node) {
+          node = unflatten(node);
           const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
