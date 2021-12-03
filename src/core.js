@@ -500,6 +500,7 @@ import { rules } from './rules.js';
             // Same number of args, so see if each matches.
             return pattern.args.every((arg, i) => {
               if (pattern.op === Parser.VAR) {
+                // We've already matched ? so we are looking for literal matches.
                 if (arg === node.args[i]) {
                   return true;
                 }
@@ -530,112 +531,113 @@ import { rules } from './rules.js';
       // }
       return matches;
     }
-    function expandBinary(str, args) {
-      const t = str;
+    function expandBinary(template, args) {
+      const t = template;
       args.forEach((arg, i) => {
-        str = str.replace(new RegExp(`%${i + 1}`, 'g'), arg.args[0]);
+        template = template.replace(new RegExp(`%${i + 1}`, 'g'), arg.args[0]);
       });
       if (args.length > 2) {
-        return expandBinary(t, [newNode(Parser.VAR, [str])].concat(args.slice(2)));
+        return expandBinary(t, [newNode(Parser.VAR, [template])].concat(args.slice(2)));
       }
-      return str;
+      return template;
     }
-    function expand(template, args, env) {
+    function expand(expansion, args, env) {
       env = env || {};
-      // Use first matched template for now.
-      let str = template.str;
-      if (str && args) {
-        if (str.indexOf('%%') >= 0) {
-          str = str.replace(new RegExp('%%', 'g'), args[0].args[0]);
+      // Use first matched expansion for now.
+      let template = expansion.template;
+      if (template && args) {
+        if (template.indexOf('%%') >= 0) {
+          template = template.replace(new RegExp('%%', 'g'), args[0].args[0]);
         }
-        if (str.indexOf('%*') >= 0) {
+        if (template.indexOf('%*') >= 0) {
           let s = '';
           args.forEach((arg, i) => {
             if (s !== '') {
               s += ' ';
             }
-            // Replicate template for each argument.
+            // Replicate expansion for each argument.
             if (i === args.length - 1) {
               // If this is the last element in the sequence, lop off the
               // trailing separator. Times two because what comes before the
               // "%*", if anything, is a bracket so need to include the close
               // bracket.
-              str = str.slice(0, 2 * str.indexOf('%*') + '%*'.length);
+              template = template.slice(0, 2 * template.indexOf('%*') + '%*'.length);
             }
-            s += str.replace('%*', arg.args[0]).replace('%M', arg.m).replace('%N', arg.n);
+            s += template.replace('%*', arg.args[0]).replace('%M', arg.m).replace('%N', arg.n);
           });
-          str = s;  // Overwrite str.
+          template = s;  // Overwrite template.
         }
-        if (str.indexOf('%IP') >= 0) {
-          str = str.replace(new RegExp('%IP', 'g'), env.ip);
+        if (template.indexOf('%IP') >= 0) {
+          template = template.replace(new RegExp('%IP', 'g'), env.ip);
         }
-        if (str.indexOf('%FP0') >= 0) {
-          str = str.replace(new RegExp('%FP0', 'g'), env.fp);
+        if (template.indexOf('%FP0') >= 0) {
+          template = template.replace(new RegExp('%FP0', 'g'), env.fp);
         }
-        if (str.indexOf('%FP') >= 0) {
-          str = str.replace(new RegExp('%FP', 'g'), env.fp.split('').join(' '));
+        if (template.indexOf('%FP') >= 0) {
+          template = template.replace(new RegExp('%FP', 'g'), env.fp.split('').join(' '));
         }
-        if (str.indexOf('%M') >= 0) {
+        if (template.indexOf('%M') >= 0) {
           assert(env.m);
-          str = str.replace(new RegExp('%M', 'g'), env.m);
+          template = template.replace(new RegExp('%M', 'g'), env.m);
         }
-        if (str.indexOf('%N') >= 0) {
+        if (template.indexOf('%N') >= 0) {
           assert(env.n);
-          str = str.replace(new RegExp('%N', 'g'), env.n);
+          template = template.replace(new RegExp('%N', 'g'), env.n);
         }
-        if (template.isBinary && args.length > 2) {
-          str = expandBinary(str, args);
+        if (expansion.isBinary && args.length > 2) {
+          template = expandBinary(template, args);
         } else {
           args.forEach((arg, i) => {
-            str = str.replace(new RegExp(`%${i + 1}`, 'g'), !arg ? '' : arg.args[0]);
+            template = template.replace(new RegExp(`%${i + 1}`, 'g'), !arg ? '' : arg.args[0]);
           });
         }
         return {
           op: Parser.VAR,
-          args: [str],
+          args: [template],
         };
       }
       return args[0];
     }
 
-    function matchedTemplate(options, rules, matches, arity) {
-      let templates = [];
+    function matchedExpansion(options, rules, matches, arity) {
+      let expansions = [];
       matches.forEach((m) => {
-        templates = templates.concat(rules[JSON.stringify(m)]);
+        expansions = expansions.concat(rules[JSON.stringify(m)]);
       });
-      const matchedTemplates = [];
-      templates.forEach((template) => {
-        if ((!template.context ||
-            Parser.option(options, 'NoParens') && template.context.indexOf('NoParens') > -1 ||
-            Parser.option(options, 'EndRoot') && template.context.indexOf('EndRoot') > -1) &&
-           arity >= paramCount(template)) {  // Some args might be elided.
-          matchedTemplates.push(template);
+      const matchedExpansions = [];
+      expansions.forEach((expansion) => {
+        if ((!expansion.context ||
+            Parser.option(options, 'RHS') && expansion.context.indexOf('RHS') > -1 ||
+            Parser.option(options, 'NoParens') && expansion.context.indexOf('NoParens') > -1 ||
+            Parser.option(options, 'EndRoot') && expansion.context.indexOf('EndRoot') > -1) &&
+           arity >= paramCount(expansion)) {  // Some args might be elided.
+          matchedExpansions.push(expansion);
         }
       });
-      if (matchedTemplates.length === 0) {
+      if (matchedExpansions.length === 0) {
         // Make one up.
-        matchedTemplates.push({ str: '' });
+        matchedExpansions.push({ template: '' });
       }
       // Use first match.
-      return matchedTemplates[0];
-      function paramCount(template) {
-        // Parse out the number of params in the template.
-        assert(typeof template.str === 'string');
-        const a = template.str.split('%');
+      return matchedExpansions[0];
+      function paramCount(expansion) {
+        // Parse out the number of params in the expansion.
+        assert(typeof expansion.template === 'string');
+        const a = expansion.template.split('%');
         const nn = a.filter((n) => {
           return !Number.isNaN(+n[0]);
         });
         return nn.length === 0 ? 0 : +nn.sort()[nn.length - 1][0];
       }
     }
-    function getNodeArgsForTemplate(node, template) {
-      // Parse out the number of params in the template.
-      assert(typeof template.str === 'string');
-      const str = template.str;
-      if (str.indexOf('%%') >= 0) {
+    function getNodeArgsForExpansion(node, expansion) {
+      // Parse out the number of params in the expansion.
+      assert(typeof expansion.template === 'string');
+      const template = expansion.template;
+      if (template.indexOf('%%') >= 0) {
         return [node];
       }
-      // let a = str.split("%");  // ["..", "1..", "2.."]
+      // let a = template.split("%");  // ["..", "1..", "2.."]
       // let nn = a.filter(n => {
       //   // Include '%1', %M, %N
       //   return !Number.isNaN(+n[0]) || n[0] === "M" || n[0] === "N";
@@ -653,18 +655,17 @@ import { rules } from './rules.js';
       ]);
     }
     function translate(options, root, rules) {
-      // Translate math from LaTeX to English.
+      // Translate math from LaTeX.
       // rules = {ptrn: tmpl, ...};
       if (rules instanceof Array) {
         if (rules.length === 1) {
           rules = rules[0];
         } else {
-          rules = mergeMaps(rules[1], rules[0]);
+          rules = mergeMaps(options, rules[1], rules[0]);
         }
       }
       const globalRules = rules;
       const keys = Object.keys(rules);
-      // FIXME when IE supports Map, this can be removed.
       const patterns = [];
       keys.forEach((k) => {
         patterns.push(JSON.parse(k));
@@ -691,8 +692,8 @@ import { rules } from './rules.js';
             return node;
           }
           // Use first match for now.
-          const template = matchedTemplate(options, rules, matches, 1);
-          return expand(template, args, env);
+          const expansion = matchedExpansion(options, rules, matches, 1);
+          return expand(expansion, args, env);
         },
         binary(node) {
           node = unflatten(node);
@@ -700,15 +701,18 @@ import { rules } from './rules.js';
           if (matches.length === 0) {
             return node;
           }
-          const template = matchedTemplate(options, rules, matches, node.args.length);
-          const argRules = getRulesForArgs(template);
-          const nodeArgs = getNodeArgsForTemplate(node, template);
+          const expansion = matchedExpansion(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(expansion);
+          const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
-          nodeArgs.forEach((n) => {
+          nodeArgs.forEach((n, i) => {
+            n.ordinal = i;
+            const rhs = Parser.option(options, 'RHS', i > 0);
             args = args.concat(translate(options, n, [globalRules, argRules]));
+            Parser.option(options, 'RHS', rhs);
           });
-          template.isBinary = true;
-          return expand(template, args);
+          expansion.isBinary = true;
+          return expand(expansion, args);
         },
         multiplicative(node) {
           node = unflatten(node);
@@ -717,15 +721,16 @@ import { rules } from './rules.js';
             return node;
           }
           // Use first match for now.
-          const template = matchedTemplate(options, rules, matches, node.args.length);
-          const argRules = getRulesForArgs(template, rules);
-          const nodeArgs = getNodeArgsForTemplate(node, template);
+          const expansion = matchedExpansion(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(expansion, rules);
+          const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
-          nodeArgs.forEach((n) => {
+          nodeArgs.forEach((n, i) => {
+            n.ordinal = i;
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          template.isBinary = true;
-          return expand(template, args);
+          expansion.isBinary = true;
+          return expand(expansion, args);
         },
         unary(node) {
           const matches = match(options, patterns, node);
@@ -733,14 +738,14 @@ import { rules } from './rules.js';
             return node;
           }
           // Use first match for now.
-          const template = matchedTemplate(options, rules, matches, node.args.length);
-          const argRules = getRulesForArgs(template, rules);
-          const nodeArgs = getNodeArgsForTemplate(node, template);
+          const expansion = matchedExpansion(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(expansion, rules);
+          const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(template, args);
+          return expand(expansion, args);
         },
         exponential(node) {
           const matches = match(options, patterns, node);
@@ -748,14 +753,14 @@ import { rules } from './rules.js';
             return node;
           }
           // Use first match for now.
-          const template = matchedTemplate(options, rules, matches, node.args.length);
-          const argRules = getRulesForArgs(template, rules);
-          const nodeArgs = getNodeArgsForTemplate(node, template);
+          const expansion = matchedExpansion(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(expansion, rules);
+          const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(template, args);
+          return expand(expansion, args);
         },
         variable(node) {
           // let str = "";
@@ -777,23 +782,23 @@ import { rules } from './rules.js';
           //   return args[0];
           // }
           // // Use first match for now.
-          // let template = matchedTemplate(options, rules, matches, 1);
-          // return expand(template, args);
+          // let expansion = matchedExpansion(options, rules, matches, 1);
+          // return expand(expansion, args);
           const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
           }
           // Use first match for now.
-          const template = matchedTemplate(options, rules, matches, node.args.length);
-          const argRules = getRulesForArgs(template, rules);
-          const nodeArgs = getNodeArgsForTemplate(node, template);
+          const expansion = matchedExpansion(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(expansion, rules);
+          const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
           args.push(newNode(Parser.VAR, [lookup(options, nodeArgs.shift())]));
           nodeArgs.forEach((n) => {
             // Now translate the subscripts.
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(template, args);
+          return expand(expansion, args);
         },
         comma(node) {
           if (node.op === Parser.MATRIX || node.op === Parser.ROW || node.op === Parser.COL) {
@@ -823,31 +828,31 @@ import { rules } from './rules.js';
               return node;
             }
             // Use first match for now.
-            const template = matchedTemplate(options, rules, matches, node.args.length);
+            const expansion = matchedExpansion(options, rules, matches, node.args.length);
             let args = [];
-            const argRules = getRulesForArgs(template, rules);
-            const nodeArgs = getNodeArgsForTemplate(node, template);
+            const argRules = getRulesForArgs(expansion, rules);
+            const nodeArgs = getNodeArgsForExpansion(node, expansion);
             nodeArgs.forEach((n, i) => {
               args = args.concat(translate(options, n, [globalRules, argRules]));
               args[i].m = n.m;
               args[i].n = n.n;
             });
-            return expand(template, args, env);
+            return expand(expansion, args, env);
           }
             const matches = match(options, patterns, node);
             if (matches.length === 0) {
               return node;
             }
             // Use first match for now.
-            const template = matchedTemplate(options, rules, matches, node.args.length);
-            const argRules = getRulesForArgs(template, rules);
-            const nodeArgs = getNodeArgsForTemplate(node, template);
+            const expansion = matchedExpansion(options, rules, matches, node.args.length);
+            const argRules = getRulesForArgs(expansion, rules);
+            const nodeArgs = getNodeArgsForExpansion(node, expansion);
             let args = [];
             nodeArgs.forEach((n) => {
               args = args.concat(translate(options, n, [globalRules, argRules]));
             });
-            template.isBinary = true;
-            return expand(template, args);
+            expansion.isBinary = true;
+            return expand(expansion, args);
 
         },
         equals(node) {
@@ -856,15 +861,15 @@ import { rules } from './rules.js';
             return node;
           }
           // Use first match for now.
-          const template = matchedTemplate(options, rules, matches, node.args.length);
-          const argRules = getRulesForArgs(template, rules);
-          const nodeArgs = getNodeArgsForTemplate(node, template);
+          const expansion = matchedExpansion(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(expansion, rules);
+          const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          template.isBinary = true;
-          return expand(template, args, node);
+          expansion.isBinary = true;
+          return expand(expansion, args, node);
         },
         paren(node) {
           const matches = match(options, patterns, node);
@@ -872,14 +877,14 @@ import { rules } from './rules.js';
             return node;
           }
           // Use first match for now.
-          const template = matchedTemplate(options, rules, matches, 1);
-          const argRules = getRulesForArgs(template, rules);
-          const nodeArgs = getNodeArgsForTemplate(node, template);
+          const expansion = matchedExpansion(options, rules, matches, 1);
+          const argRules = getRulesForArgs(expansion, rules);
+          const nodeArgs = getNodeArgsForExpansion(node, expansion);
           const args = [];
           nodeArgs.forEach((n) => {
             args.push(translate(options, n, [globalRules, argRules]));
           });
-          return expand(template, args);
+          return expand(expansion, args);
         },
       });
     }
@@ -895,71 +900,121 @@ import { rules } from './rules.js';
   //   return str;
   // }
 
-  function getRulesForArgs(template) {
-    // Use first match for now.
-    return template.rules;
+  function getRulesForArgs(expansion) {
+    return expansion.rules;
   }
 
-  function mergeMaps(m1, m2) {
+  function mergeMaps(options, m1, m2) {
     const map = {};
     if (m1) {
+      if (m1 instanceof Array) {
+        // We have context alternates, so pick the first match.
+        let match = {};
+        m1.some((m) => {
+          const contexts = m.context.split(' ');
+          return contexts.some((context) => {
+            if (options[context]) {
+              match = m.value;
+              return true;
+            }
+            return false;
+          });
+        });
+        m1 = match;
+      }
       const keys = Object.keys(m1);
       keys.forEach((k) => {
         map[k] = m1[k];
       });
     }
     const keys = Object.keys(m2);
+    let m, k;
     keys.forEach((k) => {
+      if (!isNaN(parseInt(k))) {
+        // Flatten context arrays.
+        m = m2[k];
+        k = Object.keys(m)[0];
+      } else {
+        m = m2;
+      }
       if (!map[k]) {
-        map[k] = m2[k];
+        map[k] = m[k];
       }
     });
     return map;
   }
-  function compileTemplate(options, template) {
-    let compiledTemplate;
-    if (template instanceof Array) {
-      compiledTemplate = [];
-      template.forEach((t) => {
-        compiledTemplate = compiledTemplate.concat(compileTemplate(options, t));
-      });
-    } else if (typeof template === 'string') {
-        // "%1"
-        compiledTemplate = [{
-          str: template,
-        }];
+
+  function getExpansionFromTemplate(template) {
+    let context;
+    const start = template.indexOf('\\context');
+    if (start >= 0) {
+      template = template.slice(start + '\\context'.length);
+      const stop = template.indexOf('}');
+      context = template.slice(1, stop);
+      template = template.slice(stop + 1);
+    }
+    return {
+      context: context,
+      template: template,
+    };
+  }
+
+  function compileExpansion(options, expansion) {
+    let compiledExpansion;
+    if (expansion instanceof Array) {
+      // [{..}, {..}]
+      assert(expansion.length === 1);
+      compiledExpansion = compileExpansion(options, expansion[0]);
+    } else if (typeof expansion === 'string') {
+      // "\context{RHS}%1"
+      compiledExpansion = getExpansionFromTemplate(expansion);
+    } else {
+      // {"%1": {"?": "%1"}}
+      // {"%1": [cntx1 {"?": "%1"}, cntx2 {?: "%1"}] --> [{context: "cntx1", expansion: "%1"},...]}
+      let context = '';
+      const templates = Object.keys(expansion);
+      assert(templates.length === 1);
+      const template = templates[0];
+      const rules = expansion[template];
+      let compiledRules;
+      if (rules instanceof Array) {
+        compiledRules = [];
+        rules.forEach((rule) => {
+          if (rule.options) {
+            context += rule.options.RHS ? ' RHS' : '';
+            context += rule.options.EndRoot ? ' EndRoot' : '';
+            context += rule.options.NoParens ? ' NoParens' : '';
+            compiledRules.push({
+              context: context,
+              value: compileRules(options, rule.value)
+            });
+          } else {
+            compiledRules.push(compileRules(options, rule));
+          }
+        });
       } else {
-        // {"%1": {"?": "%1"}}
-        // [cntx1 "%1", cntx2 {"%1": {?: "%1"}}] --> [{context: "cntx1", str: "%1"},...]
-        let context = '';
-let str;
-let rules;
-        if (template.options) {
-          context += template.options.EndRoot ? ' EndRoot' : '';
-          context += template.options.NoParens ? ' NoParens' : '';
-          str = template.value;
-        } else {
-          str = Object.keys(template)[0];
-          assert(str !== 'options');
-          rules = compileRules(options, template[str]);
-        }
-        compiledTemplate = [{
-          context,
-          str,
-          rules,
-        }];
+        compiledRules = compileRules(options, rules);
       }
-    return compiledTemplate;
+      compiledExpansion = {
+        template,
+        rules: compiledRules,
+      };
+    }
+    return compiledExpansion;
   }
   function compileRules(options, rules) {
-    // { "ast as string": template, ... }
-    const keys = Object.keys(rules);
+    // {"?": "%1"}
+    // [cntx1 "%1", cntx2 {"%1": {?: "%1"}}] --> [{context: "cntx1", expansion: "%1"},...]}
+    // { "ast as string": expansion, ... }
     const compiledRules = {};
+    const keys = Object.keys(rules);
     keys.forEach((key) => {
       const pattern = JSON.stringify(Parser.create(options, key));  // Parse and normalize.
-      const template = compileTemplate(options, rules[key]);
+      const expansion = compileExpansion(options, rules[key]);
       if (!compiledRules[pattern]) {
-        compiledRules[pattern] = template;
+        compiledRules[pattern] = [expansion];
+      } else {
+        compiledRules[pattern].push(expansion);
       }
     });
     return compiledRules;
@@ -1165,6 +1220,7 @@ export const Core = (function () {
       }
       assert(false, message(3007, [p, v]));
       break;
+    case 'RHS':
     case 'NoParens':
     case 'EndRoot':
     case 'allowDecimal':

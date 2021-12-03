@@ -25,7 +25,7 @@
     "npm": "7.7.6"
   },
   "dependencies": {
-    "@artcompiler/parselatex": "file:artcompiler-parselatex-1.2.0.tgz",
+    "@artcompiler/parselatex": "file:../parselatex",
     "decimal.js": "^10.2.1"
   }
 }
