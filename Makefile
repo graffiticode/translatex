@@ -32,7 +32,7 @@ update-dependencies:
 	rm package-lock.json
 	rm -f *.tgz || true
 	cp ../parselatex/*.tgz .
-	npm i file:artcompiler-parselatex-1.2.0.tgz
+	npm i file:artcompiler-parselatex-1.3.0.tgz
 	npm i
 	npm pack .
 
