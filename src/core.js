@@ -545,6 +545,10 @@ import { rules } from './rules.js';
       env = env || {};
       // Use first matched expansion for now.
       let template = expansion.template;
+      if (args.length === 0) {
+        // This handles the case of empty brackets, such as () and \{\}.
+        args.push(newNode(Parser.VAR, ['']));
+      }
       if (template && args) {
         if (template.indexOf('%%') >= 0) {
           template = template.replace(new RegExp('%%', 'g'), args[0].args[0]);
