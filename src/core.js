@@ -604,32 +604,14 @@ import { rules } from './rules.js';
       matches.forEach((m) => {
         expansions = expansions.concat(rules[JSON.stringify(m)]);
       });
-      const matchedExpansions = [];
-      expansions.forEach((expansion) => {
-        if ((!expansion.context ||
-            Parser.option(options, 'RHS') && expansion.context.indexOf('RHS') > -1 ||
-            Parser.option(options, 'NoParens') && expansion.context.indexOf('NoParens') > -1 ||
-            Parser.option(options, 'EndRoot') && expansion.context.indexOf('EndRoot') > -1) &&
-           arity >= paramCount(expansion)) {  // Some args might be elided.
-          matchedExpansions.push(expansion);
-        }
-      });
-      if (matchedExpansions.length === 0) {
+      if (expansions.length === 0) {
         // Make one up.
-        matchedExpansions.push({ template: '' });
+        expansions.push({ template: '' });
       }
       // Use first match.
-      return matchedExpansions[0];
-      function paramCount(expansion) {
-        // Parse out the number of params in the expansion.
-        assert(typeof expansion.template === 'string');
-        const a = expansion.template.split('%');
-        const nn = a.filter((n) => {
-          return !Number.isNaN(+n[0]);
-        });
-        return nn.length === 0 ? 0 : +nn.sort()[nn.length - 1][0];
-      }
+      return expansions[0];
     }
+
     function getNodeArgsForExpansion(node, expansion) {
       // Parse out the number of params in the expansion.
       assert(typeof expansion.template === 'string');
@@ -706,7 +688,6 @@ import { rules } from './rules.js';
           const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
           nodeArgs.forEach((n, i) => {
-            n.ordinal = i;
             const rhs = Parser.option(options, 'RHS', i > 0);
             args = args.concat(translate(options, n, [globalRules, argRules]));
             Parser.option(options, 'RHS', rhs);
@@ -726,7 +707,6 @@ import { rules } from './rules.js';
           const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
           nodeArgs.forEach((n, i) => {
-            n.ordinal = i;
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           expansion.isBinary = true;
@@ -911,14 +891,21 @@ import { rules } from './rules.js';
         // We have context alternates, so pick the first match.
         let match = {};
         m1.some((m) => {
-          const contexts = m.context.split(' ');
-          return contexts.some((context) => {
-            if (options[context]) {
-              match = m.value;
-              return true;
-            }
-            return false;
-          });
+          if (m.context) {
+            const contexts = m.context && m.context.split(' ') || [];
+            // A rule can have more than one context.
+            return contexts.some((context) => {
+              if (options[context]) {
+                match = m.value;
+                return true;
+              }
+              return false;
+            });
+          } else {
+            // No context, so its a catchall.
+            match = m;
+            return true;
+          }
         });
         m1 = match;
       }
