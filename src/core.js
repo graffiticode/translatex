@@ -549,6 +549,9 @@ import { rules } from './rules.js';
         // This handles the case of empty brackets, such as () and \{\}.
         args.push(newNode(Parser.VAR, ['']));
       }
+      if (template && template.indexOf('%OP') >= 0 && env.op) {
+        template = template.replace(new RegExp('%OP', 'g'), env.op);
+      }
       if (template && args) {
         if (template.indexOf('%%') >= 0) {
           template = template.replace(new RegExp('%%', 'g'), args[0].args[0]);
@@ -697,7 +700,7 @@ import { rules } from './rules.js';
             Parser.option(options, 'RHS', rhs);
           });
           expansion.isBinary = true;
-          return expand(expansion, args);
+          return expand(expansion, args, {op: node.op});
         },
         multiplicative(node) {
           node = unflatten(node);
@@ -714,9 +717,10 @@ import { rules } from './rules.js';
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           expansion.isBinary = true;
-          return expand(expansion, args);
+          return expand(expansion, args, {op: node.op});
         },
         unary(node) {
+          // -10 => (-10)
           const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
@@ -729,7 +733,7 @@ import { rules } from './rules.js';
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args);
+          return expand(expansion, args, {op: node.op});
         },
         exponential(node) {
           const matches = match(options, patterns, node);
