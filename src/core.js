@@ -714,7 +714,9 @@ import { rules } from './rules.js';
           const nodeArgs = getNodeArgsForExpansion(node, expansion);
           let args = [];
           nodeArgs.forEach((n, i) => {
+            const rhs = Parser.option(options, 'RHS', i > 0);
             args = args.concat(translate(options, n, [globalRules, argRules]));
+            Parser.option(options, 'RHS', rhs);
           });
           expansion.isBinary = true;
           return expand(expansion, args, {op: node.op});
