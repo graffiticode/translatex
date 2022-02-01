@@ -43,6 +43,7 @@ import { rules } from './rules.js';
       case Parser.COLON:
       case Parser.FUNC:
       case Parser.TYPE:
+      case Parser.SUBSCRIPT:
         if (node.args.length === 1) {
           node = visit.unary(node, resume);
         } else {
@@ -106,7 +107,6 @@ import { rules } from './rules.js';
       case Parser.BIGCAP:
       case Parser.PIPE:
       case Parser.ION:
-      case Parser.SUBSCRIPT:
       case Parser.OVERLINE:
       case Parser.OVERSET:
       case Parser.UNDERSET:
@@ -633,14 +633,24 @@ import { rules } from './rules.js';
       // });
       return node.args;
     }
-    function unflatten(node) {
+    function unflattenLeftRecursive(node) {
       if (node.args.length <= 2) {
         return node;
       }
       const rnode = node.args.pop();
       return binaryNode(node.op, [
-        unflatten(node),
-        rnode
+        unflattenLeftRecursive(node),
+        rnode,
+      ]);
+    }
+    function unflattenRightRecursive(node) {
+      if (node.args.length <= 2) {
+        return node;
+      }
+      const lnode = node.args.shift();
+      return binaryNode(node.op, [
+        lnode,
+        unflattenRightRecursive(node),
       ]);
     }
     function translate(options, root, rules) {
@@ -685,7 +695,11 @@ import { rules } from './rules.js';
           return expand(expansion, args, env);
         },
         binary(node) {
-          node = unflatten(node);
+          if (node.op === Parser.SUBSCRIPT) {
+            node = unflattenRightRecursive(node);
+          } else {
+            node = unflattenLeftRecursive(node);
+          }
           const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
@@ -703,7 +717,7 @@ import { rules } from './rules.js';
           return expand(expansion, args, {op: node.op});
         },
         multiplicative(node) {
-          node = unflatten(node);
+          node = unflattenLeftRecursive(node);
           const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
@@ -753,27 +767,6 @@ import { rules } from './rules.js';
           return expand(expansion, args);
         },
         variable(node) {
-          // let str = "";
-          // node.args.forEach(function (n, i) {
-          //   // This is a little bit of a hack to handle how subscripts are encoded
-          //   // as compound variables.
-          //   if (i > 0) {
-          //     str += " sub ";
-          //     let v = translate(options, n, rules);
-          //     str += v.args[0];
-          //     str += " baseline ";
-          //   } else {
-          //     str += lookup(options, n);
-          //   }
-          // });
-          // let matches = match(options, patterns, node);
-          // let args = [newNode(Parser.VAR, [str])];
-          // if (matches.length === 0) {
-          //   return args[0];
-          // }
-          // // Use first match for now.
-          // let expansion = matchedExpansion(options, rules, matches, 1);
-          // return expand(expansion, args);
           const matches = match(options, patterns, node);
           if (matches.length === 0) {
             return node;
