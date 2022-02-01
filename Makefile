@@ -27,12 +27,11 @@ clean:
 	rm -rf build
 
 update-dependencies:
-	npm uninstall @artcompiler/parselatex;
-	rm -rf node_modules || true
 	rm package-lock.json || true
+	rm -rf node_modules || true
 	rm -f *.tgz || true
 	cp ../parselatex/*.tgz .
-	npm i file:artcompiler-parselatex-1.4.0.tgz
+	npm i file:artcompiler-parselatex-1.5.0.tgz
 	npm i
 	npm pack .
 
