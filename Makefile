@@ -26,6 +26,12 @@ clean:
 	rm -rf dist
 	rm -rf build
 
+use-local-packages:
+	rm -rf node_modules || true
+	rm package-lock.json || true
+	npm i ../parselatex
+	npm i
+
 update-dependencies:
 	rm package-lock.json || true
 	rm -rf node_modules || true

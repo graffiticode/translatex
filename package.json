@@ -24,6 +24,9 @@
     "node": "v15.14.0",
     "npm": "7.7.6"
   },
+  "browser": {
+    "fs": false
+  },
   "dependencies": {
     "@artcompiler/parselatex": "file:artcompiler-parselatex-1.5.0.tgz",
     "decimal.js": "^10.2.1"

@@ -5,6 +5,7 @@
 import { Ast, Parser } from '@artcompiler/parselatex';
 import { Assert, assert, message } from './assert.js';
 import { rules } from './rules.js';
+import fs from 'fs';
 
 (function (ast) {
 
@@ -1210,7 +1211,7 @@ export const Core = (function () {
       }
       assert(false, message(4007, [p, v]));
       break;
-//    case 'RHS':
+    case 'RHS':
     case 'NoParens':
     case 'EndRoot':
     case 'allowDecimal':
@@ -1297,6 +1298,7 @@ export const Core = (function () {
       resume(err, val);
     });
   }
+  let packagejson;
   function makeEvaluator(spec, resume) {
     let valueNode;
     const method = spec.method;
@@ -1348,13 +1350,25 @@ export const Core = (function () {
       } catch (e) {
         console.log(`ERROR evaluate() ${e.stack}`);
         const message = e.message;
+        packagejson =
+          packagejson ||
+          typeof process !== 'undefined' &&
+          typeof fs !== 'undefined' &&
+          typeof fs.readFileSync === 'function' &&
+          JSON.parse(fs.readFileSync('package.json', 'utf8')) ||
+          {};
+        const dependencies = packagejson.dependencies;
+        console.error(`DEBUG ${JSON.stringify({
+          dependencies: dependencies,
+          solution: solution,
+          spec: spec,
+        }, null, 2)}`);
         resume([{
           result: null,
           errorCode: parseErrorCode(message),
           message: parseMessage(message),
           stack: e.stack,
           location: e.location,
-          model: null,  // Unused, for now.
           toString() {
             return `${this.errorCode}: (${this.location}) ${this.message}\n${this.stack}`;
           },
