@@ -1095,18 +1095,18 @@ import { rules } from './rules.js';
 
 }(new Ast()));
 export const Core = (function () {
-  Assert.reserveCodeRange(3000, 3999, 'core');
+  Assert.reserveCodeRange(4000, 4999, 'core');
   const messages = Assert.messages;
   const message = Assert.message;
   const assert = Assert.assert;
-  messages[3001] = 'No Math Core spec provided.';
-  messages[3002] = 'No Math Core solution provided.';
-  messages[3003] = 'No Math Core spec value provided.';
-  messages[3004] = "Invalid Math Core spec method '%1'.";
-  messages[3005] = 'Operation taking too long.';
-  messages[3006] = "Invalid option name '%1'.";
-  messages[3007] = "Invalid option value '%2' for option '%1'.";
-  messages[3008] = 'Internal error: %1';
+  messages[4001] = 'No Math Core spec provided.';
+  messages[4002] = 'No Math Core solution provided.';
+  messages[4003] = 'No Math Core spec value provided.';
+  messages[4004] = "Invalid Math Core spec method '%1'.";
+  messages[4005] = 'Operation taking too long.';
+  messages[4006] = "Invalid option name '%1'.";
+  messages[4007] = "Invalid option value '%2' for option '%1'.";
+  messages[4008] = 'Internal error: %1';
 
   const mu = 10 ** -6; // micro, \\mu
   const env = {
@@ -1173,7 +1173,7 @@ export const Core = (function () {
       case 'complex':
         break;
       default:
-        assert(false, message(3007, [p, v]));
+        assert(false, message(4007, [p, v]));
         break;
       }
       break;
@@ -1181,36 +1181,36 @@ export const Core = (function () {
       if (v === undefined || +v >= 0 && +v <= 20) {
         break;
       }
-      assert(false, message(3007, [p, v]));
+      assert(false, message(4007, [p, v]));
       break;
     case 'toleranceAbsolute':
       if (v === undefined || +v >= 0 ||
           typeof v === 'string') {
         break;
       }
-      assert(false, message(3007, [p, v]));
+      assert(false, message(4007, [p, v]));
       break;
     case 'tolerancePercent':
       if (v === undefined || +v >= 0) {
         break;
       }
-      assert(false, message(3007, [p, v]));
+      assert(false, message(4007, [p, v]));
       break;
     case 'toleranceRange':
       if (v === undefined ||
           v instanceof Array && v.length === 2) {
         break;
       }
-      assert(false, message(3007, [p, v]));
+      assert(false, message(4007, [p, v]));
       break;
     case 'antiderivative':
       if (typeof v === 'undefined' ||
           typeof v === 'string') {
         break;
       }
-      assert(false, message(3007, [p, v]));
+      assert(false, message(4007, [p, v]));
       break;
-    case 'RHS':
+//    case 'RHS':
     case 'NoParens':
     case 'EndRoot':
     case 'allowDecimal':
@@ -1235,7 +1235,7 @@ export const Core = (function () {
       if (typeof v === 'undefined' || typeof v === 'boolean') {
         break;
       }
-      assert(false, message(3007, [p, v]));
+      assert(false, message(4007, [p, v]));
       break;
     case 'setThousandsSeparator':
       if (typeof v === 'undefined' ||
@@ -1243,7 +1243,7 @@ export const Core = (function () {
           v instanceof Array) {
         break;
       }
-      assert(false, message(3007, [p, v]));
+      assert(false, message(4007, [p, v]));
       break;
     case 'setDecimalSeparator':
       if (typeof v === 'undefined' ||
@@ -1251,7 +1251,7 @@ export const Core = (function () {
           v instanceof Array && v.length > 0 && v[0].length === 1) {
         break;
       }
-      assert(false, message(3007, [p, JSON.stringify(v)]));
+      assert(false, message(4007, [p, JSON.stringify(v)]));
       break;
     case 'words':
     case 'rules':
@@ -1261,10 +1261,10 @@ export const Core = (function () {
           typeof v === 'object') {
         break;
       }
-      assert(false, message(3007, [p, v]));
+      assert(false, message(4007, [p, v]));
       break;
     default:
-      assert(false, message(3006, [p]));
+      assert(false, message(4006, [p]));
       break;
     }
     // If we get this far, all is well.
@@ -1310,12 +1310,11 @@ export const Core = (function () {
       valueNode = value !== undefined ? Parser.create(options, value, 'spec') : undefined;
       Parser.popEnv();
     } catch (e) {
-      console.log(`ERROR makeEvaluator() ${e.stack}`);
       pendingError = e;
       resume([{
         result: null,
-        errorCode: parseErrorCode(message),
-        message: parseMessage(message),
+        errorCode: parseErrorCode(e.message),
+        message: parseMessage(e.message),
         stack: e.stack,
         location: e.location,
         model: null,  // Unused, for now.
@@ -1330,10 +1329,10 @@ export const Core = (function () {
           throw pendingError;
         }
         Assert.setLocation('user');
-        assert(solution !== undefined, message(3002));
+        assert(solution !== undefined, message(4002));
         Parser.pushEnv(env);
         const solutionNode = Parser.create(options, solution, 'user');
-        assert(solutionNode, message(3008, ['invalid input']));
+        assert(solutionNode, message(4008, ['invalid input']));
         Assert.setLocation('spec');
         let result;
         switch (method) {
@@ -1341,7 +1340,7 @@ export const Core = (function () {
           result = solutionNode.translate(options);
           break;
         default:
-          assert(false, message(3004, [method]));
+          assert(false, message(4004, [method]));
           break;
         }
         Parser.popEnv();
@@ -1368,6 +1367,7 @@ export const Core = (function () {
       model: valueNode,
     };
     function parseErrorCode(e) {
+      e = typeof e === 'string' && e || '';
       const code = +e.slice(0, e.indexOf(':'));
       if (!Number.isNaN(code)) {
         return code;
