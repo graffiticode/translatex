@@ -3,9 +3,9 @@
  *
  */
 import { Ast, Parser } from '@artcompiler/parselatex';
+import fs from 'fs';
 import { Assert, assert, message } from './assert.js';
 import { rules } from './rules.js';
-import fs from 'fs';
 
 (function (ast) {
 
@@ -18,10 +18,10 @@ import fs from 'fs';
 
   function binaryNode(op, args) {
     if (args.length > 1) {
-      return {op, args};
-    } else {
-      return args[0];
+      return { op, args };
     }
+      return args[0];
+
   }
 
   // The outer Visitor function provides a global scope for all visitors,
@@ -607,7 +607,7 @@ import fs from 'fs';
       return args[0];
     }
 
-    function matchedExpansion(options, rules, matches, arity) {
+    function matchedExpansion(options, rules, matches) {
       let expansions = [];
       matches.forEach((m) => {
         expansions = expansions.concat(rules[JSON.stringify(m)]);
@@ -715,7 +715,7 @@ import fs from 'fs';
             Parser.option(options, 'RHS', rhs);
           });
           expansion.isBinary = true;
-          return expand(expansion, args, {op: node.op});
+          return expand(expansion, args, { op: node.op });
         },
         multiplicative(node) {
           node = unflattenLeftRecursive(node);
@@ -734,7 +734,7 @@ import fs from 'fs';
             Parser.option(options, 'RHS', rhs);
           });
           expansion.isBinary = true;
-          return expand(expansion, args, {op: node.op});
+          return expand(expansion, args, { op: node.op });
         },
         unary(node) {
           // -10 => (-10)
@@ -750,7 +750,7 @@ import fs from 'fs';
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args, {op: node.op});
+          return expand(expansion, args, { op: node.op });
         },
         exponential(node) {
           const matches = match(options, patterns, node);
@@ -905,11 +905,11 @@ import fs from 'fs';
               }
               return false;
             });
-          } else {
+          }
             // No context, so its a catchall.
             match = m;
             return true;
-          }
+
         });
         m1 = match;
       }
@@ -919,9 +919,9 @@ import fs from 'fs';
       });
     }
     const keys = Object.keys(m2);
-    let m, k;
+    let m;
     keys.forEach((k) => {
-      if (!isNaN(parseInt(k))) {
+      if (!Number.isNaN(parseInt(k, 10))) {
         // Flatten context arrays.
         m = m2[k];
         k = Object.keys(m)[0];
@@ -945,8 +945,8 @@ import fs from 'fs';
       template = template.slice(stop + 1);
     }
     return {
-      context: context,
-      template: template,
+      context,
+      template,
     };
   }
 
@@ -976,8 +976,8 @@ import fs from 'fs';
             context += rule.options.EndRoot ? ' EndRoot' : '';
             context += rule.options.NoParens ? ' NoParens' : '';
             compiledRules.push({
-              context: context,
-              value: compileRules(options, rule.value)
+              context,
+              value: compileRules(options, rule.value),
             });
           } else {
             compiledRules.push(compileRules(options, rule));
@@ -1359,9 +1359,9 @@ export const Core = (function () {
           {};
         const dependencies = packagejson.dependencies;
         console.error(`DEBUG ${JSON.stringify({
-          dependencies: dependencies,
-          solution: solution,
-          spec: spec,
+          dependencies,
+          solution,
+          spec,
         }, null, 2)}`);
         resume([{
           result: null,
