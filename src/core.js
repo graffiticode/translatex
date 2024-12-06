@@ -183,7 +183,6 @@ import { rules } from './rules.js';
         if (visit.name !== 'normalizeLiteral' &&
             visit.name !== 'sort') {
           node = newNode(Parser.VAR, [`INTERNAL ERROR Should not get here. Unhandled node operator ${node.op}`]);
-          console.log(JSON.stringify(node, null, 2));
         }
         break;
       }
@@ -823,21 +822,20 @@ import { rules } from './rules.js';
             });
             return expand(expansion, args, env);
           }
-            const matches = match(options, patterns, node);
-            if (matches.length === 0) {
-              return node;
-            }
-            // Use first match for now.
-            const expansion = matchedExpansion(options, rules, matches, node.args.length);
-            const argRules = getRulesForArgs(expansion, rules);
-            const nodeArgs = getNodeArgsForExpansion(node, expansion);
-            let args = [];
-            nodeArgs.forEach((n) => {
-              args = args.concat(translate(options, n, [globalRules, argRules]));
-            });
-            expansion.isBinary = true;
-            return expand(expansion, args);
-
+          const matches = match(options, patterns, node);
+          if (matches.length === 0) {
+            return node;
+          }
+          // Use first match for now.
+          const expansion = matchedExpansion(options, rules, matches, node.args.length);
+          const argRules = getRulesForArgs(expansion, rules);
+          const nodeArgs = getNodeArgsForExpansion(node, expansion);
+          let args = [];
+          nodeArgs.forEach((n) => {
+            args = args.concat(translate(options, n, [globalRules, argRules]));
+          });
+          expansion.isBinary = true;
+          return expand(expansion, args);
         },
         equals(node) {
           const matches = match(options, patterns, node);
