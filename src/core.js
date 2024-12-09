@@ -29,6 +29,7 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: config => (
         args => (
+//          console.log("$sum() args=" + JSON.stringify(args, null, 2)),
           "" + args.reduce((acc, val) => new Decimal(acc).plus(new Decimal(val)), 0)
         )
       )
@@ -37,6 +38,7 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: config => (
         args => (
+//          console.log("$mul() args=" + JSON.stringify(args, null, 2)),
           "" + args.reduce((acc, val) => new Decimal(acc).times(new Decimal(val)), 1)
         )
       )
@@ -1147,6 +1149,7 @@ export const Core = (function () {
 
   const mu = 10 ** -6; // micro, \\mu
   const env = {
+    sum: {},
     matrix: {},
     pmatrix: {},
     bmatrix: {},
