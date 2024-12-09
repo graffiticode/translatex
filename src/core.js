@@ -2,6 +2,7 @@
  * Copyright 2021 ARTCOMPILER INC. All Rights Reserved.
  *
  */
+import Decimal from 'decimal.js';
 import { Ast, Parser } from '@artcompiler/parselatex';
 import fs from 'fs';
 import { Assert, assert, message } from './assert.js';
@@ -20,8 +21,34 @@ import { rules } from './rules.js';
     if (args.length > 1) {
       return { op, args };
     }
-      return args[0];
+    return args[0];
+  }
 
+  const expanderBuilders = {
+    '$sum': {
+      type: 'fn',
+      fn: config => (
+        args => (
+          "" + args.reduce((acc, val) => new Decimal(acc).plus(new Decimal(val)), 0)
+        )
+      )
+    },
+    '$mul': {
+      type: 'fn',
+      fn: config => (
+        args => (
+          "" + args.reduce((acc, val) => new Decimal(acc).times(new Decimal(val)), 1)
+        )
+      )
+    },
+  };
+
+  const getExpanderBuilderConfig = (template) => {
+    const configIndex = template.indexOf("{");
+    const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
+    assert(expanderBuilders[expanderName]);
+    const expanderConfig = configIndex > 0 && template.slice(configIndex);
+    return expanderConfig && JSON.parse(expanderConfig) || {};
   }
 
   // The outer Visitor function provides a global scope for all visitors,
@@ -531,13 +558,13 @@ import { rules } from './rules.js';
       // }
       return matches;
     }
-    function expandBinary(template, args) {
+    function expandBinary(template, args, env) {
       const t = template;
       args.forEach((arg, i) => {
         template = template.replace(new RegExp(`%${i + 1}`, 'g'), arg.args[0]);
       });
       if (args.length > 2) {
-        return expandBinary(t, [newNode(Parser.VAR, [template])].concat(args.slice(2)));
+        return expandBinary(t, [newNode(Parser.VAR, [template])].concat(args.slice(2)), env);
       }
       return template;
     }
@@ -555,6 +582,17 @@ import { rules } from './rules.js';
       if (template && args) {
         if (template.indexOf('%%') >= 0) {
           template = template.replace(new RegExp('%%', 'g'), args[0].args[0]);
+        }
+        const configIndex = template.indexOf("{");
+        const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
+        if (expanderBuilders[expanderName]) {
+          const expanderBuilder = expanderBuilders[expanderName].fn;
+          const expander = expanderBuilder(getExpanderBuilderConfig(template));
+          const vals = [];
+          args.forEach((arg, i) => {
+            vals.push(arg.args[0]);
+          });
+          template = expander(vals);
         }
         if (template.indexOf('%*') >= 0) {
           let s = '';
@@ -592,7 +630,7 @@ import { rules } from './rules.js';
           template = template.replace(new RegExp('%N', 'g'), env.n);
         }
         if (expansion.isBinary && args.length > 2) {
-          template = expandBinary(template, args);
+          template = expandBinary(template, args, env);
         } else {
           args.forEach((arg, i) => {
             template = template.replace(new RegExp(`%${i + 1}`, 'g'), !arg ? '' : arg.args[0]);
