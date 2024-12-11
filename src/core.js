@@ -24,22 +24,69 @@ import { rules } from './rules.js';
     return args[0];
   }
 
+  const createLetterArray = (start, end) => (
+    Array.from({ length: end.charCodeAt(0) - start.charCodeAt(0) + 1 }, (_, i) =>
+      String.fromCharCode(start.charCodeAt(0) + i)
+    )
+  );
+
+  const createIntegerArray = (start, end) => (
+    start = +start,
+    end = +end,
+    Array.from({ length: end - start + 1 }, (_, i) =>
+      String(start + i)
+    )
+  );
+
+  const rangeReducerBuilder = env => (acc = {}, val, index) => {
+    if (index === 0) {
+      return {
+        start: JSON.parse(val),
+      };
+    } else {
+      const start = acc.start;
+      const end = JSON.parse(val);
+      const colNames = createLetterArray(start[0], end[0]);
+      const rowNames = createIntegerArray(start[1], end[1]);
+      const cellValues = colNames.flatMap(colName => (
+        rowNames.map(rowName => (
+          env[colName.toUpperCase() + rowName]
+        ))
+      )).filter(v => (
+        v !== undefined
+      ));
+      return cellValues.join(",");
+    }
+  };
+
+  const reducerBuilders = {
+    sum: env => (acc = 0, val) => new Decimal(acc).plus(new Decimal(val)),
+    mul: env => (acc = 1, val) => new Decimal(acc).times(new Decimal(val)),
+    range: rangeReducerBuilder,
+  };
+
   const expanderBuilders = {
-    '$sum': {
+    '$cell': {
       type: 'fn',
-      fn: config => (
+      fn: ({config, env}) => (
         args => (
-//          console.log("$sum() args=" + JSON.stringify(args, null, 2)),
-          "" + args.reduce((acc, val) => new Decimal(acc).plus(new Decimal(val)), 0)
+          JSON.stringify(args)
         )
       )
     },
-    '$mul': {
+    '$range': {
       type: 'fn',
-      fn: config => (
+      fn: ({config, env}) => (
         args => (
-//          console.log("$mul() args=" + JSON.stringify(args, null, 2)),
-          "" + args.reduce((acc, val) => new Decimal(acc).times(new Decimal(val)), 1)
+          args.reduce(reducerBuilders.range(env), undefined)
+        )
+      )
+    },
+    '$fn': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          "" + args[1].split(",").reduce(reducerBuilders[args[0]](env), undefined)
         )
       )
     },
@@ -589,7 +636,8 @@ import { rules } from './rules.js';
         const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
         if (expanderBuilders[expanderName]) {
           const expanderBuilder = expanderBuilders[expanderName].fn;
-          const expander = expanderBuilder(getExpanderBuilderConfig(template));
+          const config = getExpanderBuilderConfig(template);
+          const expander = expanderBuilder({config, env});
           const vals = [];
           args.forEach((arg, i) => {
             vals.push(arg.args[0]);
@@ -720,7 +768,7 @@ import { rules } from './rules.js';
             op: Parser.VAR,
             args: [lookup(options, node.args[0])],
           }];
-          const env = {};
+          const env = options.env || {};
           if (node.numberFormat === 'decimal') {
             const parts = node.args[0].split('.');
             env.ip = parts[0];
@@ -754,7 +802,7 @@ import { rules } from './rules.js';
             Parser.option(options, 'RHS', rhs);
           });
           expansion.isBinary = true;
-          return expand(expansion, args, { op: node.op });
+          return expand(expansion, args, { ...options.env, op: node.op });
         },
         multiplicative(node) {
           node = unflattenLeftRecursive(node);
@@ -773,7 +821,7 @@ import { rules } from './rules.js';
             Parser.option(options, 'RHS', rhs);
           });
           expansion.isBinary = true;
-          return expand(expansion, args, { op: node.op });
+          return expand(expansion, args, { ...options.env, op: node.op });
         },
         unary(node) {
           // -10 => (-10)
@@ -789,7 +837,7 @@ import { rules } from './rules.js';
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args, { op: node.op });
+          return expand(expansion, args, { ...options.env, op: node.op });
         },
         exponential(node) {
           const matches = match(options, patterns, node);
@@ -804,7 +852,7 @@ import { rules } from './rules.js';
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args);
+          return expand(expansion, args, options.env);
         },
         variable(node) {
           const matches = match(options, patterns, node);
@@ -821,11 +869,11 @@ import { rules } from './rules.js';
             // Now translate the subscripts.
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args);
+          return expand(expansion, args, options.env);
         },
         comma(node) {
           if (node.op === Parser.MATRIX || node.op === Parser.ROW || node.op === Parser.COL) {
-            const env = {};
+            const env = options.env || {};
             if (node.op === Parser.MATRIX) {
               assert(node.args[0].op === Parser.ROW);
               assert(node.args[0].args[0].op === Parser.COL);
@@ -875,7 +923,7 @@ import { rules } from './rules.js';
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           expansion.isBinary = true;
-          return expand(expansion, args);
+          return expand(expansion, args, env);
         },
         equals(node) {
           const matches = match(options, patterns, node);
@@ -891,7 +939,7 @@ import { rules } from './rules.js';
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           expansion.isBinary = true;
-          return expand(expansion, args, node);
+          return expand(expansion, args, options.env);
         },
         paren(node) {
           const matches = match(options, patterns, node);
@@ -906,7 +954,7 @@ import { rules } from './rules.js';
           nodeArgs.forEach((n) => {
             args.push(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args);
+          return expand(expansion, args, options.env);
         },
       });
     }
@@ -1150,6 +1198,7 @@ export const Core = (function () {
   const mu = 10 ** -6; // micro, \\mu
   const env = {
     sum: {},
+    mul: {},
     matrix: {},
     pmatrix: {},
     bmatrix: {},
@@ -1297,6 +1346,7 @@ export const Core = (function () {
     case 'rules':
     case 'types':
     case 'data':
+    case 'env':
       if (typeof v === 'undefined' ||
           typeof v === 'object') {
         break;
