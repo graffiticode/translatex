@@ -50,7 +50,7 @@ import { rules } from './rules.js';
       const rowNames = createIntegerArray(start[1], end[1]);
       const cellValues = colNames.flatMap(colName => (
         rowNames.map(rowName => (
-          env[colName.toUpperCase() + rowName]
+          env[colName.toUpperCase() + rowName].text
         ))
       )).filter(v => (
         v !== undefined
@@ -59,9 +59,23 @@ import { rules } from './rules.js';
     }
   };
 
+  const isValidDecimal = val => {
+    try {
+      new Decimal(val);
+      return true;
+    } catch (x) {
+      x = x
+      return false;
+    }
+  };
+
   const reducerBuilders = {
-    sum: env => (acc = 0, val) => new Decimal(acc).plus(new Decimal(val)),
-    mul: env => (acc = 1, val) => new Decimal(acc).times(new Decimal(val)),
+    sum: env => (acc = 0, val) => (
+      isValidDecimal(val) && new Decimal(acc).plus(new Decimal(val)) || acc
+    ),
+    mul: env => (acc = 1, val) => (
+      isValidDecimal(val) && new Decimal(acc).times(new Decimal(val)) || acc
+    ),
     range: rangeReducerBuilder,
   };
 
