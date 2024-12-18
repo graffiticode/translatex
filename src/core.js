@@ -39,6 +39,11 @@ import { rules } from './rules.js';
   );
 
   const rangeReducerBuilder = env => (acc = {}, val, index) => {
+    console.log(
+      "rangeReducerBuilder()",
+      "env=" + JSON.stringify(env, null, 2),
+      "val=" + val
+    );
     if (index === 0) {
       return {
         start: JSON.parse(val),
@@ -50,11 +55,15 @@ import { rules } from './rules.js';
       const rowNames = createIntegerArray(start[1], end[1]);
       const cellValues = colNames.flatMap(colName => (
         rowNames.map(rowName => (
-          env[colName.toUpperCase() + rowName].text
+          env[colName.toUpperCase() + rowName]?.val
         ))
       )).filter(v => (
         v !== undefined
       ));
+      console.log(
+        "rangeReducerBuilder()",
+        "cellValues=" + JSON.stringify(cellValues)
+      );
       return cellValues.join(",");
     }
   };
@@ -92,6 +101,10 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
+          console.log(
+            "$range()",
+            "args=" + JSON.stringify(args)
+          ),
           args.reduce(reducerBuilders.range(env), undefined)
         )
       )
@@ -101,6 +114,14 @@ import { rules } from './rules.js';
       fn: ({config, env}) => (
         args => (
           "" + args[1].split(",").reduce(reducerBuilders[args[0]](env), undefined)
+        )
+      )
+    },
+    '$sum': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          "" + args.reduce(reducerBuilders.sum(env), undefined)
         )
       )
     },
