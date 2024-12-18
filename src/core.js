@@ -39,11 +39,11 @@ import { rules } from './rules.js';
   );
 
   const rangeReducerBuilder = env => (acc = {}, val, index) => {
-    console.log(
-      "rangeReducerBuilder()",
-      "env=" + JSON.stringify(env, null, 2),
-      "val=" + val
-    );
+    // console.log(
+    //   "rangeReducerBuilder()",
+    //   "env=" + JSON.stringify(env, null, 2),
+    //   "val=" + val
+    // );
     if (index === 0) {
       return {
         start: JSON.parse(val),
@@ -60,10 +60,10 @@ import { rules } from './rules.js';
       )).filter(v => (
         v !== undefined
       ));
-      console.log(
-        "rangeReducerBuilder()",
-        "cellValues=" + JSON.stringify(cellValues)
-      );
+      // console.log(
+      //   "rangeReducerBuilder()",
+      //   "cellValues=" + JSON.stringify(cellValues)
+      // );
       return cellValues.join(",");
     }
   };
@@ -101,10 +101,10 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
-          console.log(
-            "$range()",
-            "args=" + JSON.stringify(args)
-          ),
+          // console.log(
+          //   "$range()",
+          //   "args=" + JSON.stringify(args)
+          // ),
           args.reduce(reducerBuilders.range(env), undefined)
         )
       )
