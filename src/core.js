@@ -38,6 +38,18 @@ import { rules } from './rules.js';
     )
   );
 
+  const isValidDecimal = val => {
+    try {
+      new Decimal(val);
+      return true;
+    } catch (x) {
+      x = x
+      return false;
+    }
+  };
+
+  const parseCellName = name => [name.slice(0, 1), name.slice(1)];
+
   const rangeReducerBuilder = env => (acc = {}, val, index) => {
     // console.log(
     //   "rangeReducerBuilder()",
@@ -46,16 +58,16 @@ import { rules } from './rules.js';
     // );
     if (index === 0) {
       return {
-        start: JSON.parse(val),
+        start: parseCellName(val),
       };
     } else {
       const start = acc.start;
-      const end = JSON.parse(val);
+      const end = parseCellName(val);
       const colNames = createLetterArray(start[0], end[0]);
       const rowNames = createIntegerArray(start[1], end[1]);
       const cellValues = colNames.flatMap(colName => (
         rowNames.map(rowName => (
-          env[colName.toUpperCase() + rowName]?.val
+          colName.toUpperCase() + rowName
         ))
       )).filter(v => (
         v !== undefined
@@ -68,35 +80,17 @@ import { rules } from './rules.js';
     }
   };
 
-  const isValidDecimal = val => {
-    try {
-      new Decimal(val);
-      return true;
-    } catch (x) {
-      x = x
-      return false;
-    }
-  };
-
   const reducerBuilders = {
-    sum: env => (acc = 0, val) => (
-      isValidDecimal(val) && new Decimal(acc).plus(new Decimal(val)) || acc
+    sum: env => (acc = 0, name) => (
+      isValidDecimal(env[name].val) && new Decimal(acc).plus(new Decimal(env[name].val)) || acc
     ),
-    mul: env => (acc = 1, val) => (
-      isValidDecimal(val) && new Decimal(acc).times(new Decimal(val)) || acc
+    mul: env => (acc = 1, name) => (
+      isValidDecimal(env[name].val) && new Decimal(acc).times(new Decimal(env[name].val)) || acc
     ),
     range: rangeReducerBuilder,
   };
 
   const expanderBuilders = {
-    '$cell': {
-      type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          JSON.stringify(args)
-        )
-      )
-    },
     '$range': {
       type: 'fn',
       fn: ({config, env}) => (
@@ -113,15 +107,12 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
+          // console.log(
+          //   "$fn()",
+          //   "args=" + JSON.stringify(args),
+          //   "env=" + JSON.stringify(env, null, 2)
+          // ),
           "" + args[1].split(",").reduce(reducerBuilders[args[0]](env), undefined)
-        )
-      )
-    },
-    '$sum': {
-      type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          "" + args.reduce(reducerBuilders.sum(env), undefined)
         )
       )
     },
