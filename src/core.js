@@ -51,11 +51,6 @@ import { rules } from './rules.js';
   const parseCellName = name => [name.slice(0, 1), name.slice(1)];
 
   const rangeReducerBuilder = env => (acc = {}, val, index) => {
-    // console.log(
-    //   "rangeReducerBuilder()",
-    //   "env=" + JSON.stringify(env, null, 2),
-    //   "val=" + val
-    // );
     if (index === 0) {
       return {
         start: parseCellName(val),
@@ -72,25 +67,51 @@ import { rules } from './rules.js';
       )).filter(v => (
         v !== undefined
       ));
-      // console.log(
-      //   "rangeReducerBuilder()",
-      //   "cellValues=" + JSON.stringify(cellValues)
-      // );
       return cellValues.join(",");
     }
   };
 
   const reducerBuilders = {
-    sum: env => (acc = 0, name) => (
-      isValidDecimal(env[name].val) && new Decimal(acc).plus(new Decimal(env[name].val)) || acc
+    sum: env => (acc = 0, name, index) => (
+      name = name.toUpperCase(),
+      isValidDecimal(env[name]?.val) && new Decimal(acc).plus(new Decimal(env[name].val)) || acc
     ),
-    mul: env => (acc = 1, name) => (
-      isValidDecimal(env[name].val) && new Decimal(acc).times(new Decimal(env[name].val)) || acc
+    minus: env => (acc, name, index) => (
+      name = name.toUpperCase(),
+      isValidDecimal(env[name]?.val) && (
+        index === 0 && new Decimal(env[name].val) ||
+          new Decimal(acc).minus(new Decimal(env[name].val))) ||
+        acc
+    ),
+    multiply: env => (acc = 1, name) => (
+      name = name.toUpperCase(),
+      isValidDecimal(env[name]?.val) && new Decimal(acc).times(new Decimal(env[name].val)) || acc
+    ),
+    divide: env => (acc, name, index) => (
+      name = name.toUpperCase(),
+      isValidDecimal(env[name]?.val) && (
+        index === 0 && new Decimal(env[name].val) ||
+          new Decimal(acc).dividedBy(new Decimal(env[name].val))) ||
+        acc
     ),
     range: rangeReducerBuilder,
   };
 
   const expanderBuilders = {
+    '$cell': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          console.log(
+            "$cell()",
+            "args=" + JSON.stringify(args),
+            "env=" + JSON.stringify(env, null, 2),
+            "val=" + env[args[1].toUpperCase()]?.val
+          ),
+          env[args[1].toUpperCase()]?.val || "0"
+        )
+      )
+    },
     '$range': {
       type: 'fn',
       fn: ({config, env}) => (
@@ -100,6 +121,38 @@ import { rules } from './rules.js';
           //   "args=" + JSON.stringify(args)
           // ),
           args.reduce(reducerBuilders.range(env), undefined)
+        )
+      )
+    },
+    '$add': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          "" + args.reduce(reducerBuilders.sum(env), undefined)
+        )
+      )
+    },
+    '$minus': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          "" + args.reduce(reducerBuilders.minus(env), undefined)
+        )
+      )
+    },
+    '$multiply': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          "" + args.reduce(reducerBuilders.multiply(env), undefined)
+        )
+      )
+    },
+    '$divide': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          "" + args.reduce(reducerBuilders.divide(env), undefined)
         )
       )
     },
