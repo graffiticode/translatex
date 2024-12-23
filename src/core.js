@@ -50,6 +50,14 @@ import { rules } from './rules.js';
 
   const parseCellName = name => [name.slice(0, 1), name.slice(1)];
 
+  const isLetter = c => c.toUpperCase() >= "A" && c.toUpperCase() <= "Z";
+
+  const isIntegerString = str => /^-?\d+$/.test(str);
+
+  const isValidCellName = name => parseCellName(name).reduce((acc, val, index) => (
+    index === 0 && isLetter(val) || isIntegerString(val)
+  ), false);
+
   const rangeReducerBuilder = env => (acc = {}, val, index) => {
     if (index === 0) {
       return {
@@ -71,27 +79,51 @@ import { rules } from './rules.js';
     }
   };
 
+  const getValue = ({env, str}) => (
+    isValidCellName(str) && env[str.toUpperCase()]?.val || str
+  );
+
   const reducerBuilders = {
-    sum: env => (acc = 0, name, index) => (
-      name = name.toUpperCase(),
-      isValidDecimal(env[name]?.val) && new Decimal(acc).plus(new Decimal(env[name].val)) || acc
-    ),
-    minus: env => (acc, name, index) => (
-      name = name.toUpperCase(),
-      isValidDecimal(env[name]?.val) && (
-        index === 0 && new Decimal(env[name].val) ||
-          new Decimal(acc).minus(new Decimal(env[name].val))) ||
+    sum: env => (acc = 0, str, index) => (
+      str = getValue({env, str}),
+      console.log(
+        "sum()",
+        "acc=" + acc,
+        "str=" + str
+      ),
+      isValidDecimal(str) &&
+        new Decimal(acc).plus(new Decimal(str)) ||
         acc
     ),
-    multiply: env => (acc = 1, name) => (
-      name = name.toUpperCase(),
-      isValidDecimal(env[name]?.val) && new Decimal(acc).times(new Decimal(env[name].val)) || acc
+    minus: env => (acc = "", str, index) => (
+      str = getValue({env, str}),
+      isValidDecimal(str) && (
+        index === 0 && new Decimal(str) ||
+          new Decimal(acc).minus(new Decimal(str))
+      ) ||
+        acc
     ),
-    divide: env => (acc, name, index) => (
-      name = name.toUpperCase(),
-      isValidDecimal(env[name]?.val) && (
-        index === 0 && new Decimal(env[name].val) ||
-          new Decimal(acc).dividedBy(new Decimal(env[name].val))) ||
+    multiply: env => (acc = 1, str) => (
+      str = getValue({env, str}),
+      // console.log(
+      //   "multiply()",
+      //   "str=" + str
+      // ),
+      isValidDecimal(str) &&
+        new Decimal(acc).times(new Decimal(str)) ||
+        acc
+    ),
+    divide: env => (acc = "", str, index) => (
+      str = getValue({env, str}),
+      console.log(
+        "divide()",
+        "acc=" + acc,
+        "str=" + str
+      ),
+      isValidDecimal(str) && (
+        index === 0 && new Decimal(str) ||
+          new Decimal(acc).dividedBy(new Decimal(str))
+      ) ||
         acc
     ),
     range: rangeReducerBuilder,
@@ -951,8 +983,8 @@ import { rules } from './rules.js';
           return expand(expansion, args, options.env);
         },
         comma(node) {
+          const env = options.env || {};
           if (node.op === Parser.MATRIX || node.op === Parser.ROW || node.op === Parser.COL) {
-            const env = options.env || {};
             if (node.op === Parser.MATRIX) {
               assert(node.args[0].op === Parser.ROW);
               assert(node.args[0].args[0].op === Parser.COL);
@@ -1210,6 +1242,10 @@ import { rules } from './rules.js';
     return out;
   }
   Parser.fn.translate = function (n1, options) {
+    console.log(
+      "Parser.fn.translate()",
+      "options=" + JSON.stringify(options, null, 2)
+    );
     const rules = Parser.option(options, 'rules');
     let n = translate(options, n1, rules);
     if (!n || n.op !== Parser.VAR) {
@@ -1447,6 +1483,10 @@ export const Core = (function () {
     }
   }
   function translate(options, solution, resume) {
+    console.log(
+      "translate()",
+      "options=" + JSON.stringify(options, null, 2)
+    );
     if (!options) {
       options = {};
     }
@@ -1472,6 +1512,10 @@ export const Core = (function () {
     const method = spec.method;
     const value = spec.value;
     const options = Parser.options = spec.options;
+    console.log(
+      "makeEvaluator()",
+      "options=" + JSON.stringify(options, null, 2)
+    );
     let pendingError;
     try {
       Assert.setLocation('spec');
