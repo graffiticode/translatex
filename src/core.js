@@ -88,12 +88,6 @@ import { rules } from './rules.js';
 
   const formatValue = ({ config, env, args }) => {
     const format = env.format;
-    console.log(
-      "formatValue()",
-      "config=" + JSON.stringify(config),
-      "env=" + JSON.stringify(env, null, 2),
-      "args=" + JSON.stringify(args, null, 2)
-    );
     switch (format) {
     case "Currency":
       return formatCurrency(args[0]);
@@ -108,11 +102,6 @@ import { rules } from './rules.js';
   const reducerBuilders = {
     sum: env => (acc = 0, str, index) => (
       str = getValue({env, str}),
-      console.log(
-        "sum()",
-        "acc=" + acc,
-        "str=" + str
-      ),
       isValidDecimal(str) &&
         new Decimal(acc).plus(new Decimal(str)) ||
         acc
@@ -127,21 +116,12 @@ import { rules } from './rules.js';
     ),
     multiply: env => (acc = 1, str) => (
       str = getValue({env, str}),
-      // console.log(
-      //   "multiply()",
-      //   "str=" + str
-      // ),
       isValidDecimal(str) &&
         new Decimal(acc).times(new Decimal(str)) ||
         acc
     ),
     divide: env => (acc = "", str, index) => (
       str = getValue({env, str}),
-      console.log(
-        "divide()",
-        "acc=" + acc,
-        "str=" + str
-      ),
       isValidDecimal(str) && (
         index === 0 && new Decimal(str) ||
           new Decimal(acc).dividedBy(new Decimal(str))
@@ -156,12 +136,6 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
-          console.log(
-            "$cell()",
-            "args=" + JSON.stringify(args),
-            "env=" + JSON.stringify(env, null, 2),
-            "val=" + env[args[1].toUpperCase()]?.val
-          ),
           env[args[1].toUpperCase()]?.val || "0"
         )
       )
@@ -170,10 +144,6 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
-          // console.log(
-          //   "$fmt()",
-          //   "args=" + JSON.stringify(args)
-          // ),
           formatValue({config, env, args})
         )
       )
@@ -182,10 +152,6 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
-          // console.log(
-          //   "$range()",
-          //   "args=" + JSON.stringify(args)
-          // ),
           args.reduce(reducerBuilders.range(env), undefined)
         )
       )
@@ -242,10 +208,6 @@ import { rules } from './rules.js';
     const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
     assert(expanderBuilders[expanderName]);
     const expanderConfig = configIndex > 0 && template.slice(configIndex);
-    // console.log(
-    //   "getExpanderBuilderConfig()",
-    //   "expanderConfig=" + expanderConfig
-    // );
     return expanderConfig && JSON.parse(expanderConfig) || {};
   }
 
@@ -1280,10 +1242,6 @@ import { rules } from './rules.js';
     return out;
   }
   Parser.fn.translate = function (n1, options) {
-    console.log(
-      "Parser.fn.translate()",
-      "options=" + JSON.stringify(options, null, 2)
-    );
     const rules = Parser.option(options, 'rules');
     let n = translate(options, n1, rules);
     if (!n || n.op !== Parser.VAR) {
@@ -1521,10 +1479,6 @@ export const Core = (function () {
     }
   }
   function translate(options, solution, resume) {
-    console.log(
-      "translate()",
-      "options=" + JSON.stringify(options, null, 2)
-    );
     if (!options) {
       options = {};
     }
@@ -1550,10 +1504,6 @@ export const Core = (function () {
     const method = spec.method;
     const value = spec.value;
     const options = Parser.options = spec.options;
-    console.log(
-      "makeEvaluator()",
-      "options=" + JSON.stringify(options, null, 2)
-    );
     let pendingError;
     try {
       Assert.setLocation('spec');
