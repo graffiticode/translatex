@@ -79,6 +79,28 @@ import { rules } from './rules.js';
     }
   };
 
+  const formatCurrency = (str, decimalPlaces) => {
+    return "$" + new Number(str).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  const formatValue = ({ config, env, args }) => {
+    const format = env.format;
+    console.log(
+      "formatValue()",
+      "config=" + JSON.stringify(config),
+      "env=" + JSON.stringify(env, null, 2),
+      "args=" + JSON.stringify(args, null, 2)
+    );
+    switch (format) {
+    case "Currency":
+      return formatCurrency(args[0]);
+    }
+    return "";
+  };
+
   const getValue = ({env, str}) => (
     isValidCellName(str) && env[str.toUpperCase()]?.val || str
   );
@@ -141,6 +163,18 @@ import { rules } from './rules.js';
             "val=" + env[args[1].toUpperCase()]?.val
           ),
           env[args[1].toUpperCase()]?.val || "0"
+        )
+      )
+    },
+    '$fmt': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          // console.log(
+          //   "$fmt()",
+          //   "args=" + JSON.stringify(args)
+          // ),
+          formatValue({config, env, args})
         )
       )
     },
@@ -208,6 +242,10 @@ import { rules } from './rules.js';
     const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
     assert(expanderBuilders[expanderName]);
     const expanderConfig = configIndex > 0 && template.slice(configIndex);
+    // console.log(
+    //   "getExpanderBuilderConfig()",
+    //   "expanderConfig=" + expanderConfig
+    // );
     return expanderConfig && JSON.parse(expanderConfig) || {};
   }
 
