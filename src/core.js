@@ -80,13 +80,22 @@ import { rules } from './rules.js';
   };
 
   const formatCurrency = (str, decimalPlaces) => {
-    return "$" + new Number(str).toLocaleString('en-US', {
+    const num = Number(str).toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
+    // console.log(
+    //   "formatCurrency()",
+    //   "num=" + num
+    // )
+    return isNaN(num) && str || "$" + num;
   };
 
   const formatValue = ({ config, env, args }) => {
+    // console.log(
+    //   "formatValue()",
+    //   "args=" + args
+    // );
     const format = env.format;
     switch (format) {
     case "Currency":
@@ -1508,7 +1517,10 @@ export const Core = (function () {
     try {
       Assert.setLocation('spec');
       validateOptions(options);
-      Parser.pushEnv(env);
+      Parser.pushEnv({
+        ...env,
+        ...options.env
+      });
       valueNode = value !== undefined ? Parser.create(options, value, 'spec') : undefined;
       Parser.popEnv();
     } catch (e) {
@@ -1532,8 +1544,15 @@ export const Core = (function () {
         }
         Assert.setLocation('user');
         assert(solution !== undefined, message(4002));
-        Parser.pushEnv(env);
+        Parser.pushEnv({
+          ...env,
+          ...options.env
+        });
         const solutionNode = Parser.create(options, solution, 'user');
+        // console.log(
+        //   "evaluate()",
+        //   "solutionNode=" + JSON.stringify(solutionNode, null, 2)
+        // );
         assert(solutionNode, message(4008, ['invalid input']));
         Assert.setLocation('spec');
         let result;
