@@ -80,15 +80,14 @@ import { rules } from './rules.js';
   };
 
   const formatCurrency = (str, decimalPlaces) => {
-    const num = Number(str).toLocaleString('en-US', {
+    const num = Number(str);
+    if (isNaN(num)) {
+      return str;
+    }
+    return `$${num.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    });
-    // console.log(
-    //   "formatCurrency()",
-    //   "num=" + num
-    // )
-    return isNaN(num) && str || "$" + num;
+    })}`;
   };
 
   const formatValue = ({ config, env, args }) => {
