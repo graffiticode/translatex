@@ -103,19 +103,19 @@ import { rules } from './rules.js';
     return "";
   };
 
-  const getValue = ({env, str}) => (
+  const getCellValue = ({env, str}) => (
     isValidCellName(str) && env[str.toUpperCase()]?.val || str
   );
 
   const reducerBuilders = {
     sum: env => (acc = 0, str, index) => (
-      str = getValue({env, str}),
+      str = getCellValue({env, str}),
       isValidDecimal(str) &&
         new Decimal(acc).plus(new Decimal(str)) ||
         acc
     ),
     minus: env => (acc = "", str, index) => (
-      str = getValue({env, str}),
+      str = getCellValue({env, str}),
       isValidDecimal(str) && (
         index === 0 && new Decimal(str) ||
           new Decimal(acc).minus(new Decimal(str))
@@ -123,13 +123,13 @@ import { rules } from './rules.js';
         acc
     ),
     multiply: env => (acc = 1, str) => (
-      str = getValue({env, str}),
+      str = getCellValue({env, str}),
       isValidDecimal(str) &&
         new Decimal(acc).times(new Decimal(str)) ||
         acc
     ),
     divide: env => (acc = "", str, index) => (
-      str = getValue({env, str}),
+      str = getCellValue({env, str}),
       isValidDecimal(str) && (
         index === 0 && new Decimal(str) ||
           new Decimal(acc).dividedBy(new Decimal(str))
@@ -176,6 +176,7 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
+          args.length === 1 && args.unshift("0"),
           "" + args.reduce(reducerBuilders.minus(env), undefined)
         )
       )
@@ -184,6 +185,15 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
+          "" + args.reduce(reducerBuilders.multiply(env), undefined)
+        )
+      )
+    },
+    '$percent': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          args.push("0.01"),
           "" + args.reduce(reducerBuilders.multiply(env), undefined)
         )
       )

@@ -1,6 +1,6 @@
 {
   "name": "@artcompiler/translatex",
-  "version": "0.19.4",
+  "version": "0.19.5",
   "type": "module",
   "description": "A library for translating LaTeX",
   "main": "index.js",
@@ -21,14 +21,14 @@
     "build": "node ./tools/build.js"
   },
   "engines": {
-    "node": "v15.14.0",
-    "npm": "7.7.6"
+    "node": "21.*",
+    "npm": "10.*"
   },
   "browser": {
     "fs": false
   },
   "dependencies": {
-    "@artcompiler/parselatex": "^1.7.3",
+    "@artcompiler/parselatex": "^1.7.4",
     "decimal.js": "^10.2.1"
   }
 }
