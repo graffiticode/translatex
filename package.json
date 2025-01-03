@@ -28,7 +28,7 @@
     "fs": false
   },
   "dependencies": {
-    "@artcompiler/parselatex": "^1.7.4",
+    "@artcompiler/parselatex": "^1.7.5",
     "decimal.js": "^10.2.1"
   }
 }
