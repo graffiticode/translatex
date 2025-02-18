@@ -79,6 +79,15 @@ import { rules } from './rules.js';
     }
   };
 
+  const normalizeNode = node => node;
+
+  const normalizeReducerBuilder = env => (acc = [], val, index) => {
+    return [
+      ...acc,
+      val.toUpperCase(),
+    ];
+  };
+
   const formatCurrency = (str, decimalPlaces) => {
     const num = Number(str);
     if (isNaN(num)) {
@@ -136,6 +145,7 @@ import { rules } from './rules.js';
       ) ||
         acc
     ),
+    normalize: normalizeReducerBuilder,
     range: rangeReducerBuilder,
   };
 
@@ -210,12 +220,15 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
-          // console.log(
-          //   "$fn()",
-          //   "args=" + JSON.stringify(args),
-          //   "env=" + JSON.stringify(env, null, 2)
-          // ),
           "" + args[1].split(",").reduce(reducerBuilders[args[0]](env), undefined)
+        )
+      )
+    },
+    '$normalize': {
+      type: 'fn',
+      fn: ({config, env}) => (
+        args => (
+          "" + args.reduce(normalizeNode(reducerBuilders.normalize(env)), config?.acc)
         )
       )
     },
@@ -1558,10 +1571,6 @@ export const Core = (function () {
           ...options.env
         });
         const solutionNode = Parser.create(options, solution, 'user');
-        // console.log(
-        //   "evaluate()",
-        //   "solutionNode=" + JSON.stringify(solutionNode, null, 2)
-        // );
         assert(solutionNode, message(4008, ['invalid input']));
         Assert.setLocation('spec');
         let result;
