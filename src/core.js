@@ -117,6 +117,15 @@ import { rules } from './rules.js';
   );
 
   const reducerBuilders = {
+    round: env => (acc = "", str, index) => (
+      str = getCellValue({env, str}),
+      isValidDecimal(str) && (
+        index === 0 && new Decimal(str) ||
+          index === 1 && new Decimal(acc).toDecimalPlaces(+str, Decimal.ROUND_HALF_UP) ||
+          acc  // Ignore extra args.
+      ) ||
+        acc
+    ),
     sum: env => (acc = 0, str, index) => (
       str = getCellValue({env, str}),
       isValidDecimal(str) &&
@@ -1339,6 +1348,7 @@ export const Core = (function () {
 
   const mu = 10 ** -6; // micro, \\mu
   const env = {
+    round: {},
     sum: {},
     mul: {},
     matrix: {},
@@ -1523,6 +1533,7 @@ export const Core = (function () {
       method: 'translate',
       options,
     };
+
     options.allowInterval = true;
     const evaluator = makeEvaluator(spec, resume);
     evaluator.evaluate(solution, (err, val) => {
