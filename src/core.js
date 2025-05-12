@@ -229,7 +229,7 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
-          "" + args[1].split(",").reduce(reducerBuilders[args[0]](env), undefined)
+          "" + args[1].split(",").reduce(reducerBuilders[args[0].toLowerCase()](env), undefined)
         )
       )
     },
@@ -1348,9 +1348,9 @@ export const Core = (function () {
 
   const mu = 10 ** -6; // micro, \\mu
   const env = {
-    round: {},
-    sum: {},
-    mul: {},
+    ROUND: {},
+    SUM: {},
+    MUL: {},
     matrix: {},
     pmatrix: {},
     bmatrix: {},
