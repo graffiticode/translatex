@@ -104,9 +104,9 @@ import { rules } from './rules.js';
     //   "formatValue()",
     //   "args=" + args
     // );
-    const format = env.format;
-    switch (format) {
-    case "Currency":
+    const format = env.format || "";
+    switch (format.toLowerCase()) {
+    case "currency":
       return formatCurrency(args[0]);
     }
     return "";
