@@ -88,28 +88,142 @@ import { rules } from './rules.js';
     ];
   };
 
-  const formatCurrency = (str, decimalPlaces) => {
-    const num = Number(str);
-    if (isNaN(num)) {
-      return str;
+  const parseFormatString = (formatStr) => {
+    // Parse Excel-like format strings
+    // Examples: "$#,##0.00", "€#.##0,00", "¥#,##0", "#,##0.00_$"
+    const result = {
+      currency: '',
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces: 0,
+      prefix: '',
+      suffix: '',
+      showThousands: false
+    };
+
+    // Extract currency symbols and position
+    const currencySymbols = ['$', '€', '¥', '£', '₹', '₽', '¢'];
+    let workingStr = formatStr;
+    // Check for currency at start
+    for (const symbol of currencySymbols) {
+      if (workingStr.startsWith(symbol)) {
+        result.currency = symbol;
+        result.prefix = symbol;
+        workingStr = workingStr.slice(1);
+        break;
+      }
     }
-    return `$${num.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
+
+    // Check for currency at end (after underscore)
+    if (!result.currency) {
+      for (const symbol of currencySymbols) {
+        if (workingStr.includes('_' + symbol)) {
+          result.currency = symbol;
+          result.suffix = symbol;
+          workingStr = workingStr.replace('_' + symbol, '');
+          break;
+        }
+      }
+    }
+
+    // Detect thousands separator and decimal separator
+    if (workingStr.includes('#,##0') || workingStr.includes('#.##0') || workingStr.includes('# ##0')) {
+      result.showThousands = true;
+      if (workingStr.includes('#,##0.')) {
+        // Standard format: comma thousands, dot decimal
+        result.thousandsSeparator = ',';
+        result.decimalSeparator = '.';
+      } else if (workingStr.includes('#.##0,')) {
+        // European format: dot thousands, comma decimal
+        result.thousandsSeparator = '.';
+        result.decimalSeparator = ',';
+      } else if (workingStr.includes('# ##0,')) {
+        // French/International format: space thousands, comma decimal
+        result.thousandsSeparator = ' ';
+        result.decimalSeparator = ',';
+      } else if (workingStr.includes('# ##0.')) {
+        // Canadian format: space thousands, dot decimal
+        result.thousandsSeparator = ' ';
+        result.decimalSeparator = '.';
+      }
+    }
+
+    // Count decimal places
+    const decimalMatch = workingStr.match(/[.,]0+$/);
+    if (decimalMatch) {
+      result.decimalPlaces = decimalMatch[0].length - 1;
+    }
+
+    return result;
+  };
+
+  const formatNumber = (value, formatOptions) => {
+    const num = Number(value);
+    if (isNaN(num)) {
+      return value;
+    }
+
+    const {
+      currency,
+      thousandsSeparator,
+      decimalSeparator,
+      decimalPlaces,
+      prefix,
+      suffix,
+      showThousands
+    } = formatOptions;
+
+    // Format the number with specified decimal places
+    let formatted = num.toFixed(decimalPlaces);
+
+    // Replace decimal separator if needed
+    if (decimalSeparator !== '.') {
+      formatted = formatted.replace('.', decimalSeparator);
+    }
+
+    // Add thousands separator if needed
+    if (showThousands) {
+      const parts = formatted.split(decimalSeparator);
+      const integerPart = parts[0];
+      const decimalPart = parts[1] || '';
+
+      // Add thousands separators to integer part
+      const withThousands = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+
+      formatted = decimalPart ? `${withThousands}${decimalSeparator}${decimalPart}` : withThousands;
+    }
+
+    // Add prefix and suffix
+    return `${prefix}${formatted}${suffix}`;
+  };
+
+  const formatCurrency = (str, decimalPlaces = 2) => {
+    // Default currency formatting for backward compatibility
+    return formatNumber(str, {
+      currency: '$',
+      thousandsSeparator: ',',
+      decimalSeparator: '.',
+      decimalPlaces,
+      prefix: '$',
+      suffix: '',
+      showThousands: true
+    });
   };
 
   const formatValue = ({ config, env, args }) => {
-    // console.log(
-    //   "formatValue()",
-    //   "args=" + args
-    // );
-    const format = env.format || "";
-    switch (format.toLowerCase()) {
-    case "currency":
-      return formatCurrency(args[0]);
+    const format = args[1] || env.format || "";
+    let formattedValue;
+    if (format.toLowerCase() === "currency") {
+      // Backward compatibility
+      formattedValue = formatCurrency(args[0]);
+    } else if (format.includes('#') || format.includes('0')) {
+      // Excel-like format string
+      const formatOptions = parseFormatString(format);
+      formattedValue = formatNumber(args[0], formatOptions);
+    } else {
+      formattedValue = args[0];
     }
-    return "";
+    return formattedValue;
   };
 
   const getCellValue = ({env, str}) => (
@@ -170,9 +284,19 @@ import { rules } from './rules.js';
     '$fmt': {
       type: 'fn',
       fn: ({config, env}) => (
-        args => (
-          formatValue({config, env, args})
-        )
+        args => {
+          // Handle raw config parsing for $fmt
+          if (config.rawConfig) {
+            // Parse {%1,format} -> [value, format]
+            const configStr = config.rawConfig.slice(1, -1); // Remove { }
+            const parts = configStr.split(',');
+            if (parts.length >= 2) {
+              // Replace %1 with actual value and use second part as format
+              args = [args[0], parts.slice(1).join(',')];
+            }
+          }
+          return formatValue({config, env, args});
+        }
       )
     },
     '$range': {
@@ -248,6 +372,10 @@ import { rules } from './rules.js';
     const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
     assert(expanderBuilders[expanderName]);
     const expanderConfig = configIndex > 0 && template.slice(configIndex);
+    // Special handling for $fmt expander - don't parse as JSON
+    if (expanderName === '$fmt') {
+      return { rawConfig: expanderConfig };
+    }
     return expanderConfig && JSON.parse(expanderConfig) || {};
   }
 

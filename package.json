@@ -1,6 +1,6 @@
 {
   "name": "@artcompiler/translatex",
-  "version": "0.20.2",
+  "version": "0.21.0",
   "type": "module",
   "description": "A library for translating LaTeX",
   "main": "index.js",
