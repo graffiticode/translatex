@@ -125,3 +125,128 @@ test('currency formatting - Russian Ruble with space separator', () => {
     expect(val).toBe('₽1 234 567,89');
   });
 });
+
+test('currency formatting - using env.format', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '\\type{number}': ['$fmt'],
+      '?': ['%1'],
+    },
+    env: { format: 'Currency' },
+  };
+  TransLaTeX.translate(rules, '1000', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('$1,000.00');
+  });
+});
+
+test('currency formatting - using env.format.formatString', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '\\type{number}': ['$fmt'],
+      '?': ['%1'],
+    },
+    env: { format: { formatString: '€# ##0,00' } },
+  };
+  TransLaTeX.translate(rules, '1234.56', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('€1 234,56');
+  });
+});
+
+test('graffiticode test harness format', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '\\type{number}': ['$fmt'],
+      '-?': ['-%1'],
+      '?': ['%1'],
+    },
+    env: { format: 'Currency' },
+  };
+  TransLaTeX.translate(rules, '1000', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('$1,000.00');
+  });
+});
+
+test('actual formatCellValue calling pattern', () => {
+  const formatRules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '\\type{number}': ['$fmt'],
+      '-?': ['-%1'],
+      '?': ['%1'],
+    },
+  };
+
+  const options = {
+    allowInterval: true,
+    RHS: false,
+    env: { format: 'Currency' },
+    ...formatRules,
+  };
+
+  TransLaTeX.translate(options, '1500.75', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('$1,500.75');
+  });
+});
+
+test('formatCellValue with custom format string', () => {
+  const formatRules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '\\type{number}': ['$fmt'],
+      '-?': ['-%1'],
+      '?': ['%1'],
+    },
+  };
+
+  const options = {
+    allowInterval: true,
+    RHS: false,
+    env: { format: '€# ##0,00' },
+    ...formatRules,
+  };
+
+  TransLaTeX.translate(options, '2345.67', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('€2 345,67');
+  });
+});
+
+test('US dollar with space separator no decimals - $# ##0', () => {
+  const formatRules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '\\type{number}': ['$fmt'],
+      '-?': ['-%1'],
+      '?': ['%1'],
+    },
+  };
+
+  const options = {
+    allowInterval: true,
+    RHS: false,
+    env: { format: '$# ##0' },
+    ...formatRules,
+  };
+
+  TransLaTeX.translate(options, '12345.67', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('$12 346');
+  });
+});

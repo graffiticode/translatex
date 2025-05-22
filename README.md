@@ -86,6 +86,54 @@ const rules = {
   rules: { "?": ["$fmt{%1,# ##0.00_$}"] }
 };
 TransLaTeX.translate(rules, "1234567.89");  // "1 234 567.89$"
+
+// US Dollar with space separator (no decimals)
+const rules = {
+  rules: { "?": ["$fmt{%1,$# ##0}"] }
+};
+TransLaTeX.translate(rules, "12345.67");  // "$12 346"
+```
+
+##### Environment-Based Formatting
+
+The `$fmt` expander can also get formatting instructions from the environment, which enables per-cell formatting in spreadsheet applications:
+
+```javascript
+// Cell-based formatting (typical Graffiticode usage)
+const formatRules = {
+  rules: {
+    "\\type{number}": ["$fmt"],
+    "?": ["%1"]
+  }
+};
+
+const options = {
+  allowInterval: true,
+  RHS: false,
+  env: { format: "Currency" },  // Format from cell
+  ...formatRules
+};
+
+TransLaTeX.translate(options, "1500.75", (err, val) => {
+  console.log(val);  // "$1,500.75"
+});
+
+// Integration example (formatCellValue pattern)
+const formatCellValue = ({ env, name }) => {
+  const { val, format } = env.cells[name] || {};
+  if (format && val.length > 0) {
+    const options = {
+      allowInterval: true,
+      RHS: false,
+      env: { format },
+      ...formatRules
+    };
+    TransLaTeX.translate(options, val, (err, result) => {
+      return result;  // Formatted value
+    });
+  }
+  return val;  // Unformatted value
+};
 ```
 
 ##### Supported Currency Symbols

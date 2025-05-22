@@ -145,7 +145,16 @@ import { rules } from './rules.js';
         // Canadian format: space thousands, dot decimal
         result.thousandsSeparator = ' ';
         result.decimalSeparator = '.';
+      } else if (workingStr.includes('# ##0')) {
+        // Space thousands, no decimals (default to dot decimal for future use)
+        result.thousandsSeparator = ' ';
+        result.decimalSeparator = '.';
+      } else if (workingStr.includes('#.##0')) {
+        // Dot thousands, no decimals (default to comma decimal for European style)
+        result.thousandsSeparator = '.';
+        result.decimalSeparator = ',';
       }
+      // Default case for #,##0 (comma thousands) is already set in result initialization
     }
 
     // Count decimal places
@@ -285,7 +294,7 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => {
-          // Handle raw config parsing for $fmt
+          // Handle raw config parsing for $fmt when used with parameters like $fmt{%1,format}
           if (config.rawConfig) {
             // Parse {%1,format} -> [value, format]
             const configStr = config.rawConfig.slice(1, -1); // Remove { }
@@ -294,6 +303,10 @@ import { rules } from './rules.js';
               // Replace %1 with actual value and use second part as format
               args = [args[0], parts.slice(1).join(',')];
             }
+          } else if (args.length === 1) {
+            // When $fmt is used without parameters, get format from environment
+            const formatSpec = env.format?.formatString || env.format || '';
+            args = [args[0], formatSpec];
           }
           return formatValue({config, env, args});
         }
