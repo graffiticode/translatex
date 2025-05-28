@@ -1614,6 +1614,7 @@ export const Core = (function () {
     case 'integrationConstant':
     case 'absoluteValue':
     case 'parsingIntegralExpr':
+    case 'keepTextWhitespace':
       if (typeof v === 'undefined' || typeof v === 'boolean') {
         break;
       }
