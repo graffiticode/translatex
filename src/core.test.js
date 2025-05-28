@@ -250,3 +250,152 @@ test('US dollar with space separator no decimals - $# ##0', () => {
     expect(val).toBe('$12 346');
   });
 });
+
+test('accounting style formatting - positive number', () => {
+  const formatRules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '\\type{number}': ['$fmt'],
+      '-?': ['-%1'],
+      '?': ['%1'],
+    },
+  };
+
+  const options = {
+    allowInterval: true,
+    RHS: false,
+    env: { format: '($#,##0.00)' },
+    ...formatRules,
+  };
+
+  TransLaTeX.translate(options, '1234.56', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('$1,234.56');
+  });
+});
+
+test('accounting style formatting - negative number', () => {
+  const formatRules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '-?': [
+        {
+          '%1': {
+            '\\type{number}': '$fmt{isNegative:true}',
+          },
+        },
+      ],
+      '\\type{number}': '$fmt{isNegative:false}',
+      '?': ['%1'],
+    },
+  };
+
+  const options = {
+    allowInterval: true,
+    RHS: false,
+    env: { format: '($#,##0.00)' },
+    ...formatRules,
+  };
+
+  TransLaTeX.translate(options, '-1234.56', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('($1,234.56)');
+  });
+});
+
+test('accounting style formatting - zero', () => {
+  const formatRules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '-?': [
+        {
+          '%1': {
+            '\\type{number}': '$fmt{isNegative:true}',
+          },
+        },
+      ],
+      '\\type{number}': '$fmt{isNegative:false}',
+      '?': ['%1'],
+    },
+  };
+
+  const options = {
+    allowInterval: true,
+    RHS: false,
+    env: { format: '($#,##0.00)' },
+    ...formatRules,
+  };
+
+  TransLaTeX.translate(options, '0', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('$0.00');
+  });
+});
+
+test('accounting style formatting - European format', () => {
+  const formatRules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '-?': [
+        {
+          '%1': {
+            '\\type{number}': '$fmt{isNegative:true}',
+          },
+        },
+      ],
+      '\\type{number}': '$fmt{isNegative:false}',
+      '?': ['%1'],
+    },
+  };
+
+  const options = {
+    allowInterval: true,
+    RHS: false,
+    env: { format: '(€#.##0,00)' },
+    ...formatRules,
+  };
+
+  TransLaTeX.translate(options, '-2345.67', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('(€2.345,67)');
+  });
+});
+
+test('accounting style formatting - suffix currency', () => {
+  const formatRules = {
+    words: {},
+    types: {},
+    rules: {
+      '??': ['%1%2'],
+      '-?': [
+        {
+          '%1': {
+            '\\type{number}': '$fmt{isNegative:true}',
+          },
+        },
+      ],
+      '\\type{number}': '$fmt{isNegative:false}',
+      '?': ['%1'],
+    },
+  };
+
+  const options = {
+    allowInterval: true,
+    RHS: false,
+    env: { format: '(#,##0.00_$)' },
+    ...formatRules,
+  };
+
+  TransLaTeX.translate(options, '-987.65', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('(987.65$)');
+  });
+});

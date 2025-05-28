@@ -90,7 +90,7 @@ import { rules } from './rules.js';
 
   const parseFormatString = (formatStr) => {
     // Parse Excel-like format strings
-    // Examples: "$#,##0.00", "€#.##0,00", "¥#,##0", "#,##0.00_$"
+    // Examples: "$#,##0.00", "€#.##0,00", "¥#,##0", "#,##0.00_$", "($#,##0.00)"
     const result = {
       currency: '',
       thousandsSeparator: ',',
@@ -98,8 +98,15 @@ import { rules } from './rules.js';
       decimalPlaces: 0,
       prefix: '',
       suffix: '',
-      showThousands: false
+      showThousands: false,
+      accountingStyle: false
     };
+
+    // Check for accounting style (parentheses format)
+    if (formatStr.startsWith('(') && formatStr.endsWith(')')) {
+      result.accountingStyle = true;
+      formatStr = formatStr.slice(1, -1); // Remove outer parentheses
+    }
 
     // Extract currency symbols and position
     const currencySymbols = ['$', '€', '¥', '£', '₹', '₽', '¢'];
@@ -179,11 +186,16 @@ import { rules } from './rules.js';
       decimalPlaces,
       prefix,
       suffix,
-      showThousands
+      showThousands,
+      accountingStyle
     } = formatOptions;
 
-    // Format the number with specified decimal places
-    let formatted = num.toFixed(decimalPlaces);
+    // Handle negative numbers for accounting style
+    const isNegative = num < 0;
+    const absoluteNum = Math.abs(num);
+
+    // Format the absolute number with specified decimal places
+    let formatted = absoluteNum.toFixed(decimalPlaces);
 
     // Replace decimal separator if needed
     if (decimalSeparator !== '.') {
@@ -203,7 +215,16 @@ import { rules } from './rules.js';
     }
 
     // Add prefix and suffix
-    return `${prefix}${formatted}${suffix}`;
+    formatted = `${prefix}${formatted}${suffix}`;
+
+    // Handle accounting style for negative numbers
+    if (accountingStyle && isNegative) {
+      return `(${formatted})`;
+    } else if (isNegative) {
+      return `-${formatted}`;
+    }
+
+    return formatted;
   };
 
   const formatCurrency = (str, decimalPlaces = 2) => {
@@ -296,12 +317,27 @@ import { rules } from './rules.js';
         args => {
           // Handle raw config parsing for $fmt when used with parameters like $fmt{%1,format}
           if (config.rawConfig) {
-            // Parse {%1,format} -> [value, format]
+            // Parse {isNegative:true} or {%1,format} -> [value, format]
             const configStr = config.rawConfig.slice(1, -1); // Remove { }
-            const parts = configStr.split(',');
-            if (parts.length >= 2) {
-              // Replace %1 with actual value and use second part as format
-              args = [args[0], parts.slice(1).join(',')];
+            // Check for isNegative flag
+            if (configStr.includes('isNegative:true')) {
+              // Apply negative to the value for accounting style processing
+              const formatSpec = env.format?.formatString || env.format || '';
+              args = [`-${args[0]}`, formatSpec];
+            } else if (configStr.includes('isNegative:false')) {
+              // Keep value positive
+              const formatSpec = env.format?.formatString || env.format || '';
+              args = [args[0], formatSpec];
+            } else {
+              // Legacy format: Split only on the first comma to separate value from format
+              const firstCommaIndex = configStr.indexOf(',');
+              if (firstCommaIndex >= 0) {
+                let valueStr = configStr.slice(0, firstCommaIndex);
+                const format = configStr.slice(firstCommaIndex + 1);
+                // Replace %1 with actual value and use second part as format
+                valueStr = valueStr.replace('%1', args[0]);
+                args = [valueStr, format];
+              }
             }
           } else if (args.length === 1) {
             // When $fmt is used without parameters, get format from environment
@@ -913,6 +949,11 @@ import { rules } from './rules.js';
       env = env || {};
       // Use first matched expansion for now.
       let template = expansion.template;
+      // console.log(
+      //   "expand()",
+      //   "template=" + template,
+      //   "expansion=" + JSON.stringify(expansion, null, 2),
+      // );
       if (args.length === 0) {
         // This handles the case of empty brackets, such as () and \{\}.
         args.push(newNode(Parser.VAR, ['']));
