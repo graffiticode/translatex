@@ -260,9 +260,33 @@ import { rules } from './rules.js';
     isValidCellName(str) && env[str.toUpperCase()]?.val || str
   );
 
+  const evaluateCondition = (value) => {
+    // Handle boolean-like evaluations similar to Excel
+    // FALSE: 0, "0", "", "FALSE" (case insensitive)
+    // TRUE: everything else
+    if (value === null || value === undefined || value === "") {
+      return false;
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed === "" || trimmed === "0" || trimmed.toUpperCase() === "FALSE") {
+        return false;
+      }
+    }
+    if (typeof value === 'number' || value instanceof Decimal) {
+      return +value !== 0;
+    }
+    return true;
+  };
+
   const reducerBuilders = {
     round: env => (acc = "", str, index) => (
       str = getCellValue({env, str}),
+      // console.log(
+      //   "round()",
+      //   "str=" + str,
+      //   "acc=" + acc,
+      // ),
       isValidDecimal(str) && (
         index === 0 && new Decimal(str) ||
           index === 1 && new Decimal(acc).toDecimalPlaces(+str, Decimal.ROUND_HALF_UP) ||
@@ -300,6 +324,22 @@ import { rules } from './rules.js';
     ),
     normalize: normalizeReducerBuilder,
     range: rangeReducerBuilder,
+    if: env => (acc = null, str, index) => {
+      str = getCellValue({env, str});
+      if (index === 0) {
+        // First argument is the condition
+        return { condition: evaluateCondition(str), trueValue: null, falseValue: null };
+      } else if (index === 1) {
+        // Second argument is the true value
+        return { ...acc, trueValue: str };
+      } else if (index === 2) {
+        // Third argument is the false value
+        // Return the appropriate value based on the condition
+        return acc.condition ? acc.trueValue : str;
+      }
+      // Ignore extra arguments
+      return acc;
+    },
   };
 
   const expanderBuilders = {
@@ -402,6 +442,10 @@ import { rules } from './rules.js';
       type: 'fn',
       fn: ({config, env}) => (
         args => (
+          // console.log(
+          //   "$fn()",
+          //   "args=" + JSON.stringify(args, null, 2),
+          // ),
           "" + args[1].split(",").reduce(reducerBuilders[args[0].toLowerCase()](env), undefined)
         )
       )
@@ -951,7 +995,6 @@ import { rules } from './rules.js';
       let template = expansion.template;
       // console.log(
       //   "expand()",
-      //   "template=" + template,
       //   "expansion=" + JSON.stringify(expansion, null, 2),
       // );
       if (args.length === 0) {
@@ -1533,6 +1576,7 @@ export const Core = (function () {
     ROUND: {},
     SUM: {},
     MUL: {},
+    IF: {},
     matrix: {},
     pmatrix: {},
     bmatrix: {},
@@ -1703,6 +1747,11 @@ export const Core = (function () {
     }
   }
   function translate(options, solution, resume) {
+    // console.log(
+    //   "translate()",
+    //   "options=" + JSON.stringify(options, null, 2),
+    //   "solution=" + solution,
+    // );
     if (!options) {
       options = {};
     }
