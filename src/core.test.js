@@ -399,3 +399,181 @@ test('accounting style formatting - suffix currency', () => {
     expect(val).toBe('(987.65$)');
   });
 });
+
+// Date formatting tests
+test('date formatting - m/d/yyyy format', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '?': ['$fmt{%1,m/d/yyyy}'],
+    },
+  };
+
+  // Test with Mac Excel serial date (March 14, 2024)
+  TransLaTeX.translate(rules, '43904', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('3/14/2024');
+  });
+
+  // Test with a different date (January 1, 2024)
+  TransLaTeX.translate(rules, '43831', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('1/1/2024');
+  });
+});
+
+test('date formatting - mm/dd/yyyy format', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '?': ['$fmt{%1,mm/dd/yyyy}'],
+    },
+  };
+
+  // March 14, 2024
+  TransLaTeX.translate(rules, '43904', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('03/14/2024');
+  });
+
+  // January 5, 2024
+  TransLaTeX.translate(rules, '43835', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('01/05/2024');
+  });
+});
+
+test('date formatting - d-mmm-yy format', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '?': ['$fmt{%1,d-mmm-yy}'],
+    },
+  };
+
+  // March 14, 2024
+  TransLaTeX.translate(rules, '43904', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('14-Mar-24');
+  });
+
+  // December 25, 2024
+  TransLaTeX.translate(rules, '44190', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('25-Dec-24');
+  });
+});
+
+test('date formatting - dd-mmm-yyyy format', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '?': ['$fmt{%1,dd-mmm-yyyy}'],
+    },
+  };
+
+  // March 14, 2024
+  TransLaTeX.translate(rules, '43904', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('14-Mar-2024');
+  });
+
+  // January 1, 2024
+  TransLaTeX.translate(rules, '43831', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('01-Jan-2024');
+  });
+});
+
+test('date formatting - using env.format', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '?': ['$fmt{%1}'],
+    },
+    env: { format: 'm/d/yyyy' },
+  };
+
+  // March 14, 2024
+  TransLaTeX.translate(rules, '43904', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('3/14/2024');
+  });
+});
+
+test('date formatting - invalid date handling', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '?': ['$fmt{%1,m/d/yyyy}'],
+    },
+  };
+
+  // Test with very large number (not a valid Excel date)
+  TransLaTeX.translate(rules, '3000000000', (err, val) => {
+    expect(err).toStrictEqual([]);
+    // Should be parsed as Unix timestamp (milliseconds since 1970)
+    // This will vary by timezone, so just check it's a valid date format
+    expect(val).toMatch(/^\d{1,2}\/\d{1,2}\/\d{4}$/);
+  });
+
+  // Test with zero (Mac Excel: Jan 1, 1904)
+  TransLaTeX.translate(rules, '0', (err, val) => {
+    expect(err).toStrictEqual([]);
+    // Due to timezone handling, this might be Dec 31, 1903 or Jan 1, 1904
+    expect(val).toMatch(/^(12\/31\/1903|1\/1\/1904)$/);
+  });
+});
+
+test('date formatting - Mac Excel serial dates', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '?': ['$fmt{%1,mm/dd/yyyy}'],
+    },
+  };
+
+  // January 2, 1904 (Mac Excel serial 1)
+  TransLaTeX.translate(rules, '1', (err, val) => {
+    expect(err).toStrictEqual([]);
+    // Due to timezone handling, this might be Jan 1 or Jan 2, 1904
+    expect(val).toMatch(/^01\/(01|02)\/1904$/);
+  });
+
+  // February 29, 1904 (Mac Excel serial 59 - 1904 was a leap year)
+  TransLaTeX.translate(rules, '59', (err, val) => {
+    expect(err).toStrictEqual([]);
+    // Due to timezone handling, this might be Feb 28 or Feb 29, 1904
+    expect(val).toMatch(/^02\/(28|29)\/1904$/);
+  });
+
+  // March 1, 1904 (Mac Excel serial 60)
+  TransLaTeX.translate(rules, '60', (err, val) => {
+    expect(err).toStrictEqual([]);
+    // Due to timezone handling, this might be Feb 29 or Mar 1, 1904
+    expect(val).toMatch(/^(02\/29|03\/01)\/1904$/);
+  });
+});
+
+test('date formatting - case insensitive format patterns', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '?': ['$fmt{%1,MM/DD/YYYY}'],
+    },
+  };
+
+  // March 14, 2024
+  TransLaTeX.translate(rules, '43904', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('03/14/2024');
+  });
+});

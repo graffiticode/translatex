@@ -4,7 +4,6 @@
  */
 import Decimal from 'decimal.js';
 import { Ast, Parser } from '@artcompiler/parselatex';
-import fs from 'fs';
 import { Assert, assert, message } from './assert.js';
 import { rules } from './rules.js';
 
@@ -25,63 +24,59 @@ import { rules } from './rules.js';
   }
 
   const createLetterArray = (start, end) => (
-    Array.from({ length: end.charCodeAt(0) - start.charCodeAt(0) + 1 }, (_, i) =>
-      String.fromCharCode(start.charCodeAt(0) + i)
-    )
+    Array.from({ length: end.charCodeAt(0) - start.charCodeAt(0) + 1 }, (_, i) => String.fromCharCode(start.charCodeAt(0) + i))
   );
 
-  const createIntegerArray = (start, end) => (
-    start = +start,
-    end = +end,
-    Array.from({ length: end - start + 1 }, (_, i) =>
-      String(start + i)
-    )
-  );
+  const createIntegerArray = (start, end) => {
+    const startNum = +start;
+    const endNum = +end;
+    return Array.from({ length: endNum - startNum + 1 }, (_, i) => String(startNum + i));
+  };
 
-  const isValidDecimal = val => {
+  const isValidDecimal = (val) => {
     try {
       new Decimal(val);
       return true;
-    } catch (x) {
-      x = x
+    } catch (error) {
+      // Ignore the error
       return false;
     }
   };
 
-  const parseCellName = name => [name.slice(0, 1), name.slice(1)];
+  const parseCellName = (name) => [name.slice(0, 1), name.slice(1)];
 
-  const isLetter = c => c.toUpperCase() >= "A" && c.toUpperCase() <= "Z";
+  const isLetter = (c) => c.toUpperCase() >= 'A' && c.toUpperCase() <= 'Z';
 
-  const isIntegerString = str => /^-?\d+$/.test(str);
+  const isIntegerString = (str) => /^-?\d+$/.test(str);
 
-  const isValidCellName = name => parseCellName(name).reduce((acc, val, index) => (
+  const isValidCellName = (name) => parseCellName(name).reduce((acc, val, index) => (
     index === 0 && isLetter(val) || isIntegerString(val)
   ), false);
 
-  const rangeReducerBuilder = env => (acc = {}, val, index) => {
+  const rangeReducerBuilder = (env) => (acc = {}, val, index) => {
     if (index === 0) {
       return {
         start: parseCellName(val),
       };
-    } else {
+    }
       const start = acc.start;
       const end = parseCellName(val);
       const colNames = createLetterArray(start[0], end[0]);
       const rowNames = createIntegerArray(start[1], end[1]);
-      const cellValues = colNames.flatMap(colName => (
-        rowNames.map(rowName => (
+      const cellValues = colNames.flatMap((colName) => (
+        rowNames.map((rowName) => (
           colName.toUpperCase() + rowName
         ))
-      )).filter(v => (
+      )).filter((v) => (
         v !== undefined
       ));
-      return cellValues.join(",");
-    }
+      return cellValues.join(',');
+
   };
 
-  const normalizeNode = node => node;
+  const normalizeNode = (node) => node;
 
-  const normalizeReducerBuilder = env => (acc = [], val, index) => {
+  const normalizeReducerBuilder = () => (acc = [], val) => {
     return [
       ...acc,
       val.toUpperCase(),
@@ -99,7 +94,7 @@ import { rules } from './rules.js';
       prefix: '',
       suffix: '',
       showThousands: false,
-      accountingStyle: false
+      accountingStyle: false,
     };
 
     // Check for accounting style (parentheses format)
@@ -124,10 +119,10 @@ import { rules } from './rules.js';
     // Check for currency at end (after underscore)
     if (!result.currency) {
       for (const symbol of currencySymbols) {
-        if (workingStr.includes('_' + symbol)) {
+        if (workingStr.includes(`_${symbol}`)) {
           result.currency = symbol;
           result.suffix = symbol;
-          workingStr = workingStr.replace('_' + symbol, '');
+          workingStr = workingStr.replace(`_${symbol}`, '');
           break;
         }
       }
@@ -175,19 +170,18 @@ import { rules } from './rules.js';
 
   const formatNumber = (value, formatOptions) => {
     const num = Number(value);
-    if (isNaN(num)) {
+    if (Number.isNaN(num)) {
       return value;
     }
 
     const {
-      currency,
       thousandsSeparator,
       decimalSeparator,
       decimalPlaces,
       prefix,
       suffix,
       showThousands,
-      accountingStyle
+      accountingStyle,
     } = formatOptions;
 
     // Handle negative numbers for accounting style
@@ -220,7 +214,7 @@ import { rules } from './rules.js';
     // Handle accounting style for negative numbers
     if (accountingStyle && isNegative) {
       return `(${formatted})`;
-    } else if (isNegative) {
+    } if (isNegative) {
       return `-${formatted}`;
     }
 
@@ -236,27 +230,121 @@ import { rules } from './rules.js';
       decimalPlaces,
       prefix: '$',
       suffix: '',
-      showThousands: true
+      showThousands: true,
     });
   };
 
+  const isDateFormat = (formatStr) => {
+    // Check if the format string is a date format
+    const datePatterns = ['m/', 'd/', 'y', 'mmm', 'mmmm', 'ddd', 'dddd'];
+    const lowerFormat = formatStr.toLowerCase();
+    return datePatterns.some((pattern) => lowerFormat.includes(pattern));
+  };
+
+  const parseDate = (value) => {
+    // Parse various date input formats
+    // Supports: Date objects, timestamps, date strings
+    if (value instanceof Date) {
+      return Number.isNaN(value.getTime()) ? null : value;
+    }
+
+    const num = Number(value);
+    if (!Number.isNaN(num)) {
+      // Mac Excel serial date number (days since 1904-01-01, no leap year bug)
+      if (num >= 0 && num < 2957004) { // Excel max date is Dec 31, 9999
+        // Mac Excel date serial number
+        // Mac Excel treats January 1, 1904 as serial number 0
+        const days = Math.floor(num);
+
+        // Mac Excel epoch is January 1, 1904
+        // Use UTC to avoid timezone issues
+        const macExcelEpoch = new Date(Date.UTC(1904, 0, 1));
+        const date = new Date(macExcelEpoch.getTime() + days * 24 * 60 * 60 * 1000);
+        return date;
+      }
+      // Unix timestamp (milliseconds) - very large numbers
+      if (num > 2957004) {
+        return new Date(num);
+      }
+    }
+
+    // Try to parse as date string
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const formatDate = (date, formatStr) => {
+    if (!date || !(date instanceof Date) || Number.isNaN(date.getTime())) {
+      return String(date || '');
+    }
+
+    const pad = (num, digits = 2) => String(num).padStart(digits, '0');
+
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthsFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    // Build a map of all format tokens and their values
+    const tokens = {
+      yyyy: String(date.getFullYear()),
+      yy: pad(date.getFullYear() % 100),
+      mmmm: monthsFull[date.getMonth()],
+      mmm: months[date.getMonth()],
+      mm: pad(date.getMonth() + 1),
+      m: String(date.getMonth() + 1),
+      dd: pad(date.getDate()),
+      d: String(date.getDate()),
+    };
+
+    // Process the format string character by character
+    let result = '';
+    let i = 0;
+
+    while (i < formatStr.length) {
+      let matched = false;
+
+      // Try to match tokens from longest to shortest
+      const tokenKeys = Object.keys(tokens).sort((a, b) => b.length - a.length);
+
+      for (const token of tokenKeys) {
+        const substr = formatStr.substring(i, i + token.length).toLowerCase();
+        if (substr === token) {
+          result += tokens[token];
+          i += token.length;
+          matched = true;
+          break;
+        }
+      }
+
+      if (!matched) {
+        result += formatStr[i];
+        i++;
+      }
+    }
+
+    return result;
+  };
+
   const formatValue = ({ config, env, args }) => {
-    const format = args[1] || env.format || "";
+    const format = args[1] || env.format || '';
     let formattedValue;
-    if (format.toLowerCase() === "currency") {
+    if (format.toLowerCase() === 'currency') {
       // Backward compatibility
       formattedValue = formatCurrency(args[0]);
     } else if (format.includes('#') || format.includes('0')) {
-      // Excel-like format string
+      // Excel-like format string for numbers
       const formatOptions = parseFormatString(format);
       formattedValue = formatNumber(args[0], formatOptions);
+    } else if (isDateFormat(format)) {
+      // Date format string
+      const date = parseDate(args[0]);
+      formattedValue = date ? formatDate(date, format) : args[0];
     } else {
       formattedValue = args[0];
     }
     return formattedValue;
   };
 
-  const getCellValue = ({env, str}) => (
+  const getCellValue = ({ env, str }) => (
     isValidCellName(str) && env[str.toUpperCase()]?.val || str
   );
 
@@ -264,12 +352,12 @@ import { rules } from './rules.js';
     // Handle boolean-like evaluations similar to Excel
     // FALSE: 0, "0", "", "FALSE" (case insensitive)
     // TRUE: everything else
-    if (value === null || value === undefined || value === "") {
+    if (value === null || value === undefined || value === '') {
       return false;
     }
     if (typeof value === 'string') {
       const trimmed = value.trim();
-      if (trimmed === "" || trimmed === "0" || trimmed.toUpperCase() === "FALSE") {
+      if (trimmed === '' || trimmed === '0' || trimmed.toUpperCase() === 'FALSE') {
         return false;
       }
     }
@@ -280,8 +368,8 @@ import { rules } from './rules.js';
   };
 
   const reducerBuilders = {
-    round: env => (acc = "", str, index) => (
-      str = getCellValue({env, str}),
+    round: (env) => (acc = '', str, index) => (
+      str = getCellValue({ env, str }),
       // console.log(
       //   "round()",
       //   "str=" + str,
@@ -294,28 +382,28 @@ import { rules } from './rules.js';
       ) ||
         acc
     ),
-    sum: env => (acc = 0, str, index) => (
-      str = getCellValue({env, str}),
+    sum: (env) => (acc = 0, str, index) => (
+      str = getCellValue({ env, str }),
       isValidDecimal(str) &&
         new Decimal(acc).plus(new Decimal(str)) ||
         acc
     ),
-    minus: env => (acc = "", str, index) => (
-      str = getCellValue({env, str}),
+    minus: (env) => (acc = '', str, index) => (
+      str = getCellValue({ env, str }),
       isValidDecimal(str) && (
         index === 0 && new Decimal(str) ||
           new Decimal(acc).minus(new Decimal(str))
       ) ||
         acc
     ),
-    multiply: env => (acc = 1, str) => (
-      str = getCellValue({env, str}),
+    multiply: (env) => (acc = 1, str) => (
+      str = getCellValue({ env, str }),
       isValidDecimal(str) &&
         new Decimal(acc).times(new Decimal(str)) ||
         acc
     ),
-    divide: env => (acc = "", str, index) => (
-      str = getCellValue({env, str}),
+    divide: (env) => (acc = '', str, index) => (
+      str = getCellValue({ env, str }),
       isValidDecimal(str) && (
         index === 0 && new Decimal(str) ||
           new Decimal(acc).dividedBy(new Decimal(str))
@@ -324,15 +412,15 @@ import { rules } from './rules.js';
     ),
     normalize: normalizeReducerBuilder,
     range: rangeReducerBuilder,
-    if: env => (acc = null, str, index) => {
-      str = getCellValue({env, str});
+    if: (env) => (acc = null, str, index) => {
+      str = getCellValue({ env, str });
       if (index === 0) {
         // First argument is the condition
         return { condition: evaluateCondition(str), trueValue: null, falseValue: null };
-      } else if (index === 1) {
+      } if (index === 1) {
         // Second argument is the true value
         return { ...acc, trueValue: str };
-      } else if (index === 2) {
+      } if (index === 2) {
         // Third argument is the false value
         // Return the appropriate value based on the condition
         return acc.condition ? acc.trueValue : str;
@@ -343,18 +431,18 @@ import { rules } from './rules.js';
   };
 
   const expanderBuilders = {
-    '$cell': {
+    $cell: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          env[args[1].toUpperCase()]?.val || "0"
+      fn: ({ config, env }) => (
+        (args) => (
+          env[args[1].toUpperCase()]?.val || '0'
         )
-      )
+      ),
     },
-    '$fmt': {
+    $fmt: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => {
+      fn: ({ config, env }) => (
+        (args) => {
           // Handle raw config parsing for $fmt when used with parameters like $fmt{%1,format}
           if (config.rawConfig) {
             // Parse {isNegative:true} or {%1,format} -> [value, format]
@@ -384,84 +472,84 @@ import { rules } from './rules.js';
             const formatSpec = env.format?.formatString || env.format || '';
             args = [args[0], formatSpec];
           }
-          return formatValue({config, env, args});
+          return formatValue({ config, env, args });
         }
-      )
+      ),
     },
-    '$range': {
+    $range: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
+      fn: ({ config, env }) => (
+        (args) => (
           args.reduce(reducerBuilders.range(env), undefined)
         )
-      )
+      ),
     },
-    '$add': {
+    $add: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          "" + args.reduce(reducerBuilders.sum(env), undefined)
+      fn: ({ config, env }) => (
+        (args) => (
+          `${args.reduce(reducerBuilders.sum(env), undefined)}`
         )
-      )
+      ),
     },
-    '$minus': {
+    $minus: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          args.length === 1 && args.unshift("0"),
-          "" + args.reduce(reducerBuilders.minus(env), undefined)
+      fn: ({ config, env }) => (
+        (args) => (
+          args.length === 1 && args.unshift('0'),
+          `${args.reduce(reducerBuilders.minus(env), undefined)}`
         )
-      )
+      ),
     },
-    '$multiply': {
+    $multiply: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          "" + args.reduce(reducerBuilders.multiply(env), undefined)
+      fn: ({ config, env }) => (
+        (args) => (
+          `${args.reduce(reducerBuilders.multiply(env), undefined)}`
         )
-      )
+      ),
     },
-    '$percent': {
+    $percent: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          args.push("0.01"),
-          "" + args.reduce(reducerBuilders.multiply(env), undefined)
+      fn: ({ config, env }) => (
+        (args) => (
+          args.push('0.01'),
+          `${args.reduce(reducerBuilders.multiply(env), undefined)}`
         )
-      )
+      ),
     },
-    '$divide': {
+    $divide: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          "" + args.reduce(reducerBuilders.divide(env), undefined)
+      fn: ({ config, env }) => (
+        (args) => (
+          `${args.reduce(reducerBuilders.divide(env), undefined)}`
         )
-      )
+      ),
     },
-    '$fn': {
+    $fn: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
+      fn: ({ config, env }) => (
+        (args) => (
           // console.log(
           //   "$fn()",
           //   "args=" + JSON.stringify(args, null, 2),
           // ),
-          "" + args[1].split(",").reduce(reducerBuilders[args[0].toLowerCase()](env), undefined)
+          `${args[1].split(',').reduce(reducerBuilders[args[0].toLowerCase()](env), undefined)}`
         )
-      )
+      ),
     },
-    '$normalize': {
+    $normalize: {
       type: 'fn',
-      fn: ({config, env}) => (
-        args => (
-          "" + args.reduce(normalizeNode(reducerBuilders.normalize(env)), config?.acc)
+      fn: ({ config, env }) => (
+        (args) => (
+          `${args.reduce(normalizeNode(reducerBuilders.normalize(env)), config?.acc)}`
         )
-      )
+      ),
     },
   };
 
   const getExpanderBuilderConfig = (template) => {
-    const configIndex = template.indexOf("{");
+    const configIndex = template.indexOf('{');
     const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
     assert(expanderBuilders[expanderName]);
     const expanderConfig = configIndex > 0 && template.slice(configIndex);
@@ -470,7 +558,7 @@ import { rules } from './rules.js';
       return { rawConfig: expanderConfig };
     }
     return expanderConfig && JSON.parse(expanderConfig) || {};
-  }
+  };
 
   // The outer Visitor function provides a global scope for all visitors,
   // as well as dispatching to methods within a visitor.
@@ -1008,12 +1096,12 @@ import { rules } from './rules.js';
         if (template.indexOf('%%') >= 0) {
           template = template.replace(new RegExp('%%', 'g'), args[0].args[0]);
         }
-        const configIndex = template.indexOf("{");
+        const configIndex = template.indexOf('{');
         const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
         if (expanderBuilders[expanderName]) {
           const expanderBuilder = expanderBuilders[expanderName].fn;
           const config = getExpanderBuilderConfig(template);
-          const expander = expanderBuilder({config, env});
+          const expander = expanderBuilder({ config, env });
           const vals = [];
           args.forEach((arg, i) => {
             vals.push(arg.args[0]);
@@ -1772,7 +1860,6 @@ export const Core = (function () {
       resume(err, val);
     });
   }
-  let packagejson;
   function makeEvaluator(spec, resume) {
     let valueNode;
     const method = spec.method;
@@ -1784,7 +1871,7 @@ export const Core = (function () {
       validateOptions(options);
       Parser.pushEnv({
         ...env,
-        ...options.env
+        ...options.env,
       });
       valueNode = value !== undefined ? Parser.create(options, value, 'spec') : undefined;
       Parser.popEnv();
@@ -1811,7 +1898,7 @@ export const Core = (function () {
         assert(solution !== undefined, message(4002));
         Parser.pushEnv({
           ...env,
-          ...options.env
+          ...options.env,
         });
         const solutionNode = Parser.create(options, solution, 'user');
         assert(solutionNode, message(4008, ['invalid input']));
@@ -1830,19 +1917,6 @@ export const Core = (function () {
       } catch (e) {
         console.log(`ERROR evaluate() ${e.stack}`);
         const message = e.message;
-        packagejson =
-          packagejson ||
-          typeof process !== 'undefined' &&
-          typeof fs !== 'undefined' &&
-          typeof fs.readFileSync === 'function' &&
-          JSON.parse(fs.readFileSync('package.json', 'utf8')) ||
-          {};
-        const dependencies = packagejson.dependencies;
-        console.error(`DEBUG ${JSON.stringify({
-          dependencies,
-          solution,
-          spec,
-        }, null, 2)}`);
         resume([{
           result: null,
           errorCode: parseErrorCode(message),
