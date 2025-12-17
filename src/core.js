@@ -428,6 +428,18 @@ import { rules } from './rules.js';
       // Ignore extra arguments
       return acc;
     },
+    average: (env) => {
+      let sum = new Decimal(0);
+      let count = 0;
+      return (acc, str) => {
+        str = getCellValue({ env, str });
+        if (isValidDecimal(str)) {
+          sum = sum.plus(new Decimal(str));
+          count++;
+        }
+        return count > 0 ? sum.dividedBy(count) : new Decimal(0);
+      };
+    },
   };
 
   const expanderBuilders = {
