@@ -578,3 +578,124 @@ test('date formatting - case insensitive format patterns', () => {
   });
 });
 
+test('variable type matching', () => {
+  const rules = {
+    words: {},
+    types: {},
+    rules: {
+      '\\type{variable}': ['var %1'],
+      '??': ['%1%2'],
+      '?': ['%1'],
+    },
+  };
+
+  TransLaTeX.translate(rules, 'x', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('var x');
+  });
+});
+
+test('cell name type matching', () => {
+  const rules = {
+    words: {},
+    types: {
+      cellName: ['\\type{variable}\\type{integer}'],
+    },
+    rules: {
+      '\\type{cellName}': ['cell %1%2'],
+      '??': ['mul %1%2'],
+      '?': ['%1'],
+    },
+  };
+
+  TransLaTeX.translate(rules, 'A1', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('cell A1');
+  });
+});
+
+test('cell value evaluation with $cell', () => {
+  const options = {
+    words: {},
+    types: {
+      cellName: ['\\type{variable}\\type{integer}'],
+    },
+    rules: {
+      '=\\type{cellName}': ['$cell'],
+      '\\type{cellName}': ['%1%2'],
+      '??': ['%1%2'],
+      '?': ['%1'],
+    },
+    env: {
+      A1: { val: '42' },
+    },
+  };
+
+  TransLaTeX.translate(options, '=A1', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('42');
+  });
+});
+
+test('cell range expansion with $range', () => {
+  const options = {
+    words: {},
+    types: {
+      cellName: ['\\type{variable}\\type{integer}'],
+      cellRange: ['\\type{cellName}:\\type{cellName}'],
+    },
+    rules: {
+      '\\type{cellRange}': ['$range'],
+      '\\type{cellName}': ['%1%2'],
+      '?': ['%1'],
+    },
+  };
+
+  TransLaTeX.translate(options, 'A1:A3', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('A1,A2,A3');
+  });
+});
+
+test('functions with cell range', () => {
+  const options = {
+    words: {
+      "sum": "sum",
+      "average": "average",
+    },
+    types: {
+      cellName: ['\\type{variable}\\type{integer}'],
+      cellRange: ['\\type{cellName}:\\type{cellName}'],
+      fn: ['sum', "average"],
+    },
+    rules: {
+      '=?': [{
+        '%2': {
+          '\\type{fn}(\\type{cellRange})': '$fn',
+          "\\type{fn}(?,?)": "[2] $fn",
+          "\\type{fn}(?)": "[3] $fn",
+        },
+      }],
+      '\\type{cellRange}': ['$range'],
+      '\\type{cellName}': ['%1%2'],
+      '??': ['%1%2'],
+      '?': ['%1'],
+    },
+    env: {
+      A1: { val: '10' },
+      A2: { val: '20' },
+      A3: { val: '30' },
+    },
+  };
+
+  TransLaTeX.translate(options, '=sum(A1:A3)', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('60');
+  });
+
+  TransLaTeX.translate(options, '=average(A1:A3)', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('20');
+  });
+});
+

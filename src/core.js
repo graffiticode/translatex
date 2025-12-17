@@ -1882,12 +1882,17 @@ export const Core = (function () {
     const method = spec.method;
     const value = spec.value;
     const options = Parser.options = spec.options;
+    // Convert words keys to env format so parselatex treats them as identifiers
+    const wordsAsEnv = options.words
+      ? Object.fromEntries(Object.keys(options.words).map(k => [k, { type: 'var' }]))
+      : {};
     let pendingError;
     try {
       Assert.setLocation('spec');
       validateOptions(options);
       Parser.pushEnv({
         ...env,
+        ...wordsAsEnv,
         ...options.env,
       });
       valueNode = value !== undefined ? Parser.create(options, value, 'spec') : undefined;
@@ -1915,6 +1920,7 @@ export const Core = (function () {
         assert(solution !== undefined, message(4002));
         Parser.pushEnv({
           ...env,
+          ...wordsAsEnv,
           ...options.env,
         });
         const solutionNode = Parser.create(options, solution, 'user');
