@@ -35,8 +35,8 @@ import { rules } from './rules.js';
 
   const isValidDecimal = (val) => {
     try {
-      new Decimal(val);
-      return true;
+      const d = new Decimal(val);
+      return d !== null;
     } catch (error) {
       // Ignore the error
       return false;
@@ -53,7 +53,7 @@ import { rules } from './rules.js';
     index === 0 && isLetter(val) || isIntegerString(val)
   ), false);
 
-  const rangeReducerBuilder = (env) => (acc = {}, val, index) => {
+  const rangeReducerBuilder = () => (acc = {}, val, index) => {
     if (index === 0) {
       return {
         start: parseCellName(val),
@@ -107,25 +107,27 @@ import { rules } from './rules.js';
     const currencySymbols = ['$', '€', '¥', '£', '₹', '₽', '¢'];
     let workingStr = formatStr;
     // Check for currency at start
-    for (const symbol of currencySymbols) {
+    currencySymbols.some((symbol) => {
       if (workingStr.startsWith(symbol)) {
         result.currency = symbol;
         result.prefix = symbol;
         workingStr = workingStr.slice(1);
-        break;
+        return true;
       }
-    }
+      return false;
+    });
 
     // Check for currency at end (after underscore)
     if (!result.currency) {
-      for (const symbol of currencySymbols) {
+      currencySymbols.some((symbol) => {
         if (workingStr.includes(`_${symbol}`)) {
           result.currency = symbol;
           result.suffix = symbol;
           workingStr = workingStr.replace(`_${symbol}`, '');
-          break;
+          return true;
         }
-      }
+        return false;
+      });
     }
 
     // Detect thousands separator and decimal separator
@@ -305,15 +307,16 @@ import { rules } from './rules.js';
       // Try to match tokens from longest to shortest
       const tokenKeys = Object.keys(tokens).sort((a, b) => b.length - a.length);
 
-      for (const token of tokenKeys) {
+      tokenKeys.some((token) => {
         const substr = formatStr.substring(i, i + token.length).toLowerCase();
         if (substr === token) {
           result += tokens[token];
           i += token.length;
           matched = true;
-          break;
+          return true;
         }
-      }
+        return false;
+      });
 
       if (!matched) {
         result += formatStr[i];
@@ -324,7 +327,7 @@ import { rules } from './rules.js';
     return result;
   };
 
-  const formatValue = ({ config, env, args }) => {
+  const formatValue = ({ env, args }) => {
     const format = args[1] || env.format || '';
     let formattedValue;
     if (format.toLowerCase() === 'currency') {
@@ -368,48 +371,52 @@ import { rules } from './rules.js';
   };
 
   const reducerBuilders = {
-    round: (env) => (acc = '', str, index) => (
-      str = getCellValue({ env, str }),
-      // console.log(
-      //   "round()",
-      //   "str=" + str,
-      //   "acc=" + acc,
-      // ),
-      isValidDecimal(str) && (
-        index === 0 && new Decimal(str) ||
-          index === 1 && new Decimal(acc).toDecimalPlaces(+str, Decimal.ROUND_HALF_UP) ||
-          acc  // Ignore extra args.
-      ) ||
-        acc
-    ),
-    sum: (env) => (acc = 0, str, index) => (
-      str = getCellValue({ env, str }),
-      isValidDecimal(str) &&
-        new Decimal(acc).plus(new Decimal(str)) ||
-        acc
-    ),
-    minus: (env) => (acc = '', str, index) => (
-      str = getCellValue({ env, str }),
-      isValidDecimal(str) && (
-        index === 0 && new Decimal(str) ||
-          new Decimal(acc).minus(new Decimal(str))
-      ) ||
-        acc
-    ),
-    multiply: (env) => (acc = 1, str) => (
-      str = getCellValue({ env, str }),
-      isValidDecimal(str) &&
-        new Decimal(acc).times(new Decimal(str)) ||
-        acc
-    ),
-    divide: (env) => (acc = '', str, index) => (
-      str = getCellValue({ env, str }),
-      isValidDecimal(str) && (
-        index === 0 && new Decimal(str) ||
-          new Decimal(acc).dividedBy(new Decimal(str))
-      ) ||
-        acc
-    ),
+    round: (env) => (acc = '', str, index) => {
+      const cellValue = getCellValue({ env, str });
+      if (isValidDecimal(cellValue)) {
+        if (index === 0) {
+          return new Decimal(cellValue);
+        }
+        if (index === 1) {
+          return new Decimal(acc).toDecimalPlaces(+cellValue, Decimal.ROUND_HALF_UP);
+        }
+      }
+      return acc;
+    },
+    sum: (env) => (acc = 0, str) => {
+      const cellValue = getCellValue({ env, str });
+      if (isValidDecimal(cellValue)) {
+        return new Decimal(acc).plus(new Decimal(cellValue));
+      }
+      return acc;
+    },
+    minus: (env) => (acc = '', str, index) => {
+      const cellValue = getCellValue({ env, str });
+      if (isValidDecimal(cellValue)) {
+        if (index === 0) {
+          return new Decimal(cellValue);
+        }
+        return new Decimal(acc).minus(new Decimal(cellValue));
+      }
+      return acc;
+    },
+    multiply: (env) => (acc = 1, str) => {
+      const cellValue = getCellValue({ env, str });
+      if (isValidDecimal(cellValue)) {
+        return new Decimal(acc).times(new Decimal(cellValue));
+      }
+      return acc;
+    },
+    divide: (env) => (acc = '', str, index) => {
+      const cellValue = getCellValue({ env, str });
+      if (isValidDecimal(cellValue)) {
+        if (index === 0) {
+          return new Decimal(cellValue);
+        }
+        return new Decimal(acc).dividedBy(new Decimal(cellValue));
+      }
+      return acc;
+    },
     normalize: normalizeReducerBuilder,
     range: rangeReducerBuilder,
     if: (env) => (acc = null, str, index) => {
@@ -445,7 +452,7 @@ import { rules } from './rules.js';
   const expanderBuilders = {
     $cell: {
       type: 'fn',
-      fn: ({ config, env }) => (
+      fn: ({ env }) => (
         (args) => (
           env[args[1].toUpperCase()]?.val || '0'
         )
@@ -484,21 +491,21 @@ import { rules } from './rules.js';
             const formatSpec = env.format?.formatString || env.format || '';
             args = [args[0], formatSpec];
           }
-          return formatValue({ config, env, args });
+          return formatValue({ env, args });
         }
       ),
     },
     $range: {
       type: 'fn',
-      fn: ({ config, env }) => (
+      fn: () => (
         (args) => (
-          args.reduce(reducerBuilders.range(env), undefined)
+          args.reduce(reducerBuilders.range(), undefined)
         )
       ),
     },
     $add: {
       type: 'fn',
-      fn: ({ config, env }) => (
+      fn: ({ env }) => (
         (args) => (
           `${args.reduce(reducerBuilders.sum(env), undefined)}`
         )
@@ -506,16 +513,18 @@ import { rules } from './rules.js';
     },
     $minus: {
       type: 'fn',
-      fn: ({ config, env }) => (
-        (args) => (
-          args.length === 1 && args.unshift('0'),
-          `${args.reduce(reducerBuilders.minus(env), undefined)}`
-        )
+      fn: ({ env }) => (
+        (args) => {
+          if (args.length === 1) {
+            args.unshift('0');
+          }
+          return `${args.reduce(reducerBuilders.minus(env), undefined)}`;
+        }
       ),
     },
     $multiply: {
       type: 'fn',
-      fn: ({ config, env }) => (
+      fn: ({ env }) => (
         (args) => (
           `${args.reduce(reducerBuilders.multiply(env), undefined)}`
         )
@@ -523,16 +532,16 @@ import { rules } from './rules.js';
     },
     $percent: {
       type: 'fn',
-      fn: ({ config, env }) => (
-        (args) => (
-          args.push('0.01'),
-          `${args.reduce(reducerBuilders.multiply(env), undefined)}`
-        )
+      fn: ({ env }) => (
+        (args) => {
+          args.push('0.01');
+          return `${args.reduce(reducerBuilders.multiply(env), undefined)}`;
+        }
       ),
     },
     $divide: {
       type: 'fn',
-      fn: ({ config, env }) => (
+      fn: ({ env }) => (
         (args) => (
           `${args.reduce(reducerBuilders.divide(env), undefined)}`
         )
@@ -540,12 +549,8 @@ import { rules } from './rules.js';
     },
     $fn: {
       type: 'fn',
-      fn: ({ config, env }) => (
+      fn: ({ env }) => (
         (args) => (
-          // console.log(
-          //   "$fn()",
-          //   "args=" + JSON.stringify(args, null, 2),
-          // ),
           `${args[1].split(',').reduce(reducerBuilders[args[0].toLowerCase()](env), undefined)}`
         )
       ),
@@ -1115,7 +1120,7 @@ import { rules } from './rules.js';
           const config = getExpanderBuilderConfig(template);
           const expander = expanderBuilder({ config, env });
           const vals = [];
-          args.forEach((arg, i) => {
+          args.forEach((arg) => {
             vals.push(arg.args[0]);
           });
           template = expander(vals);

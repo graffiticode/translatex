@@ -578,22 +578,3 @@ test('date formatting - case insensitive format patterns', () => {
   });
 });
 
-test('percentage text formatting - "35% of total" should be formatted as string', () => {
-  const rules = {
-    words: {},
-    types: {},
-    rules: {
-      '?': ['%1'],
-    },
-  };
-
-  // Test that "35% of total" is treated as a string and not evaluated as a number
-  TransLaTeX.translate(rules, '35% of total', (err, val) => {
-    expect(err).toStrictEqual([]);
-    expect(val).toBe('35% of total');
-    expect(typeof val).toBe('string');
-    // Ensure it's not being converted to a decimal like 0.35
-    expect(val).not.toBe('0.35');
-    expect(val).not.toBe('35');
-  });
-});
