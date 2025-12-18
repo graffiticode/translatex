@@ -407,6 +407,13 @@ import { rules } from './rules.js';
       }
       return acc;
     },
+    mul: (env) => (acc = 1, str) => {
+      const cellValue = getCellValue({ env, str });
+      if (isValidDecimal(cellValue)) {
+        return new Decimal(acc).times(new Decimal(cellValue));
+      }
+      return acc;
+    },
     divide: (env) => (acc = '', str, index) => {
       const cellValue = getCellValue({ env, str });
       if (isValidDecimal(cellValue)) {

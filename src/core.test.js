@@ -662,11 +662,12 @@ test('functions with cell range', () => {
     words: {
       "sum": "sum",
       "average": "average",
+      "mul": "mul",
     },
     types: {
       cellName: ['\\type{variable}\\type{integer}'],
       cellRange: ['\\type{cellName}:\\type{cellName}'],
-      fn: ['sum', "average"],
+      fn: ['sum', "average", "mul"],
     },
     rules: {
       '=?': [{
@@ -696,6 +697,11 @@ test('functions with cell range', () => {
   TransLaTeX.translate(options, '=average(A1:A3)', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('20');
+  });
+
+  TransLaTeX.translate(options, '=mul(A1:A3)', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('6000');  // 10 * 20 * 30 = 6000
   });
 });
 
