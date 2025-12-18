@@ -7,6 +7,9 @@ import { Ast, Parser } from '@graffiticode/parselatex';
 import { Assert, assert, message } from './assert.js';
 import { rules } from './rules.js';
 
+// Module-level variable to capture expanderBuilders for export
+let testExpanderBuilders;
+
 (function (ast) {
 
   function newNode(op, args) {
@@ -572,10 +575,13 @@ import { rules } from './rules.js';
     },
   };
 
-  const getExpanderBuilderConfig = (template) => {
+  // Capture for module-level export (used by tests)
+  testExpanderBuilders = expanderBuilders;
+
+  const getExpanderBuilderConfig = (template, expanderBuilders) => {
     const configIndex = template.indexOf('{');
     const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
-    assert(expanderBuilders[expanderName]);
+    assert(expanderBuilders && expanderBuilders[expanderName]);
     const expanderConfig = configIndex > 0 && template.slice(configIndex);
     // Special handling for $fmt expander - don't parse as JSON
     if (expanderName === '$fmt') {
@@ -1101,8 +1107,9 @@ import { rules } from './rules.js';
       }
       return template;
     }
-    function expand(expansion, args, env) {
+    function expand(expansion, args, env, expanderBuilders) {
       env = env || {};
+      expanderBuilders = expanderBuilders || {};
       // Use first matched expansion for now.
       let template = expansion.template;
       // console.log(
@@ -1124,7 +1131,7 @@ import { rules } from './rules.js';
         const expanderName = (configIndex > 0 && template.slice(0, configIndex) || template).trim();
         if (expanderBuilders[expanderName]) {
           const expanderBuilder = expanderBuilders[expanderName].fn;
-          const config = getExpanderBuilderConfig(template);
+          const config = getExpanderBuilderConfig(template, expanderBuilders);
           const expander = expanderBuilder({ config, env });
           const vals = [];
           args.forEach((arg) => {
@@ -1268,7 +1275,7 @@ import { rules } from './rules.js';
           }
           // Use first match for now.
           const expansion = matchedExpansion(options, rules, matches, 1);
-          return expand(expansion, args, env);
+          return expand(expansion, args, env, options.expanderBuilders);
         },
         binary(node) {
           if (node.op === Parser.SUBSCRIPT) {
@@ -1290,7 +1297,7 @@ import { rules } from './rules.js';
             Parser.option(options, 'RHS', rhs);
           });
           expansion.isBinary = true;
-          return expand(expansion, args, { ...options.env, op: node.op });
+          return expand(expansion, args, { ...options.env, op: node.op }, options.expanderBuilders);
         },
         multiplicative(node) {
           node = unflattenLeftRecursive(node);
@@ -1309,7 +1316,7 @@ import { rules } from './rules.js';
             Parser.option(options, 'RHS', rhs);
           });
           expansion.isBinary = true;
-          return expand(expansion, args, { ...options.env, op: node.op });
+          return expand(expansion, args, { ...options.env, op: node.op }, options.expanderBuilders);
         },
         unary(node) {
           // -10 => (-10)
@@ -1325,7 +1332,7 @@ import { rules } from './rules.js';
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args, { ...options.env, op: node.op });
+          return expand(expansion, args, { ...options.env, op: node.op }, options.expanderBuilders);
         },
         exponential(node) {
           const matches = match(options, patterns, node);
@@ -1340,7 +1347,7 @@ import { rules } from './rules.js';
           nodeArgs.forEach((n) => {
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args, options.env);
+          return expand(expansion, args, options.env, options.expanderBuilders);
         },
         variable(node) {
           const matches = match(options, patterns, node);
@@ -1357,7 +1364,7 @@ import { rules } from './rules.js';
             // Now translate the subscripts.
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args, options.env);
+          return expand(expansion, args, options.env, options.expanderBuilders);
         },
         comma(node) {
           const env = options.env || {};
@@ -1396,7 +1403,7 @@ import { rules } from './rules.js';
               args[i].m = n.m;
               args[i].n = n.n;
             });
-            return expand(expansion, args, env);
+            return expand(expansion, args, env, options.expanderBuilders);
           }
           const matches = match(options, patterns, node);
           if (matches.length === 0) {
@@ -1411,7 +1418,7 @@ import { rules } from './rules.js';
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           expansion.isBinary = true;
-          return expand(expansion, args, env);
+          return expand(expansion, args, env, options.expanderBuilders);
         },
         equals(node) {
           const matches = match(options, patterns, node);
@@ -1427,7 +1434,7 @@ import { rules } from './rules.js';
             args = args.concat(translate(options, n, [globalRules, argRules]));
           });
           expansion.isBinary = true;
-          return expand(expansion, args, options.env);
+          return expand(expansion, args, options.env, options.expanderBuilders);
         },
         paren(node) {
           const matches = match(options, patterns, node);
@@ -1442,7 +1449,7 @@ import { rules } from './rules.js';
           nodeArgs.forEach((n) => {
             args.push(translate(options, n, [globalRules, argRules]));
           });
-          return expand(expansion, args, options.env);
+          return expand(expansion, args, options.env, options.expanderBuilders);
         },
       });
     }
@@ -1838,6 +1845,7 @@ export const Core = (function () {
     case 'types':
     case 'data':
     case 'env':
+    case 'expanderBuilders':
       if (typeof v === 'undefined' ||
           typeof v === 'object') {
         break;
@@ -1883,6 +1891,32 @@ export const Core = (function () {
     evaluator.evaluate(solution, (err, val) => {
       resume(err, val);
     });
+  }
+  function buildTranslator(options, expanderBuilders) {
+    // Factory function that returns a translate function with options and expanderBuilders closed over
+    if (!options) {
+      options = {};
+    }
+    if (!options.rules) {
+      // Use the default rules in rules.js.
+      options.words = rules.words;
+      options.rules = rules.rules;
+      options.types = rules.types;
+    }
+    // Store expanderBuilders in options for use by expand()
+    options.expanderBuilders = expanderBuilders || {};
+    options.allowInterval = true;
+
+    return function translate(solution, resume) {
+      const spec = {
+        method: 'translate',
+        options,
+      };
+      const evaluator = makeEvaluator(spec, resume);
+      evaluator.evaluate(solution, (err, val) => {
+        resume(err, val);
+      });
+    };
   }
   function makeEvaluator(spec, resume) {
     let valueNode;
@@ -1984,8 +2018,12 @@ export const Core = (function () {
   // Exports
   return {
     translate,
+    buildTranslator,
   };
 }());
+
+// Export test expanders fixture (defined in outer IIFE)
+export { testExpanderBuilders };
 
 if (typeof window !== 'undefined') {
   // Make a browser hook.
