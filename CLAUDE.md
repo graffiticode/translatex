@@ -34,7 +34,7 @@ npm run lint     # Run ESLint with Airbnb config
 - **index.js**: Main entry point exporting TransLaTeX class
 
 ### Translation Process
-1. LaTeX input is parsed using @artcompiler/parselatex into an AST
+1. LaTeX input is parsed using @graffiticode/parselatex into an AST
 2. The visitor pattern traverses the AST applying translation rules
 3. Rules are matched against AST patterns using JSON string comparison
 4. Expansions are applied with template substitution (%1, %2, etc.)
@@ -98,6 +98,6 @@ myfunction: (env) => {
 - Use `Decimal.js` for precise arithmetic
 
 ### External Dependencies
-- Depends on @artcompiler/parselatex for LaTeX parsing
+- Depends on @graffiticode/parselatex for LaTeX parsing
 - Uses Decimal.js for precise arithmetic operations
 - Rules fetched from external Graffiticode system during build

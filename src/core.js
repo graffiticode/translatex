@@ -3,7 +3,7 @@
  *
  */
 import Decimal from 'decimal.js';
-import { Ast, Parser } from '@artcompiler/parselatex';
+import { Ast, Parser } from '@graffiticode/parselatex';
 import { Assert, assert, message } from './assert.js';
 import { rules } from './rules.js';
 

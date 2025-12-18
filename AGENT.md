@@ -11,7 +11,7 @@
 - **Entry**: `index.js` exports TransLaTeX class
 - **Core**: `src/core.js` - main translation engine with visitor pattern for AST traversal
 - **Rules**: `src/rules.js` - auto-generated translation rules (DO NOT EDIT MANUALLY)
-- **Parsing**: Uses @artcompiler/parselatex for LaTeX → AST conversion
+- **Parsing**: Uses @graffiticode/parselatex for LaTeX → AST conversion
 - **Numbers**: Decimal.js for precise arithmetic, Excel-like formatting with `$fmt` expander
 
 ## Code Style (ESLint Airbnb)

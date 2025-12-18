@@ -37,7 +37,7 @@ update-dependencies:
 	rm -rf node_modules || true
 	rm -f *.tgz || true
 	cp ../parselatex/*.tgz .
-	npm i file:artcompiler-parselatex-1.7.0.tgz
+	npm i file:graffiticode-parselatex-1.7.0.tgz
 	npm i
 	npm pack .
 

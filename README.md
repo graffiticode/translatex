@@ -24,7 +24,7 @@ where `./translatex` refers to the directory that contains this repo.
 #### CALLING
 
 ```javascript
-import {TransLaTeX} from '@artcompiler/translatex'
+import {TransLaTeX} from '@graffiticode/translatex'
 const str = TransLaTeX.translate(rules, '-1+2');
 console.log(str);  // (negative (number one)) plus (number two)
 ```
