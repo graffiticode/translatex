@@ -1,4 +1,5 @@
-import { Core as TransLaTeX, testExpanderBuilders } from './core.js';
+import { Core as TransLaTeX } from './core.js';
+import spreadsheetExpanders from './spreadsheetExpanders.js';
 
 test('translate -1 + 2', () => {
   const rules = {
@@ -22,7 +23,7 @@ test('currency formatting - US format', () => {
       '?': ['$fmt{%1,$#,##0.00}'],
     },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234.56', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('$1,234.56');
@@ -37,7 +38,7 @@ test('currency formatting - European format', () => {
       '?': ['$fmt{%1,€#.##0,00}'],
     },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234.56', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('€1.234,56');
@@ -52,7 +53,7 @@ test('currency formatting - suffix format', () => {
       '?': ['$fmt{%1,#,##0.00_$}'],
     },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234.56', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('1,234.56$');
@@ -67,7 +68,7 @@ test('currency formatting - no decimals', () => {
       '?': ['$fmt{%1,¥#,##0}'],
     },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234.56', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('¥1,235');
@@ -82,7 +83,7 @@ test('currency formatting - backward compatibility', () => {
       '?': ['$fmt{%1,currency}'],
     },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234.56', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('$1,234.56');
@@ -97,7 +98,7 @@ test('currency formatting - French format with space separator', () => {
       '?': ['$fmt{%1,€# ##0,00}'],
     },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234567.89', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('€1 234 567,89');
@@ -112,7 +113,7 @@ test('currency formatting - International format with space separator', () => {
       '?': ['$fmt{%1,# ##0.00_$}'],
     },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234567.89', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('1 234 567.89$');
@@ -127,7 +128,7 @@ test('currency formatting - Russian Ruble with space separator', () => {
       '?': ['$fmt{%1,₽# ##0,00}'],
     },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234567.89', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('₽1 234 567,89');
@@ -144,7 +145,7 @@ test('currency formatting - using env.format', () => {
     },
     env: { format: 'Currency' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1000', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('$1,000.00');
@@ -161,7 +162,7 @@ test('currency formatting - using env.format.formatString', () => {
     },
     env: { format: { formatString: '€# ##0,00' } },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234.56', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('€1 234,56');
@@ -180,7 +181,7 @@ test('graffiticode test harness format', () => {
     },
     env: { format: 'Currency' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1000', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('$1,000.00');
@@ -199,7 +200,7 @@ test('actual formatCellValue calling pattern', () => {
     },
     env: { format: 'Currency' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1500.75', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('$1,500.75');
@@ -218,7 +219,7 @@ test('formatCellValue with custom format string', () => {
     },
     env: { format: '€# ##0,00' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('2345.67', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('€2 345,67');
@@ -237,7 +238,7 @@ test('US dollar with space separator no decimals - $# ##0', () => {
     },
     env: { format: '$# ##0' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('12345.67', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('$12 346');
@@ -256,7 +257,7 @@ test('accounting style formatting - positive number', () => {
     },
     env: { format: '($#,##0.00)' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('1234.56', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('$1,234.56');
@@ -281,7 +282,7 @@ test('accounting style formatting - negative number', () => {
     },
     env: { format: '($#,##0.00)' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('-1234.56', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('($1,234.56)');
@@ -306,7 +307,7 @@ test('accounting style formatting - zero', () => {
     },
     env: { format: '($#,##0.00)' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('0', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('$0.00');
@@ -331,7 +332,7 @@ test('accounting style formatting - European format', () => {
     },
     env: { format: '(€#.##0,00)' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('-2345.67', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('(€2.345,67)');
@@ -356,7 +357,7 @@ test('accounting style formatting - suffix currency', () => {
     },
     env: { format: '(#,##0.00_$)' },
   };
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('-987.65', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('(987.65$)');
@@ -373,7 +374,7 @@ test('date formatting - m/d/yyyy format', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(rules, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(rules, spreadsheetExpanders);
 
   // Test with Mac Excel serial date (March 14, 2024)
   translate('43904', (err, val) => {
@@ -397,7 +398,7 @@ test('date formatting - mm/dd/yyyy format', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(rules, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(rules, spreadsheetExpanders);
 
   // March 14, 2024
   translate('43904', (err, val) => {
@@ -421,7 +422,7 @@ test('date formatting - d-mmm-yy format', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(rules, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(rules, spreadsheetExpanders);
 
   // March 14, 2024
   translate('43904', (err, val) => {
@@ -445,7 +446,7 @@ test('date formatting - dd-mmm-yyyy format', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(rules, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(rules, spreadsheetExpanders);
 
   // March 14, 2024
   translate('43904', (err, val) => {
@@ -470,7 +471,7 @@ test('date formatting - using env.format', () => {
     env: { format: 'm/d/yyyy' },
   };
 
-  const translate = TransLaTeX.buildTranslator(rules, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(rules, spreadsheetExpanders);
 
   // March 14, 2024
   translate('43904', (err, val) => {
@@ -488,7 +489,7 @@ test('date formatting - invalid date handling', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(rules, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(rules, spreadsheetExpanders);
 
   // Test with very large number (not a valid Excel date)
   translate('3000000000', (err, val) => {
@@ -515,7 +516,7 @@ test('date formatting - Mac Excel serial dates', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(rules, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(rules, spreadsheetExpanders);
 
   // January 2, 1904 (Mac Excel serial 1)
   translate('1', (err, val) => {
@@ -548,7 +549,7 @@ test('date formatting - case insensitive format patterns', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(rules, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(rules, spreadsheetExpanders);
 
   // March 14, 2024
   translate('43904', (err, val) => {
@@ -610,7 +611,7 @@ test('cell value evaluation with $cell', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('=A1', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('42');
@@ -631,7 +632,7 @@ test('cell range expansion with $range', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
   translate('A1:A3', (err, val) => {
     expect(err).toStrictEqual([]);
     expect(val).toBe('A1,A2,A3');
@@ -670,7 +671,7 @@ test('functions with cell range', () => {
     },
   };
 
-  const translate = TransLaTeX.buildTranslator(options, testExpanderBuilders);
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
 
   translate('=sum(A1:A3)', (err, val) => {
     expect(err).toStrictEqual([]);
