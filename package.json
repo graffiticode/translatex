@@ -1,6 +1,9 @@
 {
   "name": "@graffiticode/translatex",
   "version": "0.24.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "description": "A library for translating LaTeX",
   "main": "index.js",
