@@ -689,3 +689,60 @@ test('functions with cell range', () => {
   });
 });
 
+test('function names are case-insensitive', () => {
+  // Words config uses lowercase, but both lowercase and uppercase input work.
+  // The wordsAsEnv adds both forms to the parser environment.
+
+  const options = {
+    words: {
+      "sum": "sum",
+      "average": "average",
+    },
+    types: {
+      cellName: ['\\type{variable}\\type{integer}'],
+      cellRange: ['\\type{cellName}:\\type{cellName}'],
+      fn: ['sum', 'average'],  // lowercase only - matching is case-insensitive
+    },
+    rules: {
+      '=?': [{
+        '%2': {
+          '\\type{fn}(\\type{cellRange})': '$fn',
+        },
+      }],
+      '\\type{cellRange}': ['$range'],
+      '\\type{cellName}': ['%1%2'],
+      '??': ['%1%2'],
+      '?': ['%1'],
+    },
+    env: {
+      A1: { val: '10' },
+      A2: { val: '20' },
+      A3: { val: '30' },
+    },
+  };
+
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
+
+  // Lowercase input works
+  translate('=sum(A1:A3)', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('60');
+  });
+
+  // Uppercase input works
+  translate('=SUM(A1:A3)', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('60');
+  });
+
+  translate('=average(A1:A3)', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('20');
+  });
+
+  translate('=AVERAGE(A1:A3)', (err, val) => {
+    expect(err).toStrictEqual([]);
+    expect(val).toBe('20');
+  });
+});
+

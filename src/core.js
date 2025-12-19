@@ -205,7 +205,7 @@ import { rules } from './rules.js';
       const words = Parser.option(options, 'words');
       let val;
       if (words) {
-        val = words[word];
+        val = words[word.toLowerCase()];
       }
       if (!val) {
         val = word;
@@ -511,7 +511,8 @@ import { rules } from './rules.js';
             return pattern.args.every((arg, i) => {
               if (pattern.op === Parser.VAR) {
                 // We've already matched ? so we are looking for literal matches.
-                if (arg === node.args[i]) {
+                // Compare case-insensitively by normalizing to lowercase.
+                if (arg.toLowerCase() === node.args[i].toLowerCase()) {
                   return true;
                 }
                 return false;
@@ -1367,9 +1368,15 @@ export const Core = (function () {
     const method = spec.method;
     const value = spec.value;
     const options = Parser.options = spec.options;
-    // Convert words keys to env format so parselatex treats them as identifiers
+    // Convert words keys to env format so parselatex treats them as identifiers.
+    // Add both lowercase and uppercase forms for case-insensitive matching.
     const wordsAsEnv = options.words
-      ? Object.fromEntries(Object.keys(options.words).map(k => [k, { type: 'var' }]))
+      ? Object.fromEntries(
+          Object.keys(options.words).flatMap(k => [
+            [k.toLowerCase(), { type: 'var' }],
+            [k.toUpperCase(), { type: 'var' }]
+          ])
+        )
       : {};
     let pendingError;
     try {
