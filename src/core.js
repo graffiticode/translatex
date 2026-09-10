@@ -1372,10 +1372,10 @@ export const Core = (function () {
     // Add both lowercase and uppercase forms for case-insensitive matching.
     const wordsAsEnv = options.words
       ? Object.fromEntries(
-          Object.keys(options.words).flatMap(k => [
+          Object.keys(options.words).flatMap((k) => [
             [k.toLowerCase(), { type: 'var' }],
-            [k.toUpperCase(), { type: 'var' }]
-          ])
+            [k.toUpperCase(), { type: 'var' }],
+          ]),
         )
       : {};
     let pendingError;

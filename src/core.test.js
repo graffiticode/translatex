@@ -642,21 +642,21 @@ test('cell range expansion with $range', () => {
 test('functions with cell range', () => {
   const options = {
     words: {
-      "sum": "sum",
-      "average": "average",
-      "mul": "mul",
+      sum: 'sum',
+      average: 'average',
+      mul: 'mul',
     },
     types: {
       cellName: ['\\type{variable}\\type{integer}'],
       cellRange: ['\\type{cellName}:\\type{cellName}'],
-      fn: ['sum', "average", "mul"],
+      fn: ['sum', 'average', 'mul'],
     },
     rules: {
       '=?': [{
         '%2': {
           '\\type{fn}(\\type{cellRange})': '$fn',
-          "\\type{fn}(?,?)": "[2] $fn",
-          "\\type{fn}(?)": "[3] $fn",
+          '\\type{fn}(?,?)': '[2] $fn',
+          '\\type{fn}(?)': '[3] $fn',
         },
       }],
       '\\type{cellRange}': ['$range'],
@@ -695,8 +695,8 @@ test('function names are case-insensitive', () => {
 
   const options = {
     words: {
-      "sum": "sum",
-      "average": "average",
+      sum: 'sum',
+      average: 'average',
     },
     types: {
       cellName: ['\\type{variable}\\type{integer}'],
@@ -745,7 +745,6 @@ test('function names are case-insensitive', () => {
     expect(val).toBe('20');
   });
 });
-
 
 // Percent formats. "0.0%" used to parse as zero decimal places with no scaling, so 0.75 rendered
 // as "1" and 0.10 as "0" — an integer with no percent sign. Excel scales by 100 and keeps the
