@@ -76,6 +76,7 @@ const parseFormatString = (formatStr) => {
     suffix: '',
     showThousands: false,
     accountingStyle: false,
+    isPercent: false,
   };
 
   // Check for accounting style (parentheses format)
@@ -109,6 +110,17 @@ const parseFormatString = (formatStr) => {
       }
       return false;
     });
+  }
+
+  // Percent. Excel scales the value by 100 and appends the sign, so "0.0%" renders 0.75 as
+  // "75.0%". Strip the sign here, BEFORE the analysis below: the decimal-place match is anchored
+  // to the end of the string, so a trailing '%' made it miss and every percent format parsed as
+  // zero decimal places. Together with the missing scaling that rendered 0.75 as "1" and 0.10 as
+  // "0" — the value silently rounded to an integer with no percent sign at all.
+  if (workingStr.includes('%')) {
+    result.isPercent = true;
+    result.suffix += '%';
+    workingStr = workingStr.replace(/%/g, '');
   }
 
   // Detect thousands separator and decimal separator
@@ -152,8 +164,8 @@ const parseFormatString = (formatStr) => {
 };
 
 const formatNumber = (value, formatOptions) => {
-  const num = Number(value);
-  if (Number.isNaN(num)) {
+  const raw = Number(value);
+  if (Number.isNaN(raw)) {
     return value;
   }
 
@@ -165,7 +177,12 @@ const formatNumber = (value, formatOptions) => {
     suffix,
     showThousands,
     accountingStyle,
+    isPercent,
   } = formatOptions;
+
+  // Scaled through Decimal rather than `raw * 100`, so 0.025 becomes exactly 2.5 instead of
+  // 2.5000000000000004 — which `toFixed` would round correctly today but not at every precision.
+  const num = isPercent ? Number(new Decimal(String(value)).times(100)) : raw;
 
   // Handle negative numbers for accounting style
   const isNegative = num < 0;

@@ -746,3 +746,67 @@ test('function names are case-insensitive', () => {
   });
 });
 
+
+// Percent formats. "0.0%" used to parse as zero decimal places with no scaling, so 0.75 rendered
+// as "1" and 0.10 as "0" — an integer with no percent sign. Excel scales by 100 and keeps the
+// decimals the format asks for.
+const fmt = (format, value) => {
+  const options = { words: {}, types: {}, rules: { '?': [`$fmt{%1,${format}}`] } };
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
+  let out;
+  translate(value, (err, val) => { out = val; });
+  return out;
+};
+
+test.each([
+  ['0.0%', '0.75', '75.0%'],
+  ['0.0%', '0.10', '10.0%'],
+  ['0.0%', '0.025', '2.5%'],
+  ['0.0%', '0.04', '4.0%'],
+  ['0.0%', '1', '100.0%'],
+  ['0.0%', '0', '0.0%'],
+  ['0%', '0.1', '10%'],
+  ['0.00%', '0.025', '2.50%'],
+  ['#,##0.0%', '12.345', '1,234.5%'],
+])('percent format %s applied to %s', (format, value, expected) => {
+  expect(fmt(format, value)).toBe(expected);
+});
+
+// The shape a spreadsheet actually uses: the format comes from `env`, and a leading minus is
+// routed through `$fmt{isNegative:true}` rather than being part of the value.
+const fmtEnv = (format, value) => {
+  const options = {
+    words: {},
+    types: {},
+    env: { format },
+    rules: {
+      '-\\type{number}': [{ '%1': { '\\type{number}': '$fmt{isNegative:true}' } }],
+      '\\type{number}': ['$fmt{isNegative:false}'],
+      '?': ['%1'],
+    },
+  };
+  const translate = TransLaTeX.buildTranslator(options, spreadsheetExpanders);
+  let out;
+  translate(value, (err, val) => { out = val; });
+  return out;
+};
+
+test('percent works through the env-supplied format, as a sheet supplies it', () => {
+  expect(fmtEnv('0.0%', '0.75')).toBe('75.0%');
+  expect(fmtEnv('$#,##0', '100000')).toBe('$100,000');
+});
+
+test('a negative percent keeps its sign', () => {
+  expect(fmtEnv('0.0%', '-0.25')).toBe('-25.0%');
+});
+
+test('percent scaling is exact, not floating point', () => {
+  // 0.07 * 100 is 7.000000000000001 in float; Decimal keeps it 7.
+  expect(fmt('0.00%', '0.07')).toBe('7.00%');
+});
+
+test('formats without a percent sign are unchanged', () => {
+  expect(fmt('$#,##0', '100000')).toBe('$100,000');
+  expect(fmt('#,##0.00', '1234.5')).toBe('1,234.50');
+  expect(fmt('0.0', '0.75')).toBe('0.8');
+});
