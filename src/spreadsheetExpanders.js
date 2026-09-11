@@ -700,5 +700,16 @@ const unresolvedCall = (value) => {
   return s.includes(ARG_SEP) ? s.split(ARG_SEP).join(', ') : null;
 };
 
-export { ARG_SEP, unresolvedCall };
+// The pieces a custom function needs, and could not reach before: every one of
+// these was module-private, which is why adding a single function meant
+// replacing the $fn expander wholesale. See spreadsheet.js.
+export {
+  ARG_SEP,
+  unresolvedCall,
+  reducerBuilders,
+  expanderBuilders,
+  getCellValue,
+  isValidDecimal,
+  evaluateCondition,
+};
 export default expanderBuilders;
