@@ -56,9 +56,9 @@ export const evalRules = {
     "=?": [
       {
         "%2": {
-          "\\type{fn}(\\type{args})": "$fn",
-          "\\type{fn}(?,?)": "$fn",
-          "\\type{fn}(?)": "$fn",
+          "\\type{fn}(\\type{args})": "$call",
+          "\\type{fn}(?,?)": "$call",
+          "\\type{fn}(?)": "$call",
           "?>=?": "$ge",
           "?<=?": "$le",
           "?!=?": "$ne",
@@ -78,10 +78,10 @@ export const evalRules = {
       "-%1"
     ],
     "\\type{cellRange}": [
-      "$range"
+      "$range{\"sep\":\"list\"}"
     ],
     "\\type{args}": [
-      "%1,%2"
+      "$argsep"
     ],
     "\\type{cellName}": [
       "%1%2"

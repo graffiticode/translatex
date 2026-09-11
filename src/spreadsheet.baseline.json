@@ -195,12 +195,12 @@
  },
  {
   "formula": "=A1*ROUND(A2,0)",
-  "value": "10A2,0",
+  "value": "10A2\u001f0",
   "defect": "S5-call-right-of-muldiv"
  },
  {
   "formula": "=A1*SUM(A1,A2)",
-  "value": "10A1,A2",
+  "value": "10A1\u001fA2",
   "defect": "S5-call-right-of-muldiv"
  },
  {
@@ -233,7 +233,7 @@
  },
  {
   "formula": "=A1/AVERAGE(A1:A3)",
-  "value": "10A1,A2,A3",
+  "value": "10A1\u001fA2\u001fA3",
   "defect": "S5-call-right-of-muldiv"
  },
  {
@@ -242,7 +242,7 @@
  },
  {
   "formula": "=A1/POWER(B1,B2)",
-  "value": "10B1,B2"
+  "value": "10B1\u001fB2"
  },
  {
   "formula": "=A1/POWER(SUM(A1,A3)/A2,2)",
@@ -251,7 +251,7 @@
  },
  {
   "formula": "=A1/SUM(A1,A2)",
-  "value": "10A1,A2",
+  "value": "10A1\u001fA2",
   "defect": "S5-call-right-of-muldiv"
  },
  {
@@ -1342,7 +1342,7 @@
  },
  {
   "formula": "=H28/POWER(1+B10,A28-B2)",
-  "value": "828211,-74"
+  "value": "828211\u001f-74"
  },
  {
   "formula": "=H29",
@@ -1350,7 +1350,7 @@
  },
  {
   "formula": "=H29/POWER(1+B10,A29-B2)",
-  "value": "829211,-73"
+  "value": "829211\u001f-73"
  },
  {
   "formula": "=H30",
@@ -1358,7 +1358,7 @@
  },
  {
   "formula": "=H30/POWER(1+B10,A30-B2)",
-  "value": "830211,-72"
+  "value": "830211\u001f-72"
  },
  {
   "formula": "=H31",
@@ -1366,7 +1366,7 @@
  },
  {
   "formula": "=H31/POWER(1+B10,A31-B2)",
-  "value": "831211,-71"
+  "value": "831211\u001f-71"
  },
  {
   "formula": "=H32",
@@ -1374,7 +1374,7 @@
  },
  {
   "formula": "=H32/POWER(1+B10,A32-B2)",
-  "value": "832211,-70"
+  "value": "832211\u001f-70"
  },
  {
   "formula": "=H33",
@@ -1382,7 +1382,7 @@
  },
  {
   "formula": "=H33/POWER(1+B10,A33-B2)",
-  "value": "833211,-69"
+  "value": "833211\u001f-69"
  },
  {
   "formula": "=H34",
@@ -1390,7 +1390,7 @@
  },
  {
   "formula": "=H34/POWER(1+B10,A34-B2)",
-  "value": "834211,-68"
+  "value": "834211\u001f-68"
  },
  {
   "formula": "=H35",
@@ -1398,7 +1398,7 @@
  },
  {
   "formula": "=H35/POWER(1+B10,A35-B2)",
-  "value": "835211,-67"
+  "value": "835211\u001f-67"
  },
  {
   "formula": "=H36",
@@ -1406,7 +1406,7 @@
  },
  {
   "formula": "=H36/POWER(1+B10,A36-B2)",
-  "value": "836211,-66"
+  "value": "836211\u001f-66"
  },
  {
   "formula": "=H37",
@@ -1414,7 +1414,7 @@
  },
  {
   "formula": "=H37/POWER(1+B10,A37-B2)",
-  "value": "837211,-65"
+  "value": "837211\u001f-65"
  },
  {
   "formula": "=H38",
@@ -1422,7 +1422,7 @@
  },
  {
   "formula": "=H38/POWER(1+B10,A38-B2)",
-  "value": "838211,-64"
+  "value": "838211\u001f-64"
  },
  {
   "formula": "=H39",
@@ -1430,7 +1430,7 @@
  },
  {
   "formula": "=H39/POWER(1+B10,A39-B2)",
-  "value": "839211,-63"
+  "value": "839211\u001f-63"
  },
  {
   "formula": "=H40",
@@ -1438,7 +1438,7 @@
  },
  {
   "formula": "=H40/POWER(1+B10,A40-B2)",
-  "value": "840211,-62"
+  "value": "840211\u001f-62"
  },
  {
   "formula": "=H41",
@@ -1446,7 +1446,7 @@
  },
  {
   "formula": "=H41/POWER(1+B10,A41-B2)",
-  "value": "841211,-61"
+  "value": "841211\u001f-61"
  },
  {
   "formula": "=H42",
@@ -1454,7 +1454,7 @@
  },
  {
   "formula": "=H42/POWER(1+B10,A42-B2)",
-  "value": "842211,-60"
+  "value": "842211\u001f-60"
  },
  {
   "formula": "=H43",
@@ -1462,7 +1462,7 @@
  },
  {
   "formula": "=H43/POWER(1+B10,A43-B2)",
-  "value": "843211,-59"
+  "value": "843211\u001f-59"
  },
  {
   "formula": "=H44",
@@ -1470,7 +1470,7 @@
  },
  {
   "formula": "=H44/POWER(1+B10,A44-B2)",
-  "value": "844211,-58"
+  "value": "844211\u001f-58"
  },
  {
   "formula": "=H45",
@@ -1478,7 +1478,7 @@
  },
  {
   "formula": "=H45/POWER(1+B10,A45-B2)",
-  "value": "845211,-57"
+  "value": "845211\u001f-57"
  },
  {
   "formula": "=H46",
@@ -1486,7 +1486,7 @@
  },
  {
   "formula": "=H46/POWER(1+B10,A46-B2)",
-  "value": "846211,-56"
+  "value": "846211\u001f-56"
  },
  {
   "formula": "=H47",
@@ -1494,7 +1494,7 @@
  },
  {
   "formula": "=H47/POWER(1+B10,A47-B2)",
-  "value": "847211,-55"
+  "value": "847211\u001f-55"
  },
  {
   "formula": "=H48",
@@ -1502,7 +1502,7 @@
  },
  {
   "formula": "=H48/POWER(1+B10,A48-B2)",
-  "value": "848211,-54"
+  "value": "848211\u001f-54"
  },
  {
   "formula": "=H49",
@@ -1510,7 +1510,7 @@
  },
  {
   "formula": "=H49/POWER(1+B10,A49-B2)",
-  "value": "849211,-53"
+  "value": "849211\u001f-53"
  },
  {
   "formula": "=H50",
@@ -1518,7 +1518,7 @@
  },
  {
   "formula": "=H50/POWER(1+B10,A50-B2)",
-  "value": "850211,-52"
+  "value": "850211\u001f-52"
  },
  {
   "formula": "=H51",
@@ -1526,7 +1526,7 @@
  },
  {
   "formula": "=H51/POWER(1+B10,A51-B2)",
-  "value": "851211,-51"
+  "value": "851211\u001f-51"
  },
  {
   "formula": "=H52",
@@ -1534,7 +1534,7 @@
  },
  {
   "formula": "=H52/POWER(1+B10,A52-B2)",
-  "value": "852211,-50"
+  "value": "852211\u001f-50"
  },
  {
   "formula": "=H53",
@@ -1542,7 +1542,7 @@
  },
  {
   "formula": "=H53/POWER(1+B10,A53-B2)",
-  "value": "853211,-49"
+  "value": "853211\u001f-49"
  },
  {
   "formula": "=H54",
@@ -1550,7 +1550,7 @@
  },
  {
   "formula": "=H54/POWER(1+B10,A54-B2)",
-  "value": "854211,-48"
+  "value": "854211\u001f-48"
  },
  {
   "formula": "=H55",
@@ -1558,7 +1558,7 @@
  },
  {
   "formula": "=H55/POWER(1+B10,A55-B2)",
-  "value": "855211,-47"
+  "value": "855211\u001f-47"
  },
  {
   "formula": "=H56",
@@ -1566,7 +1566,7 @@
  },
  {
   "formula": "=H56/POWER(1+B10,A56-B2)",
-  "value": "856211,-46"
+  "value": "856211\u001f-46"
  },
  {
   "formula": "=H57",
@@ -1574,7 +1574,7 @@
  },
  {
   "formula": "=H57/POWER(1+B10,A57-B2)",
-  "value": "857211,-45"
+  "value": "857211\u001f-45"
  },
  {
   "formula": "=H58",
@@ -1582,7 +1582,7 @@
  },
  {
   "formula": "=H58/POWER(1+B10,A58-B2)",
-  "value": "858211,-44"
+  "value": "858211\u001f-44"
  },
  {
   "formula": "=I58",
@@ -1703,48 +1703,39 @@
  },
  {
   "formula": "=POWER(-A1,A2)",
-  "value": "",
-  "errorCode": 0
+  "value": "power-10\u001fA2"
  },
  {
   "formula": "=POWER(1+B8,B3-B2)",
-  "value": "",
-  "errorCode": 0
+  "value": "power209\u001f1"
  },
  {
   "formula": "=POWER(2,10)",
-  "value": "",
-  "errorCode": 0
+  "value": "power2\u001f10"
  },
  {
   "formula": "=POWER(A1,-A2)",
-  "value": "",
-  "errorCode": 0
+  "value": "powerA1\u001f-20"
  },
  {
   "formula": "=POWER(A1,4)",
-  "value": "",
-  "errorCode": 0
+  "value": "powerA1\u001f4"
  },
  {
   "formula": "=power(a1,a2)",
-  "value": "",
-  "errorCode": 0
+  "value": "powera1\u001fa2"
  },
  {
   "formula": "=POWER(A1,A2)",
-  "value": "",
-  "errorCode": 0
+  "value": "powerA1\u001fA2"
  },
  {
   "formula": "=POWER(A1)",
-  "value": "",
-  "errorCode": 0
+  "value": "powerA1"
  },
  {
   "formula": "=POWER(SUM(A1,A2),2)",
-  "value": "",
-  "errorCode": 0
+  "value": "power30\u001f2"
  },
  {
   "formula": "=ROUND(-0.125,2)",

@@ -34,7 +34,24 @@ const isValidCellName = (name) => parseCellName(name).reduce((acc, val, index) =
   index === 0 && isLetter(val) || isIntegerString(val)
 ), false);
 
-const rangeReducerBuilder = () => (acc = {}, val, index) => {
+/**
+ * The argument separator.
+ *
+ * ASCII unit separator (0x1F). Arguments used to be joined with a COMMA and
+ * re-split by $fn, which cannot survive an argument that itself contains one —
+ * and makes arity unknowable, since a range of three cells and three separate
+ * arguments look identical by the time they arrive.
+ *
+ * U+001F is chosen because a formula cannot introduce one: the parser discards
+ * a literal occurrence rather than carrying it through. That gives a second,
+ * free property — if it survives into a RESULT, some call did not resolve,
+ * which is the best available detector for the silent-wrong-answer class
+ * (`=NOSUCH(A1,A2)` returning "NOSUCHA1A2" with no error at all). See
+ * unresolvedCall at the foot of this file.
+ */
+const ARG_SEP = String.fromCharCode(31);
+
+const rangeReducerBuilder = (sep = ',') => (acc = {}, val, index) => {
   if (index === 0) {
     return {
       start: parseCellName(val),
@@ -51,7 +68,7 @@ const rangeReducerBuilder = () => (acc = {}, val, index) => {
     )).filter((v) => (
       v !== undefined
     ));
-    return cellValues.join(',');
+    return cellValues.join(sep);
 
 };
 
@@ -536,9 +553,13 @@ const expanderBuilders = {
   },
   $range: {
     type: 'fn',
-    fn: () => (
+    // `$range{"sep":"list"}` expands a range into SEPARATE arguments; plain
+    // `$range` keeps the comma-joined form. Both are needed: evalRules wants
+    // the list, and normalizeRules must keep commas because score.ts splits its
+    // output on them.
+    fn: ({ config }) => (
       (args) => (
-        args.reduce(reducerBuilders.range(), undefined)
+        args.reduce(reducerBuilders.range(config && config.sep === 'list' ? ARG_SEP : ','), undefined)
       )
     ),
   },
@@ -601,6 +622,39 @@ const expanderBuilders = {
   $le: comparisonExpander((c) => c <= 0),
   $eq: comparisonExpander((c) => c === 0),
   $ne: comparisonExpander((c) => c !== 0),
+  /**
+   * Join a call's arguments losslessly. Replaces the rule `"%1,%2"`, which
+   * flattened them into a string before any expander could see the boundaries.
+   */
+  $argsep: {
+    type: 'fn',
+    fn: () => ((args) => args.join(ARG_SEP)),
+  },
+
+  /**
+   * Dispatch a function call, with a REAL argument list.
+   *
+   * $fn (below) is kept for rule sets that still use the comma form. The
+   * difference is not cosmetic: $call knows the arity, so it can tell
+   * `SUM(A1:A3)` from `SUM(A1,A2,A3)`, reject a wrong count, and pass through an
+   * argument containing a comma. $fn can do none of those.
+   */
+  $call: {
+    type: 'fn',
+    fn: ({ env }) => ((args) => {
+      const name = String(args[0]).toLowerCase();
+      const list = String(args[1] === undefined ? '' : args[1]).split(ARG_SEP);
+      const reducer = reducerBuilders[name];
+      if (!reducer) {
+        // Left for the caller to detect: without a function registry there is
+        // nothing better to say yet, and throwing here would change behaviour
+        // for every rule set that reaches this path today.
+        return `${args[0]}${list.join(ARG_SEP)}`;
+      }
+      return `${list.reduce(reducer(env), undefined)}`;
+    }),
+  },
+
   $fn: {
     type: 'fn',
     fn: ({ env }) => (
@@ -619,4 +673,32 @@ const expanderBuilders = {
   },
 };
 
+/**
+ * The residue check: did every call in this result actually resolve?
+ *
+ * U+001F in a result can only have come from $argsep, with no expander
+ * consuming it — which happens exactly when a call did not resolve: an unknown
+ * function name, or the parser losing the application entirely next to `*`
+ * or `/`.
+ *
+ * On how sound that is, precisely: the parser DISCARDS a literal U+001F in the
+ * formula text (verified — `=A1+<US>` evaluates to "1" with no error), so it
+ * cannot reach a result that way. The one gap is a cell VALUE containing the
+ * character, which would have to arrive by paste; it is not reachable by typing
+ * and has never been observed, but it is not impossible, so this is a very good
+ * detector rather than a proof.
+ *
+ * This is the only reliable detector for the worst failure mode in the engine.
+ * `=NOSUCH(A1,A2)` returns the plausible string "NOSUCHA1A2" and reports NO
+ * error; so does `=A1*SUM(A1,A2)`, which returns "10A1,A2". A scored cell takes
+ * the wrong value and nothing anywhere says so.
+ *
+ * Returns the offending text, or null.
+ */
+const unresolvedCall = (value) => {
+  const s = String(value === undefined || value === null ? '' : value);
+  return s.includes(ARG_SEP) ? s.split(ARG_SEP).join(', ') : null;
+};
+
+export { ARG_SEP, unresolvedCall };
 export default expanderBuilders;

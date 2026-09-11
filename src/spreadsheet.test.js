@@ -13,7 +13,7 @@
  * hole. `runs exactly once` below pins the synchrony the pattern depends on.
  */
 import { Core as TransLaTeX } from './core.js';
-import spreadsheetExpanders from './spreadsheetExpanders.js';
+import spreadsheetExpanders, { unresolvedCall } from './spreadsheetExpanders.js';
 import { evalRules } from './spreadsheet.rules.fixture.js';
 import {
  env, curated, defects, unsupported,
@@ -173,6 +173,38 @@ describe('defects — open ones pinned as they behave, fixed ones as they should
   }
 });
 
+describe('unresolved calls are now detectable', () => {
+  test.each([
+    ['=NOSUCH(A1,A2)'],
+    ['=A1*SUM(A1,A2)'],
+    ['=A1/SUM(A1,A2)'],
+    ['=A1*ROUND(A2,0)'],
+    ['=A1/AVERAGE(A1:A3)'],
+  ])('%s leaves residue', (formula) => {
+    // Each of these returns a plausible-looking string and reports NO error.
+    // The separator is what makes that detectable at all.
+    const r = evaluate(formula);
+    expect(r.errors).toStrictEqual([]);
+    expect(unresolvedCall(r.value)).not.toBeNull();
+  });
+
+  test.each([
+    ['=SUM(A1,A2)'], ['=SUM(A1:A3)'], ['=ROUND(A1,2)'], ['=A1+A2'], ['=IF(A1,A2,A3)'],
+  ])('%s leaves none', (formula) => {
+    expect(unresolvedCall(evaluate(formula).value)).toBeNull();
+  });
+
+  test('a literal separator in the formula is discarded, not carried through', () => {
+    // What makes the detector sound: a formula cannot introduce the character.
+    // The parser drops it rather than erroring — worth pinning, because if that
+    // ever changed to "carried through", every such formula would start looking
+    // like an unresolved call.
+    const r = evaluate(`=A1+${String.fromCharCode(31)}`);
+    expect(r.errors).toStrictEqual([]);
+    expect(unresolvedCall(r.value)).toBeNull();
+  });
+});
+
 describe('baseline — captured behaviour, asserting only that it does not move unnoticed', () => {
   test('the corpus is present and not silently empty', () => {
     // Without this, a broken import would make every case below vanish and the
@@ -188,12 +220,12 @@ describe('baseline — captured behaviour, asserting only that it does not move 
 
   test('every unsupported function fails the same recognisable way', () => {
     // POWER has no reducer here; the only way to add one is to replace $fn.
-    // When the extension API lands this expectation changes, and that is the
-    // point of writing it down.
+    // It used to throw a raw TypeError (errorCode 0, indistinguishable from a
+    // bad argument); now it resolves to detectable residue. When the registry
+    // lands this becomes a 4100, and that is the point of writing it down.
     for (const fn of unsupported.functions) {
       const r = evaluate(`=${fn}(A1,A2)`);
-      expect(r.errorCode).toBe(unsupported.errorCode);
-      expect(r.value).toBe('');
+      expect(unresolvedCall(r.value)).not.toBeNull();
     }
   });
 });

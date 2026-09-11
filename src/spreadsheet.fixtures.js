@@ -62,6 +62,8 @@ export const env = (() => {
  * the wrong value deliberately — those are the cases that must flip when the
  * corresponding fix lands.
  */
+const SEP = String.fromCharCode(31);
+
 export const curated = [
   // --- arithmetic, the operators nothing tested before ---
   { formula: '=A1+A2', expect: '30' },
@@ -145,11 +147,15 @@ export const defects = [
     note: 'A function call on the right of * or / loses the call; on the left of '
         + '/ it throws. parselatex binds juxtaposition at the lowest multiplicative '
         + 'precedence. L0179 works around it by bracketing (prepareFormula).',
+    // `current` now carries the ARGUMENT SEPARATOR where it used to carry a
+    // comma. The value is just as wrong as before, but it is no longer
+    // *plausible* — unresolvedCall() can see it, which is the whole point of
+    // joining arguments with a character a formula cannot produce.
     cases: [
-      { formula: '=A1*SUM(A1,A2)', current: '10A1,A2', fixed: '300' },
-      { formula: '=A1/SUM(A1,A2)', current: '10A1,A2', fixed: '0.33333333333333333333' },
-      { formula: '=A1*ROUND(A2,0)', current: '10A2,0', fixed: '200' },
-      { formula: '=A1/AVERAGE(A1:A3)', current: '10A1,A2,A3', fixed: '0.5' },
+      { formula: '=A1*SUM(A1,A2)', current: `10A1${SEP}A2`, fixed: '300' },
+      { formula: '=A1/SUM(A1,A2)', current: `10A1${SEP}A2`, fixed: '0.33333333333333333333' },
+      { formula: '=A1*ROUND(A2,0)', current: `10A2${SEP}0`, fixed: '200' },
+      { formula: '=A1/AVERAGE(A1:A3)', current: `10A1${SEP}A2${SEP}A3`, fixed: '0.5' },
       { formula: '=SUM(A1,A2)/A1', current: '', fixed: '3' },
       { formula: '=AVERAGE(A1:A3)/A1', current: '', fixed: '2' },
     ],
@@ -162,6 +168,7 @@ export const defects = [
         + 'and nothing reports it.',
     cases: [
       { formula: '=NOPE(1)', current: 'NOPE1', fixedErrorCode: 4100 },
+      { formula: '=NOSUCH(A1,A2)', current: `NOSUCHA1${SEP}A2`, fixedErrorCode: 4100 },
     ],
   },
 ];
@@ -170,9 +177,16 @@ export const defects = [
  * Functions the corpus uses that this package does not implement.
  *
  * POWER is in L0179's `types.fn` but has no reducer here, because the only way
- * to add one is to replace the `$fn` expander wholesale. Every POWER case
- * therefore fails with a raw TypeError surfaced as errorCode 0. Marked separately
- * from `defects` because the engine is not doing anything wrong — it was never
- * given the function.
+ * to add one is to replace the `$fn` expander wholesale. Marked separately from
+ * `defects` because the engine is not doing anything wrong — it was never given
+ * the function.
+ *
+ * How it fails CHANGED with $call, and for the better. Under $fn it was a raw
+ * `reducerBuilders[...] is not a function` TypeError, surfaced as errorCode 0 —
+ * indistinguishable from a bad argument. $call handles a missing reducer
+ * instead of crashing, so an unknown function now behaves like any other
+ * unresolved call: it leaves the argument separator in the result, which
+ * unresolvedCall() can see. Still no error code — that needs the function
+ * registry — but it is detectable, which it was not.
  */
-export const unsupported = { functions: ['POWER'], errorCode: 0 };
+export const unsupported = { functions: ['POWER'], leavesResidue: true };
