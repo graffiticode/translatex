@@ -10,7 +10,8 @@ TransLaTeX is a library for translating LaTeX expressions using translation rule
 
 ### Building
 ```bash
-make        # Full build: runs npm install, lint, and test
+make        # npm install + build (NOT lint or test — `all: init build` is the
+            # default goal; `make default` is the one that lints and tests)
 npm run build    # Compile using webpack and build tools
 ```
 
@@ -21,8 +22,23 @@ npm run lint     # Run ESLint with Airbnb config
 ```
 
 ### Core Development Tasks
-- The build system fetches translation rules from a remote Graffiticode instance (ID: 0vgCM11vlfA)
-- Rules are stored in `src/rules.js` and auto-generated during build
+- `src/rules.js` is GENERATED, but not by this repo's build. It is authored in **L0014**
+  (`~/work/graffiticode/l0014`, a port of L120 — the language this rule set was originally written
+  in) as `packages/core/spec/latex-to-latex.gc`, and written here by that repo's
+  `tools/emit-translatex-rules.mjs`. Regenerate or verify with:
+
+  ```bash
+  cd ../l0014 && node packages/core/tools/emit-translatex-rules.mjs          # write
+  cd ../l0014 && node packages/core/tools/emit-translatex-rules.mjs --check  # verify in step
+  ```
+
+  The generator lives there rather than here because L0014 depends on this package (it runs a rule
+  set's test corpus through TransLaTeX), so the dependency cannot run both ways.
+
+  Until recently `tools/build.js` fetched the rules from `graffiticode.com/data?id=0vgCM11vlfA`.
+  That host is gone. `curl` ran without `-f`, so it exited 0 on the 404 and `JSON.parse` threw on
+  the HTML error page — aborting the build before it compiled anything. `src/rules.js` survived
+  precisely because the write never happened.
 - Use `make use-local-packages` to develop with local parselatex dependency
 
 ## Architecture
@@ -68,7 +84,8 @@ TransLaTeX provides spreadsheet-like formula evaluation through the `reducerBuil
 
 #### Adding New Spreadsheet Functions
 
-1. **Add the reducer to `reducerBuilders`** in `src/core.js` (around line 370):
+1. **Add the reducer to `reducerBuilders`** in `src/spreadsheetExpanders.js` (NOT `core.js`,
+   which is where this used to say):
 ```javascript
 myfunction: (env) => {
   // Use closure variables for state across iterations

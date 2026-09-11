@@ -7,7 +7,11 @@ module.exports = {
     "airbnb",
   ],
   "ignorePatterns": [
+    // Generated: written by L0014's emit-translatex-rules.mjs.
     "src/rules.js",
+    // Vendored verbatim from L0179 as a test fixture; keeping it byte-identical
+    // to its source matters more than matching this repo's style.
+    "src/spreadsheet.rules.fixture.js",
   ],
   "parserOptions": {
     "ecmaVersion": 12,
@@ -17,6 +21,7 @@ module.exports = {
   ],
   "globals": {
     "test": "readonly",
+    "describe": "readonly",
     "expect": "readonly",
     "window": "writable",
   },
@@ -40,6 +45,9 @@ module.exports = {
     "no-plusplus": 0,
     "indent": 0,
     "no-multi-spaces": 0,
+    // for...of is ordinary modern JS; airbnb's objection is about a
+    // regenerator-runtime cost that does not apply here.
+    "no-restricted-syntax": 0,
     "no-mixed-operators": 0,
     "prefer-arrow-callback": 2,
     "semi": 2,

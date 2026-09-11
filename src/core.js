@@ -1332,11 +1332,28 @@ export const Core = (function () {
     };
 
     options.allowInterval = true;
-    const evaluator = makeEvaluator(spec, resume);
+    const evaluator = makeEvaluator(spec);
     evaluator.evaluate(solution, (err, val) => {
       resume(err, val);
     });
   }
+  // Diagnostics, off by default.
+  //
+  // This library runs inside a Learnosity scorer, server-side, where an
+  // unconditional console.log of a stack trace is noise at best — and the
+  // parser's own logs include the SOURCE, which for a spreadsheet is learner
+  // input. Callers who want the detail opt in; everyone else gets the
+  // structured error that was always being returned anyway.
+  let logSink = null;
+  function setLogger(fn) {
+    logSink = typeof fn === 'function' ? fn : null;
+  }
+  function debugLog(build) {
+    if (logSink) {
+      logSink(build());
+    }
+  }
+
   function buildTranslator(options, expanderBuilders) {
     // Factory function that returns a translate function with options and expanderBuilders closed over
     if (!options) {
@@ -1357,13 +1374,16 @@ export const Core = (function () {
         method: 'translate',
         options,
       };
-      const evaluator = makeEvaluator(spec, resume);
+      const evaluator = makeEvaluator(spec);
       evaluator.evaluate(solution, (err, val) => {
         resume(err, val);
       });
     };
   }
-  function makeEvaluator(spec, resume) {
+  // No `resume` parameter: the caller passes its continuation to evaluate()
+  // instead. It used to take one so the constructor could report a spec error
+  // directly, which is exactly what made a spec error resume twice.
+  function makeEvaluator(spec) {
     let valueNode;
     const method = spec.method;
     const value = spec.value;
@@ -1372,10 +1392,10 @@ export const Core = (function () {
     // Add both lowercase and uppercase forms for case-insensitive matching.
     const wordsAsEnv = options.words
       ? Object.fromEntries(
-          Object.keys(options.words).flatMap(k => [
+          Object.keys(options.words).flatMap((k) => [
             [k.toLowerCase(), { type: 'var' }],
-            [k.toUpperCase(), { type: 'var' }]
-          ])
+            [k.toUpperCase(), { type: 'var' }],
+          ]),
         )
       : {};
     let pendingError;
@@ -1390,18 +1410,11 @@ export const Core = (function () {
       valueNode = value !== undefined ? Parser.create(options, value, 'spec') : undefined;
       Parser.popEnv();
     } catch (e) {
+      // Recorded, NOT reported here. evaluate() rethrows pendingError and its
+      // catch delivers the error, so resuming here too called the caller's
+      // continuation TWICE for one failure — a promise wrapper drops the second
+      // silently, anything accumulating results double-counts it.
       pendingError = e;
-      resume([{
-        result: null,
-        errorCode: parseErrorCode(e.message),
-        message: parseMessage(e.message),
-        stack: e.stack,
-        location: e.location,
-        model: null,  // Unused, for now.
-        toString() {
-          return `${this.errorCode}: (${this.location}) ${this.message}\n${this.stack}`;
-        },
-      }], '');  // If error, empty string.
     }
     const evaluate = function evaluate(solution, resume) {
       try {
@@ -1430,11 +1443,15 @@ export const Core = (function () {
         Parser.popEnv();
         resume([], result);
       } catch (e) {
-        console.log(`ERROR evaluate() ${e.stack}`);
+        // Diagnostics are opt-in. The fully-formed error below already carries
+        // `stack`, so printing it here was duplication — and this code runs
+        // inside a server-side scorer, where it meant a stack trace on stdout
+        // for every bad cell.
+        debugLog(() => `ERROR evaluate() ${e.stack}`);
         const message = e.message;
         resume([{
           result: null,
-          errorCode: parseErrorCode(message),
+          errorCode: errorCodeOf(e),
           message: parseMessage(message),
           stack: e.stack,
           location: e.location,
@@ -1449,6 +1466,16 @@ export const Core = (function () {
       evaluate,
       model: valueNode,
     };
+    // Prefer a code carried on the error object; fall back to scraping the
+    // message. Scraping is why a raw TypeError from a missing reducer and a
+    // DecimalError from a bad argument both report 0 — neither went through
+    // Assert.message, so neither has the "NNNN: " prefix the split looks for.
+    function errorCodeOf(e) {
+      if (e && typeof e.errorCode === 'number') {
+        return e.errorCode;
+      }
+      return parseErrorCode(e && e.message);
+    }
     function parseErrorCode(e) {
       e = typeof e === 'string' && e || '';
       const code = +e.slice(0, e.indexOf(':'));
@@ -1470,6 +1497,7 @@ export const Core = (function () {
   return {
     translate,
     buildTranslator,
+    setLogger,
   };
 }());
 
