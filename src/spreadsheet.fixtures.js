@@ -102,20 +102,25 @@ export const curated = [
 ];
 
 /**
- * Defects, asserted as they currently behave.
+ * Defects, with what they did and what they do.
  *
- * Each of these is WRONG. They are pinned so that (a) the wrongness is on the
- * record rather than folklore, and (b) the fix has a test that must flip. `fixed`
- * is what the value becomes once the named fix lands.
+ * A group is `open` until its fix lands, then `fixed`. The runner asserts
+ * `current` while open and `fixed` once fixed, so the same table is first a
+ * pin on the bug and then a regression test for the repair. Both values stay:
+ * the wrong one is the record of what was actually happening, which is worth
+ * more than a tidy file — half the S1 cases below looked correct.
  */
 export const defects = [
   {
     id: 'S1-if-comparison',
-    note: 'IF ignores comparison operators and always takes the true branch. '
-        + 'evalRules has no ?>? ?<? ?>=? patterns, so the operand is dropped and '
-        + 'evaluateCondition sees a non-empty string. Half of these look CORRECT '
-        + 'today, because the true branch happens to be the right answer — which '
-        + 'is why the defect survived: it is right exactly as often as a coin.',
+    status: 'fixed',
+    fixedBy: 'comparison rules ?>? ?<? ?>=? ?<=? ?=? ?!=? plus one expander each',
+    note: 'IF ignored comparison operators and always takes the true branch. '
+        + 'and always took the true branch. evalRules had no ?>? ?<? ?>=? '
+        + 'patterns, so the operand was dropped and evaluateCondition saw the '
+        + 'non-empty string "A1". Half of these LOOKED correct, because the true '
+        + 'branch happened to be the right answer — which is why it survived so '
+        + 'long: it was right exactly as often as a coin.',
     cases: [
       { formula: '=IF(A1>99,100,200)', current: '100', fixed: '200' },
       { formula: '=IF(A1<1,100,200)', current: '100', fixed: '200' },
@@ -136,6 +141,7 @@ export const defects = [
   },
   {
     id: 'S5-call-right-of-muldiv',
+    status: 'open',
     note: 'A function call on the right of * or / loses the call; on the left of '
         + '/ it throws. parselatex binds juxtaposition at the lowest multiplicative '
         + 'precedence. L0179 works around it by bracketing (prepareFormula).',
@@ -150,6 +156,7 @@ export const defects = [
   },
   {
     id: 'S2-unknown-function-is-silent',
+    status: 'open',
     note: 'An unresolved call returns a plausible string with NO error. This is '
         + 'the worst failure mode in the set: a scored cell gets a wrong value '
         + 'and nothing reports it.',

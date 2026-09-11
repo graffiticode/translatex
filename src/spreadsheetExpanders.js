@@ -454,6 +454,40 @@ const reducerBuilders = {
   },
 };
 
+/**
+ * A comparison, as one helper over Decimal's three-way compare.
+ *
+ * Returns the STRING 'true' or 'false', which is what evaluateCondition above
+ * already understands — 'false' hits its case-insensitive FALSE branch, so IF
+ * needs no change to consume these.
+ *
+ * Non-numeric operands fall back to a string comparison rather than erroring,
+ * matching how the surrounding reducers treat a value they cannot read as a
+ * number: they carry on rather than throwing.
+ */
+const compareValues = (env, args, test) => {
+  const a = getCellValue({ env, str: args[0] });
+  const b = getCellValue({ env, str: args[1] });
+  let order;
+  if (isValidDecimal(a) && isValidDecimal(b)) {
+    order = new Decimal(a).comparedTo(new Decimal(b));
+  } else {
+    const sa = String(a);
+    const sb = String(b);
+    if (sa === sb) {
+      order = 0;
+    } else {
+      order = sa < sb ? -1 : 1;
+    }
+  }
+  return String(test(order));
+};
+
+const comparisonExpander = (test) => ({
+  type: 'fn',
+  fn: ({ env }) => ((args) => compareValues(env, args, test)),
+});
+
 const expanderBuilders = {
   $cell: {
     type: 'fn',
@@ -552,6 +586,21 @@ const expanderBuilders = {
       )
     ),
   },
+  // Comparison operators. WITHOUT THESE, `=IF(A1>99,x,y)` silently drops the
+  // ">99" — there is no rule to match the `gt` node parselatex produces, so it
+  // falls through the catch-all, the second operand is discarded, and
+  // evaluateCondition sees the non-empty string "A1" and calls it true. Every
+  // IF with a comparison took the true branch regardless of the comparison.
+  //
+  // One expander per operator rather than one that sniffs env.op: that is the
+  // shape $add/$minus/$multiply/$divide already use, and env.op is only set by
+  // some of the visitors.
+  $gt: comparisonExpander((c) => c > 0),
+  $lt: comparisonExpander((c) => c < 0),
+  $ge: comparisonExpander((c) => c >= 0),
+  $le: comparisonExpander((c) => c <= 0),
+  $eq: comparisonExpander((c) => c === 0),
+  $ne: comparisonExpander((c) => c !== 0),
   $fn: {
     type: 'fn',
     fn: ({ env }) => (

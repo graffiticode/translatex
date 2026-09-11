@@ -75,6 +75,71 @@ describe('the runner itself', () => {
   });
 });
 
+describe('error reporting', () => {
+  test('resume is called exactly once, on every path', () => {
+    // A bad OPTION used to resume twice: once from the constructor's catch and
+    // again when evaluate() rethrew the recorded error. A promise wrapper drops
+    // the second silently; anything accumulating results double-counts.
+    const count = (opts, src) => {
+      let n = 0;
+      const translate = TransLaTeX.buildTranslator(opts, spreadsheetExpanders);
+      translate(src, () => { n += 1; });
+      return n;
+    };
+    expect(count({ MyCtx: true, env: {}, ...evalRules }, '=1+1')).toBe(1);
+    expect(count({ env: {}, ...evalRules }, '=(((')).toBe(1);
+    expect(count({ env, ...evalRules }, '=A1+A2')).toBe(1);
+  });
+
+  test('an error carrying its own code reports that code, not a scraped one', () => {
+    // parseErrorCode splits the message on the first colon, so anything not
+    // thrown through Assert.message reports 0. An error object with an
+    // errorCode field is now believed instead.
+    const err = new Error('something went wrong with no prefix');
+    err.errorCode = 4242;
+    const expanders = {
+      ...spreadsheetExpanders,
+      $add: { type: 'fn', fn: () => (() => { throw err; }) },
+    };
+    let errors = [];
+    const translate = TransLaTeX.buildTranslator({ env, ...evalRules }, expanders);
+    translate('=A1+A2', (e) => { errors = e; });
+    expect(errors).toHaveLength(1);
+    expect(errors[0].errorCode).toBe(4242);
+  });
+
+  test('nothing is logged unless a logger is installed', () => {
+    // This runs inside a server-side scorer. An unconditional stack trace per
+    // bad cell is noise, and the parser's own log includes learner input.
+    const original = console.log;
+    const seen = [];
+    console.log = (...a) => seen.push(a.map(String).join(' '));
+    try {
+      evaluate('=NOPE(');
+      evaluate('=A1+A2');
+    } finally {
+      console.log = original;
+    }
+    expect(seen.filter((m) => m.includes('ERROR evaluate()'))).toHaveLength(0);
+  });
+
+  test('an installed logger receives the diagnostic', () => {
+    const seen = [];
+    TransLaTeX.setLogger((m) => seen.push(m));
+    try {
+      const expanders = {
+        ...spreadsheetExpanders,
+        $add: { type: 'fn', fn: () => (() => { throw new Error('boom'); }) },
+      };
+      const translate = TransLaTeX.buildTranslator({ env, ...evalRules }, expanders);
+      translate('=A1+A2', () => {});
+      expect(seen.join('\n')).toContain('ERROR evaluate()');
+    } finally {
+      TransLaTeX.setLogger(null);
+    }
+  });
+});
+
 describe('curated — these assert what the engine should do', () => {
   test.each(curated.map((c) => [c.formula, c]))('%s', (_formula, c) => {
     const r = evaluate(c.formula);
@@ -87,13 +152,17 @@ describe('curated — these assert what the engine should do', () => {
   });
 });
 
-describe('defects — pinned as they behave today, so the fix has a test to flip', () => {
+describe('defects — open ones pinned as they behave, fixed ones as they should', () => {
   for (const group of defects) {
-    describe(group.id, () => {
+    describe(`${group.id} [${group.status}]`, () => {
       test.each(group.cases.map((c) => [c.formula, c]))('%s', (_formula, c) => {
         const r = evaluate(c.formula);
-        if (c.fixedErrorCode !== undefined) {
-          // Currently returns a plausible string with NO error at all.
+        if (group.status === 'fixed') {
+          // The same table that pinned the bug now guards the repair.
+          expect(r.errors).toStrictEqual([]);
+          expect(r.value).toBe(c.fixed);
+        } else if (c.fixedErrorCode !== undefined) {
+          // Still returns a plausible string with NO error at all.
           expect(r.errors).toStrictEqual([]);
           expect(r.value).toBe(c.current);
         } else {

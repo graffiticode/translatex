@@ -1640,32 +1640,32 @@
  },
  {
   "formula": "=IF(A1=15,100,200)",
-  "value": "100",
+  "value": "200",
   "defect": "S1-if-comparison"
  },
  {
   "formula": "=IF(A1=A2,100,200)",
-  "value": "100",
+  "value": "200",
   "defect": "S1-if-comparison"
  },
  {
   "formula": "=IF(A1>=15,100,200)",
-  "value": "100",
+  "value": "200",
   "defect": "S1-if-comparison"
  },
  {
   "formula": "=IF(A1>=A2,100,200)",
-  "value": "100",
+  "value": "200",
   "defect": "S1-if-comparison"
  },
  {
   "formula": "=IF(A1>15,100,200)",
-  "value": "100",
+  "value": "200",
   "defect": "S1-if-comparison"
  },
  {
   "formula": "=IF(A1>A2,100,200)",
-  "value": "100",
+  "value": "200",
   "defect": "S1-if-comparison"
  },
  {
